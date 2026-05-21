@@ -270,14 +270,9 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
                 </>
               )}
 
-              {(farm.enrichment_source === 'google_places' || farm.source === 'jecuisinelocal') && (
+              {farm.enrichment_source === 'google_places' && (
                 <div className="flex flex-col gap-0.5 pt-1">
-                  {farm.enrichment_source === 'google_places' && (
-                    <p className="text-xs text-gray-300">Business information from Google</p>
-                  )}
-                  {farm.source === 'jecuisinelocal' && (
-                    <p className="text-xs text-gray-300">Data from JeCuisineLocal</p>
-                  )}
+                  <p className="text-xs text-gray-300">Business information from Google</p>
                 </div>
               )}
             </div>

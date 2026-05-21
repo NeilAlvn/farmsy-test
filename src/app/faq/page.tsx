@@ -37,7 +37,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: 'What areas are covered?',
-    a: 'We currently cover the Netherlands and Belgium. Dutch farms come primarily from OpenStreetMap data. Belgian farms come from both OpenStreetMap and JeCuisineLocal. We are working to improve coverage in both countries.',
+    a: 'We currently cover the Netherlands and Belgium. Farm listings come from OpenStreetMap, Foursquare, and Overture Maps. We are working to improve coverage in both countries.',
   },
   {
     q: 'Where does the farm data come from?',
@@ -46,10 +46,9 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
         Our data comes from three sources:
         <ul className="list-disc list-inside mt-2 space-y-1">
           <li><strong>OpenStreetMap</strong> — volunteer-contributed geographic data (Netherlands &amp; Belgium)</li>
-          <li><strong>JeCuisineLocal</strong> — a Belgian platform for local producers</li>
           <li><strong>Google Places</strong> — used to enrich listings with phone numbers, websites, and photos</li>
         </ul>
-        Listings show a small attribution note when data comes from JeCuisineLocal or Google Places.
+        Listings show a small attribution note when data comes from Google Places.
       </>
     ),
   },

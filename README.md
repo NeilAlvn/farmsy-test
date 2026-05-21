@@ -63,6 +63,7 @@ Farmsy helps consumers discover fresh, local food directly from producers near t
 - **TRACES EU** — Certified organic operators (public EU government data)
 - **Foursquare** — Enriched business listings
 - **Overture Maps** — Meta/Microsoft open map dataset
+- **Google Places** — Business detail enrichment (phone, website, photos)
 
 ## 📋 Prerequisites
 
@@ -191,7 +192,7 @@ Farmsy/
 | Country | Farms | Primary Sources |
 |---|---|---|
 | 🇳🇱 Netherlands | 8,356 | OpenStreetMap, TRACES EU, Foursquare |
-| 🇧🇪 Belgium | 5,138 | OpenStreetMap, JeCuisineLocal, Overture |
+| 🇧🇪 Belgium | 5,138 | OpenStreetMap, Foursquare, Overture Maps |
 | **Total** | **13,494** | 4 verified open data sources |
 
 ## 🔧 Troubleshooting

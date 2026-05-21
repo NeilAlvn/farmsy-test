@@ -364,9 +364,6 @@ function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm:
                       {farm.enrichment_source === 'google_places' && (
                         <p className="text-[10px] text-gray-400 mt-1">Business information from Google</p>
                       )}
-                      {farm.source === 'jecuisinelocal' && (
-                        <p className="text-[10px] text-gray-400 mt-1">Data from JeCuisineLocal</p>
-                      )}
                     </div>
                   </div>
                 )

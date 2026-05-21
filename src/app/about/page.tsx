@@ -19,15 +19,6 @@ const DATA_SOURCES = [
     dot: 'bg-blue-500',
   },
   {
-    name: 'JeCuisineLocal',
-    region: 'Belgium',
-    description:
-      'A Belgian platform dedicated to connecting consumers with local producers. Provides rich data on Belgian farms, markets, and artisan food producers.',
-    license: 'Public data source',
-    color: 'bg-amber-50 border-amber-100',
-    dot: 'bg-amber-500',
-  },
-  {
     name: 'Google Places',
     region: 'Enrichment',
     description:
@@ -57,7 +48,7 @@ const VALUES = [
   {
     Icon: Database,
     title: 'Transparent sources',
-    desc: 'We clearly attribute every data source — OSM, JeCuisineLocal, and Google Places — on every listing where it applies.',
+    desc: 'We clearly attribute every data source — OpenStreetMap, Foursquare, and Overture Maps — on every listing where it applies.',
   },
 ]
 
@@ -135,7 +126,7 @@ export default function AboutPage() {
               {
                 n: '1',
                 title: 'We aggregate open data',
-                body: 'We pull farm and producer locations from OpenStreetMap, JeCuisineLocal, and other open datasets, normalise the data, and load it into our database.',
+                body: 'We pull farm and producer locations from OpenStreetMap, Foursquare, and Overture Maps, normalise the data, and load it into our database.',
               },
               {
                 n: '2',
@@ -212,7 +203,7 @@ export default function AboutPage() {
             <div className="rounded-3xl bg-yellow-50 border border-yellow-100 p-6">
               <p className="text-xs font-bold text-yellow-700 uppercase tracking-widest mb-2">Belgium 🇧🇪</p>
               <p className="text-gray-700 leading-relaxed">
-                Coverage via OpenStreetMap plus JeCuisineLocal data for Belgian producers — covering Flanders,
+                Coverage via OpenStreetMap, Foursquare, and Overture Maps — covering Flanders,
                 Wallonia, and Brussels.
               </p>
             </div>
