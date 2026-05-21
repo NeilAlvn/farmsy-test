@@ -89,7 +89,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
             <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center">
               <Wheat size={15} color="white" strokeWidth={2.5} />
             </div>
-            <span className="text-base font-bold text-gray-900">De Lokale Boer</span>
+            <span className="text-base font-bold text-gray-900">Farmsy</span>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <X size={18} className="text-gray-400" />

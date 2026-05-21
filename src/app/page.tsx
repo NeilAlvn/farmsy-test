@@ -268,7 +268,7 @@ export default async function Home() {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold mb-4 uppercase tracking-wider">
                   <Sparkles className="w-3 h-3" />
-                  Editor's Choice
+                  Editor&apos;s Choice
                 </div>
                 <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">Fresh from the Farm</h2>
                 <p className="text-gray-500 text-lg leading-relaxed">
@@ -310,7 +310,7 @@ export default async function Home() {
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-6">
-            {CATEGORIES.map(({ id, label, Icon, bg, iconColor, border }) => {
+            {CATEGORIES.map(({ id, label, Icon, bg, iconColor }) => {
               const count = categoryCounts[id] ?? 0
               return (
                 <Link

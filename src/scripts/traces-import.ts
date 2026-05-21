@@ -41,7 +41,7 @@ const OUT_DIR     = join(process.cwd(), 'output', 'traces');
 const PAGE_SIZE   = 100;
 const REQUEST_DELAY_MS = 400;   // courtesy delay between TRACES requests
 const PDOK_DELAY_MS    = 350;   // courtesy delay between PDOK requests
-const USER_AGENT  = 'De Lokale Boer research bot (+https://delokaleboer.nl)';
+const USER_AGENT  = 'Farmsy research bot (+https://farmsy.nl)';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

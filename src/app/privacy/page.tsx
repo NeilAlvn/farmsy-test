@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy – De Lokale Boer',
-  description: 'How De Lokale Boer collects, uses, and protects your data.',
+  title: 'Privacy Policy – Farmsy',
+  description: 'How Farmsy collects, uses, and protects your data.',
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -49,15 +49,15 @@ export default function PrivacyPage() {
 
           <Section title="Who we are">
             <p>
-              De Lokale Boer (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the
-              website <strong className="text-gray-800">delokaaleboer.nl</strong>. We are a platform
+              Farmsy (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the
+              website <strong className="text-gray-800">farmsy.nl</strong>. We are a platform
               that helps consumers discover local farms and direct-to-consumer food producers in the
               Netherlands and Belgium.
             </p>
             <p>
               For any questions about this policy or your personal data, email us at{' '}
-              <a href="mailto:privacy@delokaaleboer.nl" className="text-emerald-600 hover:underline font-medium">
-                privacy@delokaaleboer.nl
+              <a href="mailto:privacy@farmsy.nl" className="text-emerald-600 hover:underline font-medium">
+                privacy@farmsy.nl
               </a>.
             </p>
           </Section>
@@ -89,8 +89,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="text-sm text-gray-500 pt-2">
               As of 15 May 2026, our directory contains{' '}
-              <strong className="text-gray-700">4,195 farms</strong> — 3,058 in the Netherlands and
-              1,137 in Belgium.
+              <strong className="text-gray-700">13,494 farms</strong> — 8,356 in the Netherlands and
+              5,138 in Belgium.
             </p>
 
             <p className="font-semibold text-gray-800 pt-2">2. Account data (farmers only)</p>
@@ -125,8 +125,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="pt-2">
               To exercise any of these rights, contact us at{' '}
-              <a href="mailto:privacy@delokaaleboer.nl" className="text-emerald-600 hover:underline font-medium">
-                privacy@delokaaleboer.nl
+              <a href="mailto:privacy@farmsy.nl" className="text-emerald-600 hover:underline font-medium">
+                privacy@farmsy.nl
               </a>.
             </p>
           </Section>
@@ -193,8 +193,8 @@ export default function PrivacyPage() {
             </div>
             <p className="pt-2">
               To exercise any right, email{' '}
-              <a href="mailto:privacy@delokaaleboer.nl" className="text-emerald-600 hover:underline font-medium">
-                privacy@delokaaleboer.nl
+              <a href="mailto:privacy@farmsy.nl" className="text-emerald-600 hover:underline font-medium">
+                privacy@farmsy.nl
               </a>. We will respond within 30 days. You also have the right to lodge a complaint with
               your national supervisory authority — in the Netherlands that is the{' '}
               <strong className="text-gray-800">Autoriteit Persoonsgegevens</strong> (autoriteitpersoonsgegevens.nl).
@@ -247,10 +247,10 @@ export default function PrivacyPage() {
               <p className="text-gray-400 text-sm">We&apos;re happy to help. Data requests are handled within 30 days.</p>
             </div>
             <a
-              href="mailto:privacy@delokaaleboer.nl"
+              href="mailto:privacy@farmsy.nl"
               className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-5 py-2.5 rounded-full transition-colors"
             >
-              privacy@delokaaleboer.nl
+              privacy@farmsy.nl
             </a>
           </div>
 

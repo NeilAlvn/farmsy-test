@@ -244,7 +244,7 @@ async function downloadFile(
   log(`Downloading: ${url}`);
   try {
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'De Lokale Boer Research Bot 1.0' },
+      headers: { 'User-Agent': 'Farmsy Research Bot 1.0' },
       signal: AbortSignal.timeout(300_000),
     });
     if (!res.ok) {

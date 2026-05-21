@@ -584,7 +584,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
             <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-full px-5 py-2.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.15)] focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
               <div className="flex items-center gap-2 shrink-0 pr-2 border-r border-gray-100">
                 <Wheat size={18} className="text-emerald-600" />
-                <span className="hidden md:block font-bold text-xs tracking-tight">De Lokale Boer</span>
+                <span className="hidden md:block font-bold text-xs tracking-tight">Farmsy</span>
               </div>
               <Search size={16} className="text-gray-400 shrink-0" />
               <input

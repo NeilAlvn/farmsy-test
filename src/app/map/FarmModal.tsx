@@ -157,7 +157,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
             <ShareButton
               url={shareUrl}
               title={farm.name}
-              text={`Check out ${farm.name} on De Lokale Boer`}
+              text={`Check out ${farm.name} on Farmsy`}
               className="shrink-0 mt-0.5"
             />
           </div>
@@ -338,7 +338,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
 
           <div className="flex justify-center pt-0.5">
             <a
-              href="mailto:info@delokaaleboer.nl?subject=Incorrect farm info"
+              href="mailto:info@farmsy.nl?subject=Incorrect farm info"
               className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
               <Flag size={11} />

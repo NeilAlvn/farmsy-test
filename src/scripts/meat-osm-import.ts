@@ -173,7 +173,7 @@ async function fetchElements(): Promise<OSMElement[]> {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
-          'User-Agent': 'De Lokale Boer Farm Import Script',
+          'User-Agent': 'Farmsy Farm Import Script',
         },
         body: `data=${encodeURIComponent(query)}`,
         signal: AbortSignal.timeout(200_000),

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Mail, MessageSquare, Store, Lightbulb, ArrowRight } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
@@ -19,21 +18,21 @@ const CONTACT_CARDS = [
     Icon: Store,
     title: 'Farm owners',
     desc: 'Questions about claiming your listing, updating your information, or removing your farm from our database.',
-    email: 'farms@delokaaleboer.nl',
+    email: 'farms@farmsy.nl',
     subject: 'Farm owner inquiry',
   },
   {
     Icon: MessageSquare,
     title: 'Support',
     desc: 'Can\'t find a farm, spotted an error, or need help using the platform? We\'ll get back to you quickly.',
-    email: 'info@delokaaleboer.nl',
+    email: 'info@farmsy.nl',
     subject: 'Support request',
   },
   {
     Icon: Lightbulb,
     title: 'Suggestions & feedback',
     desc: 'Ideas for new features, farms we should add, or anything else you\'d like to see improve.',
-    email: 'feedback@delokaaleboer.nl',
+    email: 'feedback@farmsy.nl',
     subject: 'Feedback',
   },
 ]
@@ -49,7 +48,7 @@ export default function ContactPage() {
     e.preventDefault()
     const subjectLine = `[${TOPICS.find(t => t.value === topic)?.label ?? 'Contact'}] from ${name}`
     const body = `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`
-    window.location.href = `mailto:info@delokaaleboer.nl?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(body)}`
+    window.location.href = `mailto:info@farmsy.nl?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
 

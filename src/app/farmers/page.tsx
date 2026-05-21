@@ -4,8 +4,8 @@ import ContentLayout from '@/app/_components/ContentLayout'
 import { ArrowRight, MapPin, Pencil, Users } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'For Farmers – De Lokale Boer',
-  description: 'List your farm on De Lokale Boer and connect with local food consumers.',
+  title: 'For Farmers – Farmsy',
+  description: 'List your farm on Farmsy and connect with local food consumers.',
 }
 
 export default function FarmersPage() {
@@ -21,7 +21,7 @@ export default function FarmersPage() {
             Get found by local food lovers
           </h1>
           <p className="text-gray-500 text-lg max-w-xl">
-            De Lokale Boer helps consumers across the Netherlands and Belgium discover farms near
+            Farmsy helps consumers across the Netherlands and Belgium discover farms near
             them. Claim your listing to keep your information accurate and attract more visitors.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

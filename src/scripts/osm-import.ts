@@ -192,7 +192,7 @@ async function fetchFromOverpass(): Promise<OSMResponse> {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'De Lokale Boer Import Script',
+          'User-Agent': 'Farmsy Import Script',
         },
         body: `data=${encodeURIComponent(query)}`,
       });

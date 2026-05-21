@@ -4,8 +4,8 @@ import { MapPin, Database, Users, Leaf, ArrowRight, Globe } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
-  title: 'About – De Lokale Boer',
-  description: 'Learn about De Lokale Boer — connecting consumers with local farms across the Netherlands and Belgium.',
+  title: 'About – Farmsy',
+  description: 'Learn about Farmsy — connecting consumers with local farms across the Netherlands and Belgium.',
 }
 
 const DATA_SOURCES = [
@@ -74,7 +74,7 @@ export default function AboutPage() {
             Connecting people with<br className="hidden sm:block" /> the farmers who feed them
           </h1>
           <p className="text-emerald-100/80 text-lg leading-relaxed max-w-2xl mb-8">
-            De Lokale Boer is a free map of local farms, roadside stands, and direct-to-consumer food producers in
+            Farmsy is a free map of local farms, roadside stands, and direct-to-consumer food producers in
             the Netherlands and Belgium. No sign-up needed — just open the map and find fresh food near you.
           </p>
           <Link
@@ -91,7 +91,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto space-y-6 text-gray-600 leading-relaxed text-lg">
           <h2 className="text-3xl font-extrabold text-gray-900">Our mission</h2>
           <p>
-            Industrial food supply chains have made it hard to know where our food actually comes from. De Lokale Boer
+            Industrial food supply chains have made it hard to know where our food actually comes from. Farmsy
             exists to make local food <strong className="text-gray-800">discoverable</strong>. We map every farm shop,
             pick-your-own field, roadside egg stand, and artisan producer we can find — and make that information
             freely available to anyone.

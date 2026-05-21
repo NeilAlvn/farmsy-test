@@ -47,16 +47,16 @@ export async function getClaims(): Promise<ClaimRow[]> {
 
   if (error || !claims) return []
 
-  const osmIds = [...new Set((claims as any[]).map(c => c.farm_osm_id as string))]
+  const osmIds = [...new Set((claims as ClaimRow[]).map(c => c.farm_osm_id))]
   const { data: farms } = await supabase
     .from('farms')
     .select('osm_id, name, city')
     .in('osm_id', osmIds)
 
   const farmMap: Record<string, { name: string; city: string | null }> = {}
-  for (const f of (farms ?? []) as any[]) farmMap[f.osm_id] = f
+  for (const f of (farms ?? []) as FarmAdminRow[]) farmMap[f.osm_id] = f
 
-  return (claims as any[]).map(c => ({
+  return (claims as ClaimRow[]).map(c => ({
     ...c,
     farm_name: farmMap[c.farm_osm_id]?.name ?? c.farm_osm_id,
     farm_city: farmMap[c.farm_osm_id]?.city ?? null,
@@ -78,7 +78,7 @@ export async function getFarmsAdmin(): Promise<{ farms: FarmAdminRow[]; pendingC
       .range(from, from + PAGE - 1)
 
     if (error || !data) break
-    all.push(...(data as any[]))
+    all.push(...(data as FarmAdminRow[]))
     if (data.length < PAGE) break
     from += PAGE
   }

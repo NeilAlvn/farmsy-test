@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service – De Lokale Boer',
-  description: 'Terms and conditions for using De Lokale Boer.',
+  title: 'Terms of Service – Farmsy',
+  description: 'Terms and conditions for using Farmsy.',
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -38,21 +38,21 @@ export default function TermsPage() {
 
           <div className="bg-emerald-50 border border-emerald-100 rounded-3xl px-8 py-6">
             <p className="text-emerald-900 font-semibold text-[15px] leading-relaxed">
-              By using De Lokale Boer you agree to these terms. The platform is free to use for
+              By using Farmsy you agree to these terms. The platform is free to use for
               visitors. Farm owners who claim a listing agree to keep their information accurate.
             </p>
           </div>
 
           <Section title="About the platform">
             <p>
-              De Lokale Boer is a directory that helps consumers find local farms and direct-to-consumer
-              food producers in the Netherlands and Belgium. The platform is operated by De Lokale Boer
-              and is available at <strong className="text-gray-800">delokaaleboer.nl</strong>.
+              Farmsy is a directory that helps consumers find local farms and direct-to-consumer
+              food producers in the Netherlands and Belgium. The platform is operated by Farmsy
+              and is available at <strong className="text-gray-800">farmsy.nl</strong>.
             </p>
           </Section>
 
           <Section title="Use of the platform">
-            <p>You may use De Lokale Boer to:</p>
+            <p>You may use Farmsy to:</p>
             <ul className="list-disc list-inside space-y-1.5 ml-2">
               <li>Browse and search farm listings</li>
               <li>Get directions to farms</li>
@@ -92,13 +92,13 @@ export default function TermsPage() {
             <p>
               Map data is &copy; OpenStreetMap contributors, licensed under the Open Database Licence
               (ODbL). Organic certification data is sourced from the EU TRACES Database. Other content
-              on the platform is &copy; De Lokale Boer unless otherwise stated.
+              on the platform is &copy; Farmsy unless otherwise stated.
             </p>
           </Section>
 
           <Section title="Limitation of liability">
             <p>
-              De Lokale Boer is provided &ldquo;as is&rdquo;. We are not liable for any loss or damage
+              Farmsy is provided &ldquo;as is&rdquo;. We are not liable for any loss or damage
               arising from use of the platform, inaccurate listing information, or unavailability of
               the service.
             </p>
@@ -115,8 +115,8 @@ export default function TermsPage() {
           <Section title="Contact">
             <p>
               Questions about these terms? Email us at{' '}
-              <a href="mailto:privacy@delokaaleboer.nl" className="text-emerald-600 hover:underline font-medium">
-                privacy@delokaaleboer.nl
+              <a href="mailto:privacy@farmsy.nl" className="text-emerald-600 hover:underline font-medium">
+                privacy@farmsy.nl
               </a>.
             </p>
           </Section>

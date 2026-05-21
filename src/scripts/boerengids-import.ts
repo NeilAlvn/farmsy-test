@@ -2,7 +2,7 @@
  * Boerengids.nl — Dutch organic farm shop scraper + Supabase importer
  *
  * Scrapes ~700 biological farm shops from boerengids.nl, geocodes with PDOK,
- * deduplicates against the existing De Lokale Boer database, and imports new farms.
+ * deduplicates against the existing Farmsy database, and imports new farms.
  *
  * Usage:
  *   npm run import:boerengids          → scrape all pages, geocode, save JSON
@@ -33,7 +33,7 @@ const TOTAL_PAGES = 46;
 const DELAY_MS = 1500;           // be polite: 1.5 s between requests
 const PDOK_DELAY_MS = 500;       // PDOK geocoder: 500 ms between requests
 const GEOCODE_BASE = 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/free';
-const USER_AGENT = 'Mozilla/5.0 (compatible; De Lokale Boer Crawler; +https://delokaleboer.nl)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; Farmsy Crawler; +https://farmsy.nl)';
 const OUT_DIR = join(process.cwd(), 'output', 'boerengids');
 
 // ─── Types ────────────────────────────────────────────────────────────────────

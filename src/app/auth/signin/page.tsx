@@ -92,7 +92,7 @@ function SignInForm() {
             <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center mb-3 shadow-lg shadow-emerald-200">
               <Wheat size={24} color="white" strokeWidth={2} />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">De Lokale Boer</h1>
+            <h1 className="text-xl font-bold text-gray-900">Farmsy</h1>
             <p className="text-sm text-gray-400 mt-1">
               {mode === 'signin' ? 'Sign in to your account' : 'Create a new account'}
             </p>

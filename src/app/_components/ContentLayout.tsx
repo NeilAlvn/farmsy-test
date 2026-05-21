@@ -16,7 +16,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
             <div className="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center shadow-sm group-hover:bg-emerald-700 transition-colors">
               <Wheat className="w-4 h-4 text-white" />
             </div>
-            <span className="font-black text-gray-900 text-base tracking-tight">De Lokale Boer</span>
+            <span className="font-black text-gray-900 text-base tracking-tight">Farmsy</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
@@ -57,7 +57,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
             <div className="col-span-1 md:col-span-2">
               <Link href="/" className="flex items-center gap-2 text-white font-black text-xl mb-6">
                 <Wheat className="w-7 h-7 text-emerald-500" />
-                De Lokale Boer
+                Farmsy
               </Link>
               <p className="max-w-sm text-gray-500 leading-relaxed mb-8">
                 The leading platform for finding fresh, local food directly from producers in the Netherlands and Belgium.
@@ -86,7 +86,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
           </div>
 
           <div className="pt-8 border-t border-gray-900 flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-bold tracking-tight uppercase">
-            <p>&copy; {year} De Lokale Boer. Made with 💚 for local food.</p>
+            <p>&copy; {year} Farmsy. Made with 💚 for local food.</p>
             <div className="flex items-center gap-8">
               <span className="text-gray-600">v0.1.0-beta</span>
               <div className="flex items-center gap-2">

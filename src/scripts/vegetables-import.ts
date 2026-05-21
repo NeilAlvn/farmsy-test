@@ -266,7 +266,7 @@ async function runQuery(label: string, query: string): Promise<OSMElement[]> {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
-          'User-Agent': 'De Lokale Boer Vegetables Import',
+          'User-Agent': 'Farmsy Vegetables Import',
         },
         body: `data=${encodeURIComponent(query)}`,
         signal: AbortSignal.timeout(120_000),

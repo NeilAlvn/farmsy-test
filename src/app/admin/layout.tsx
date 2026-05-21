@@ -54,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Wheat size={13} color="white" strokeWidth={2.5} />
           </div>
           <div>
-            <p className="text-xs font-bold text-gray-900">De Lokale Boer</p>
+            <p className="text-xs font-bold text-gray-900">Farmsy</p>
             <p className="text-[10px] text-gray-400 mt-0.5">Admin</p>
           </div>
         </div>

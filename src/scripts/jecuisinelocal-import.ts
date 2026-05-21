@@ -205,7 +205,7 @@ async function fetchProducers(): Promise<JclProducer[]> {
   log(`Fetching ${LISTING_URL} …`);
   const res = await fetch(LISTING_URL, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; De Lokale Boer Bot)',
+      'User-Agent': 'Mozilla/5.0 (compatible; Farmsy Bot)',
       'Accept': 'text/html',
     },
     signal: AbortSignal.timeout(60_000),

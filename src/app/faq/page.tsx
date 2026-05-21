@@ -4,8 +4,8 @@ import { ArrowRight } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
-  title: 'FAQ – De Lokale Boer',
-  description: 'Frequently asked questions about De Lokale Boer — finding local farms in the Netherlands and Belgium.',
+  title: 'FAQ – Farmsy',
+  description: 'Frequently asked questions about Farmsy — finding local farms in the Netherlands and Belgium.',
 }
 
 const FAQS: { q: string; a: React.ReactNode }[] = [
@@ -22,7 +22,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     ),
   },
   {
-    q: 'Is De Lokale Boer free to use?',
+    q: 'Is Farmsy free to use?',
     a: 'Yes — completely free for consumers. Finding farms, getting directions, checking opening hours, and browsing listings all cost nothing and require no account.',
   },
   {
@@ -119,7 +119,7 @@ export default function FaqPage() {
             Frequently asked questions
           </h1>
           <p className="text-emerald-100/80 text-lg leading-relaxed max-w-2xl mb-8">
-            Everything you need to know about finding local farms and using De Lokale Boer.
+            Everything you need to know about finding local farms and using Farmsy.
           </p>
           <Link
             href="/map"
