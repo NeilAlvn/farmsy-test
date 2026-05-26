@@ -93,12 +93,6 @@ farmsy/
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
 
-## Database
-
-The `farms` table in Supabase holds all farm records. Coordinates are stored as PostGIS geography. A `get_farms_with_coords` RPC function returns `{ id, osm_id, lat, lng }` for all farms.
-
-Row Level Security (RLS) is enabled. Public read access is granted via the anon key; write operations require the service role key.
-
 ## License
 
 Private — All rights reserved.
