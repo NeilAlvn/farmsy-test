@@ -46,5 +46,8 @@ next-env.d.ts
 /data/
 /output/
 
+# Data processing archive (local only — not for deployment)
+/_archive/
+
 # Claude Code local settings
 .claude/

@@ -23,7 +23,9 @@
     "import:boerengids:save": "npx ts-node -P tsconfig.scripts.json src/scripts/boerengids-import.ts --save",
     "import:traces": "npx ts-node -P tsconfig.scripts.json src/scripts/traces-import.ts",
     "import:traces:save": "npx ts-node -P tsconfig.scripts.json src/scripts/traces-import.ts --save",
-    "import:traces:all": "npx ts-node -P tsconfig.scripts.json src/scripts/traces-import.ts --all"
+    "import:traces:all": "npx ts-node -P tsconfig.scripts.json src/scripts/traces-import.ts --all",
+    "dedupe": "npx ts-node -P tsconfig.scripts.json src/scripts/deduplicate-database.ts",
+    "dedupe:apply": "npx ts-node -P tsconfig.scripts.json src/scripts/deduplicate-database.ts --apply"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
