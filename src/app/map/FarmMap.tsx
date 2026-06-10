@@ -8,8 +8,8 @@ import L from 'leaflet'
 import {
   Wheat,
   Egg, Milk, Beef, Fish, Carrot, Circle, Wine, Store, Leaf,
-  Search, X, Locate, Map as MapIcon, List, Loader2,
-  MapPin, User, Droplets, Clock, Phone, Globe, Camera,
+  Locate, Map as MapIcon, List, Loader2,
+  MapPin, Droplets, Clock, Phone, Globe,
 } from 'lucide-react'
 import { isOpenToday } from '@/lib/opening-hours'
 import 'leaflet/dist/leaflet.css'
@@ -20,10 +20,10 @@ import FarmModal from './FarmModal'
 import ClaimModal from './ClaimModal'
 import AuthModal from './AuthModal'
 import HeartButton from '@/app/_components/HeartButton'
+import { useMapSearch } from './MapSearchContext'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-// SlimFarm: loaded for all farms on initial page load. Heavy fields omitted.
 export interface SlimFarm {
   id: string
   name: string
@@ -38,6 +38,7 @@ export interface SlimFarm {
   opening_hours: string | null
   image: string | null
   osm_id: string | null
+  has_description: boolean
   primary_tag: string | null
   farm_type: string[] | null
   enrichment_source: string | null
@@ -46,15 +47,14 @@ export interface SlimFarm {
   review_count?: number
 }
 
-// Farm: full type used by FarmModal. Extra fields are fetched on-demand.
 export interface Farm extends SlimFarm {
-  email: string | null
-  description: string | null
-  facebook: string | null
-  instagram: string | null
-  organic: string | null
-  produce: string | null
-  operator: string | null
+  email: string | null | undefined
+  description: string | null | undefined
+  facebook: string | null | undefined
+  instagram: string | null | undefined
+  organic: string | null | undefined
+  produce: string | null | undefined
+  operator: string | null | undefined
   is_claimed?: boolean | null
 }
 
@@ -63,26 +63,23 @@ interface AuthUser {
   email: string
 }
 
-// ─── Categories ───────────────────────────────────────────────────────────────
+// ─── Categories (for marker icons) ───────────────────────────────────────────
 
 const CATEGORIES = [
-  { id: 'eggs',       label: 'Eggs',       color: '#eab308', Icon: Egg      },
-  { id: 'dairy',      label: 'Dairy',      color: '#38bdf8', Icon: Milk     },
-  { id: 'meat',       label: 'Meat',       color: '#ef4444', Icon: Beef     },
-  { id: 'fish',       label: 'Fish',       color: '#2563eb', Icon: Fish     },
-  { id: 'produce',    label: 'Produce',    color: '#10b981', Icon: Carrot   },
-  { id: 'cheese',     label: 'Cheese',     color: '#f97316', Icon: Circle   },
-  { id: 'wine',       label: 'Wine',       color: '#7c3aed', Icon: Wine     },
-  { id: 'markets',    label: 'Markets',    color: '#92400e', Icon: Store    },
-  { id: 'honey',      label: 'Honey',      color: '#d97706', Icon: Droplets },
-  { id: 'organic',   label: 'Organic',    color: '#059669', Icon: Leaf     },
+  { id: 'eggs',    color: '#eab308' },
+  { id: 'dairy',   color: '#38bdf8' },
+  { id: 'meat',    color: '#ef4444' },
+  { id: 'fish',    color: '#2563eb' },
+  { id: 'produce', color: '#10b981' },
+  { id: 'cheese',  color: '#f97316' },
+  { id: 'wine',    color: '#7c3aed' },
+  { id: 'markets', color: '#92400e' },
+  { id: 'honey',   color: '#d97706' },
+  { id: 'organic', color: '#059669' },
 ] as const
 
 type CategoryId = (typeof CATEGORIES)[number]['id']
-const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c])) as Record<
-  CategoryId,
-  (typeof CATEGORIES)[number]
->
+const CAT_COLOR = Object.fromEntries(CATEGORIES.map(c => [c.id, c.color])) as Record<CategoryId, string>
 
 // ─── Markers ──────────────────────────────────────────────────────────────────
 
@@ -163,9 +160,7 @@ function markerHtml(color: string, nodes: SvgNode[], small: boolean): string {
   const shadow = small
     ? '0 1px 4px rgba(0,0,0,0.3)'
     : '0 3px 12px rgba(0,0,0,0.3)'
-
   const icon = small ? '' : svgStr(nodes, 18)
-
   const head = (
     `<div style="width:${circle}px;height:${circle}px;background:${color};border-radius:50%;` +
     `border:${border} solid white;box-shadow:${shadow};` +
@@ -185,8 +180,7 @@ const ICON_CACHE = new Map<string, L.DivIcon>()
 function farmIcon(farmType: string | null | undefined, small: boolean): L.DivIcon {
   const key = `${farmType ?? '__'}:${small ? 's' : 'l'}`
   if (!ICON_CACHE.has(key)) {
-    const cat   = farmType ? CAT_MAP[farmType as CategoryId] : null
-    const color = cat?.color ?? '#94a3b8'
+    const color = (farmType != null ? CAT_COLOR[farmType as CategoryId] : null) ?? '#94a3b8'
     const nodes = (farmType != null ? ICON_NODES[farmType] as SvgNode[] | undefined : undefined)
                   ?? ICON_NODES['__']
     const circle = small ? 18 : 34
@@ -256,7 +250,7 @@ function MapEventHandler({
 
 function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm: SlimFarm) => void }) {
   return (
-    <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0 pt-32">
+    <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
       <div className="max-w-6xl mx-auto px-6 py-12">
         {farms.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-gray-300">
@@ -380,26 +374,21 @@ function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm:
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
-  const [selected, setSelected]           = useState<Set<CategoryId>>(new Set())
-  const [query, setQuery]                 = useState('')
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [flyTarget, setFlyTarget]         = useState<{ pos: [number, number]; key: number } | null>(null)
-  const [userPos, setUserPos]             = useState<[number, number] | null>(null)
-  const [geoLoading, setGeoLoading]       = useState(false)
-  const [view, setView]                   = useState<'map' | 'list'>('map')
-  const [zoom, setZoom]                   = useState(7)
-  const [bounds, setBounds]               = useState<L.LatLngBounds | null>(null)
-  const [selectedFarm, setSelectedFarm]   = useState<Farm | null>(null)
-  const [showClaim, setShowClaim]         = useState(false)
-  const [showAuth, setShowAuth]           = useState(false)
-  const [authUser, setAuthUser]           = useState<AuthUser | null>(null)
-  const [filterOpenToday, setFilterOpenToday] = useState(false)
-  const [filterHasPhotos, setFilterHasPhotos] = useState(false)
+  const {
+    query, selected, setSelected, filterOpenToday, filterHasPhotos,
+    view, setView, flyTarget, setFlyTarget,
+  } = useMapSearch()
 
-  const searchRef  = useRef<HTMLDivElement>(null)
-  const flyKeyRef  = useRef(0)
+  const [userPos, setUserPos]           = useState<[number, number] | null>(null)
+  const [geoLoading, setGeoLoading]     = useState(false)
+  const [zoom, setZoom]                 = useState(7)
+  const [bounds, setBounds]             = useState<L.LatLngBounds | null>(null)
+  const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null)
+  const [showClaim, setShowClaim]       = useState(false)
+  const [showAuth, setShowAuth]         = useState(false)
+  const [authUser, setAuthUser]         = useState<AuthUser | null>(null)
+
   const boundsTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -413,26 +402,23 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   // ── On-demand detail fetch ─────────────────────────────────────────────────
 
   const openFarm = useCallback(async (slim: SlimFarm) => {
-    // Show modal immediately with what we have
-    setSelectedFarm({ ...slim, email: null, description: null, facebook: null, instagram: null, organic: null, produce: null, operator: null })
+    setSelectedFarm({ ...slim, email: undefined, description: undefined, facebook: undefined, instagram: undefined, organic: undefined, produce: undefined, operator: undefined })
     setShowClaim(false)
 
-    // Fetch deferred fields in background
     try {
       const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id!)}`)
       if (res.ok) {
         const details = await res.json() as { description: string | null; email: string | null; facebook: string | null; instagram: string | null; organic: string | null; produce: string | null; operator: string | null }
         setSelectedFarm(prev => prev?.osm_id === slim.osm_id ? { ...prev, ...details } : prev)
       }
-    } catch { /* ignore — modal already shows slim data */ }
+    } catch { /* ignore */ }
   }, [])
 
-  // ── Handle URL Search Params ───────────────────────────────────────────────
+  // ── Handle URL search params ───────────────────────────────────────────────
 
   useEffect(() => {
     const id       = searchParams.get('id')
     const category = searchParams.get('category')
-    const q        = searchParams.get('q')
 
     if (id) {
       const farm = farms.find(f => f.osm_id === id)
@@ -442,18 +428,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
       }
     }
     if (category) setSelected(new Set([category as CategoryId]))
-    if (q) setQuery(q)
-  }, [searchParams, farms, openFarm])
-
-  // ── Available categories ───────────────────────────────────────────────────
-
-  const availableCategories = useMemo(() => {
-    const inFarms = new Set<string>()
-    for (const farm of farms) {
-      for (const t of farm.farm_type ?? []) inFarms.add(t)
-    }
-    return CATEGORIES.filter(c => inFarms.has(c.id))
-  }, [farms])
+  }, [searchParams, farms, openFarm, setFlyTarget, setSelected])
 
   // ── Derived farms ───────────────────────────────────────────────────────────
 
@@ -484,22 +459,8 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     return filtered.filter(f => f.lat >= s && f.lat <= n && f.lng >= w && f.lng <= e)
   }, [filtered, bounds])
 
-  const suggestions = useMemo(() => {
-    if (query.trim().length < 2) return []
-    const q = query.toLowerCase()
-    return farms
-      .filter(f =>
-        f.name.toLowerCase().includes(q) ||
-        f.city?.toLowerCase().includes(q) ||
-        f.address?.toLowerCase().includes(q),
-      )
-      .slice(0, 6)
-  }, [farms, query])
-
   const smallMarkers = zoom < 10
 
-  // At low zoom every farm collapses into a cluster anyway.
-  // Cap to 1500 to prevent React from freezing the browser with 12k+ elements.
   const markersToRender = useMemo(() => {
     if (zoom < 9 && visible.length > 1500) {
       const step = Math.ceil(visible.length / 1500)
@@ -548,33 +509,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
       () => setGeoLoading(false),
       { timeout: 10000 },
     )
-  }, [])
-
-  const toggleCategory = useCallback((id: CategoryId) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }, [])
-
-  const handleSuggestionClick = useCallback((farm: SlimFarm) => {
-    setQuery(farm.name)
-    setShowSuggestions(false)
-    flyKeyRef.current += 1
-    setFlyTarget({ pos: [farm.lat, farm.lng], key: flyKeyRef.current })
-    setView('map')
-  }, [])
-
-  useEffect(() => {
-    function onMouseDown(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false)
-      }
-    }
-    document.addEventListener('mousedown', onMouseDown)
-    return () => document.removeEventListener('mousedown', onMouseDown)
-  }, [])
+  }, [setView])
 
   function closeFarmModal() {
     setSelectedFarm(null)
@@ -582,161 +517,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white text-gray-900">
-
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 z-[9999] absolute top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-none">
-        <div className="flex flex-col gap-4 pointer-events-auto">
-          {/* Search Bar */}
-          <div ref={searchRef} className="relative group">
-            <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-full px-5 py-2.5 shadow-[0_20px_40px_-12px_rgba(0,0,0,0.15)] focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
-              <div className="flex items-center gap-2 shrink-0 pr-2 border-r border-gray-100">
-                <Wheat size={18} className="text-emerald-600" />
-                <span className="hidden md:block font-bold text-xs tracking-tight">Farmsy</span>
-              </div>
-              <Search size={16} className="text-gray-400 shrink-0" />
-              <input
-                type="text"
-                value={query}
-                onChange={e => { setQuery(e.target.value); setShowSuggestions(true) }}
-                onFocus={() => setShowSuggestions(true)}
-                placeholder="Search for a farm..."
-                className="flex-1 bg-transparent text-sm font-medium text-gray-800 placeholder-gray-400 outline-none"
-              />
-              <div className="flex items-center gap-2">
-                {query && (
-                  <button onClick={() => setQuery('')} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                    <X size={14} className="text-gray-400" />
-                  </button>
-                )}
-                <button
-                  onClick={handleGeolocate}
-                  disabled={geoLoading}
-                  className="p-1.5 hover:bg-gray-100 rounded-full transition-colors shrink-0"
-                >
-                  {geoLoading ? <Loader2 size={16} className="animate-spin text-emerald-600" /> : <Locate size={16} className="text-gray-400" />}
-                </button>
-                <div className="w-px h-4 bg-gray-200 shrink-0" />
-                <button
-                  onClick={() => setShowAuth(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors shrink-0 ${
-                    authUser
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-gray-900 hover:bg-gray-700 text-white'
-                  }`}
-                >
-                  {authUser ? (
-                    <>
-                      <span className="w-4 h-4 rounded-full bg-white/25 flex items-center justify-center text-white text-[9px] font-bold">
-                        {authUser.email[0].toUpperCase()}
-                      </span>
-                      <span className="hidden sm:inline max-w-[80px] truncate">{authUser.email.split('@')[0]}</span>
-                    </>
-                  ) : (
-                    <>
-                      <User size={12} />
-                      <span>Sign in</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden py-2">
-                {suggestions.map(farm => (
-                  <button
-                    key={farm.osm_id ?? farm.id}
-                    onMouseDown={e => { e.preventDefault(); handleSuggestionClick(farm) }}
-                    className="flex items-center gap-4 w-full px-6 py-3 hover:bg-emerald-50 transition-colors group"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                      <MapPin size={14} className="text-emerald-600" />
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm font-bold text-gray-800">{farm.name}</p>
-                      {farm.city && <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">{farm.city}</p>}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Category Chips & Toggle Row */}
-          <div className="flex flex-wrap items-center gap-2 px-1">
-            <button
-              onClick={() => setView(v => v === 'map' ? 'list' : 'map')}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-gray-900 text-white text-[11px] font-bold shadow-lg hover:bg-gray-800 transition-all shrink-0"
-            >
-              {view === 'map' ? <><List size={13} /> List</> : <><MapIcon size={13} /> Map</>}
-            </button>
-
-            <div className="w-px h-4 bg-gray-300/60 shrink-0" />
-
-            <button
-              onClick={() => setSelected(new Set())}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold transition-all shadow-sm shrink-0 border ${
-                selected.size === 0
-                  ? 'bg-gray-900 border-gray-900 text-white'
-                  : 'bg-white border-transparent text-gray-600 hover:border-gray-200'
-              }`}
-            >
-              All
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                selected.size === 0 ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-              }`}>
-                {farms.length.toLocaleString('nl-NL')}
-              </span>
-            </button>
-
-            {availableCategories.map(cat => {
-              const active = selected.has(cat.id)
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => toggleCategory(cat.id)}
-                  style={active ? { background: cat.color, borderColor: cat.color } : {}}
-                  className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold transition-all shadow-sm shrink-0 border ${
-                    active
-                      ? 'text-white'
-                      : 'bg-white border-transparent text-gray-600 hover:border-gray-200'
-                  }`}
-                >
-                  <cat.Icon size={13} />
-                  {cat.label}
-                </button>
-              )
-            })}
-
-            <div className="w-px h-4 bg-gray-300/60 shrink-0" />
-
-            <button
-              onClick={() => setFilterOpenToday(v => !v)}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold transition-all shadow-sm shrink-0 border ${
-                filterOpenToday
-                  ? 'bg-emerald-600 border-emerald-600 text-white'
-                  : 'bg-white border-transparent text-gray-600 hover:border-gray-200'
-              }`}
-            >
-              <Clock size={13} />
-              Open today
-            </button>
-
-            <button
-              onClick={() => setFilterHasPhotos(v => !v)}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-full text-[11px] font-bold transition-all shadow-sm shrink-0 border ${
-                filterHasPhotos
-                  ? 'bg-emerald-600 border-emerald-600 text-white'
-                  : 'bg-white border-transparent text-gray-600 hover:border-gray-200'
-              }`}
-            >
-              <Camera size={13} />
-              Has photos
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden bg-white text-gray-900">
 
       {/* ── Content ─────────────────────────────────────────────────────────── */}
       {view === 'list' ? (
@@ -774,6 +555,28 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
             {userPos && <Marker position={userPos} icon={USER_ICON} />}
           </MapContainer>
+
+          {/* Geolocate + view toggle floating buttons */}
+          <div className="absolute bottom-24 right-4 z-[9000] flex flex-col gap-2">
+            <button
+              onClick={handleGeolocate}
+              disabled={geoLoading}
+              className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-60"
+              title="Find my location"
+            >
+              {geoLoading
+                ? <Loader2 size={18} className="animate-spin text-emerald-600" />
+                : <Locate size={18} className="text-gray-600" />
+              }
+            </button>
+            <button
+              onClick={() => setView('list')}
+              className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors sm:hidden"
+              title="List view"
+            >
+              <List size={18} className="text-gray-600" />
+            </button>
+          </div>
         </div>
       )}
 

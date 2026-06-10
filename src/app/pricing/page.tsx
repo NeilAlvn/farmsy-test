@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import ContentLayout from '@/app/_components/ContentLayout'
 import { supabase } from '@/lib/supabase'
 import { Check, Zap } from 'lucide-react'
+import SignInModal from '@/app/_components/SignInModal'
 import type { User } from '@supabase/supabase-js'
 
 const FEATURES = [
@@ -19,11 +20,13 @@ export default function PricingPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<{ subscription_status?: string } | null>(null)
-  const [loading, setLoading] = useState<'monthly' | 'yearly' | 'portal' | null>(null)
+  const [loading, setLoading]       = useState<'monthly' | 'yearly' | 'portal' | null>(null)
+  const [showSignIn, setShowSignIn] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) return
+    async function fetchUser() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) { setUser(null); setProfile(null); return }
       setUser(session.user)
       const { data } = await supabase
         .from('profiles')
@@ -31,7 +34,16 @@ export default function PricingPage() {
         .eq('id', session.user.id)
         .single()
       setProfile(data)
+    }
+
+    fetchUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) fetchUser()
+      if (event === 'SIGNED_OUT') { setUser(null); setProfile(null) }
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const isPaid = profile?.subscription_status === 'active'
@@ -39,7 +51,7 @@ export default function PricingPage() {
 
   async function handleCheckout(plan: 'monthly' | 'yearly') {
     if (!user) {
-      router.push('/auth/signin?next=/pricing')
+      setShowSignIn(true)
       return
     }
     setLoading(plan)
@@ -77,6 +89,13 @@ export default function PricingPage() {
   }
 
   return (
+    <>
+    {showSignIn && (
+      <SignInModal
+        onClose={() => setShowSignIn(false)}
+        onSuccess={() => setShowSignIn(false)}
+      />
+    )}
     <ContentLayout>
       {/* Hero */}
       <section className="py-20 px-4 text-center" style={{ backgroundColor: 'var(--background)' }}>
@@ -205,5 +224,6 @@ export default function PricingPage() {
         </p>
       </section>
     </ContentLayout>
+    </>
   )
 }

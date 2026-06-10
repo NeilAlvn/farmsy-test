@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import { FavoritesProvider } from "./_components/FavoritesProvider";
 import { TripProvider } from "./_components/TripProvider";
+import { ToastProvider } from "./_components/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,9 +44,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <TripProvider>
-            <FavoritesProvider>{children}</FavoritesProvider>
-          </TripProvider>
+          <ToastProvider>
+            <TripProvider>
+              <FavoritesProvider>{children}</FavoritesProvider>
+            </TripProvider>
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

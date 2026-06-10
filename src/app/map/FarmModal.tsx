@@ -216,9 +216,15 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
           <div className={`transition-opacity duration-150 ${tabFade ? 'opacity-100' : 'opacity-0'}`}>
 
             <div className={tab === 'info' ? 'p-5 space-y-4' : 'hidden'}>
-              {farm.description && (
+              {farm.description === undefined && farm.has_description ? (
+                <div className="space-y-2">
+                  <div className="h-3 rounded bg-gray-100 animate-pulse w-full" />
+                  <div className="h-3 rounded bg-gray-100 animate-pulse w-5/6" />
+                  <div className="h-3 rounded bg-gray-100 animate-pulse w-4/6" />
+                </div>
+              ) : farm.description ? (
                 <p className="text-sm text-gray-600 leading-relaxed">{farm.description}</p>
-              )}
+              ) : null}
 
               {farm.opening_hours && (
                 <>

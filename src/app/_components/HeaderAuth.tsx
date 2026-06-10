@@ -6,13 +6,15 @@ import { useRouter } from 'next/navigation'
 import { User, LogOut, ChevronDown, Heart, LayoutDashboard, Route } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useTrip } from './TripProvider'
+import SignInModal from './SignInModal'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 export default function HeaderAuth() {
   const router = useRouter()
-  const [user, setUser] = useState<SupabaseUser | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [open, setOpen] = useState(false)
+  const [user, setUser]         = useState<SupabaseUser | null>(null)
+  const [loading, setLoading]   = useState(true)
+  const [open, setOpen]         = useState(false)
+  const [showSignIn, setShowSignIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { pendingFarms } = useTrip()
 
@@ -50,12 +52,15 @@ export default function HeaderAuth() {
 
   if (!user) {
     return (
-      <Link
-        href="/auth/signin"
-        className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
-      >
-        Sign in
-      </Link>
+      <>
+        <button
+          onClick={() => setShowSignIn(true)}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
+        >
+          Sign in
+        </button>
+        {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
+      </>
     )
   }
 
@@ -80,7 +85,7 @@ export default function HeaderAuth() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]">
+        <div className="animate-dropdown absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]">
           {/* User info */}
           <div className="border-b border-border/60 px-4 py-3">
             <p className="mb-0.5 text-xs text-muted-foreground">Signed in as</p>

@@ -1,17 +1,28 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, useRef, useCallback, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
+import SignInModal from './SignInModal'
+import SubscriptionGateModal from './SubscriptionGateModal'
+import { useToast } from './ToastProvider'
 
-type Status = 'loading' | 'allowed' | 'redirect'
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Profile {
-  subscription_status: string | null
+  subscription_status:  string | null
   subscription_end_date: string | null
 }
 
-// ─── Session cache ────────────────────────────────────────────────────────────
+type GuardState =
+  | 'loading'
+  | 'allowed'
+  | 'no-auth'
+  | 'no-sub'
+  | 'canceled'
+  | 'past-due'
+
+// ─── Cache ────────────────────────────────────────────────────────────────────
+
 const CACHE_KEY = 'farmsy:sub'
 const CACHE_TTL = 5 * 60 * 1000
 
@@ -31,29 +42,9 @@ function writeCache(userId: string, profile: Profile) {
   } catch { /* ignore */ }
 }
 
-// ─── Trial banner ──────────────────────────────────────────────────────────────
-
-function trialDaysLeft(endDate: string | null): number {
-  if (!endDate) return 0
-  const ms = new Date(endDate).getTime() - Date.now()
-  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
+export function clearSubCache() {
+  try { sessionStorage.removeItem(CACHE_KEY) } catch { /* ignore */ }
 }
-
-function TrialBanner({ endDate }: { endDate: string | null }) {
-  const days = trialDaysLeft(endDate)
-  const text = days < 1 ? 'Your free trial ends today' : `${days} days left in your free trial`
-
-  return (
-    <div
-      className="flex items-center justify-center px-4 py-2.5 text-sm font-medium"
-      style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-    >
-      <span>{text}</span>
-    </div>
-  )
-}
-
-// ─── Guard ─────────────────────────────────────────────────────────────────────
 
 async function fetchProfile(accessToken: string): Promise<Profile | null> {
   try {
@@ -65,57 +56,115 @@ async function fetchProfile(accessToken: string): Promise<Profile | null> {
   } catch { return null }
 }
 
+function daysUntil(isoDate: string): number {
+  return Math.ceil((new Date(isoDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+}
+
+// ─── Guard ─────────────────────────────────────────────────────────────────────
+
 export default function SubscriptionGuard({ children }: { children: ReactNode }) {
-  const router = useRouter()
-  const [status, setStatus] = useState<Status>('loading')
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const { toast } = useToast()
+  const [state, setState] = useState<GuardState>('loading')
+  const toastFiredRef = useRef(false)
 
-  useEffect(() => {
-    async function check() {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) { router.replace('/pricing'); return }
+  const check = useCallback(async () => {
+    setState('loading')
+    toastFiredRef.current = false
 
-      const userId = session.user.id
-      const token  = session.access_token
+    const { data: { session } } = await supabase.auth.getSession()
 
-      // Check session cache first
-      const cached = readCache(userId)
-      if (cached) {
-        const allowed = cached.subscription_status === 'active'
-                     || cached.subscription_status === 'trialing'
-        if (!allowed) { router.replace('/pricing'); return }
-        setProfile(cached)
-        setStatus('allowed')
-        // Refresh in background
-        fetchProfile(token).then(data => {
-          if (!data) return
-          writeCache(userId, data)
-          setProfile(prev => {
-            if (!prev) return prev
-            return prev.subscription_status !== data.subscription_status ? data : prev
-          })
-        })
-        return
-      }
-
-      // No cache — fetch from server
-      const data = await fetchProfile(token)
-      if (!data) { router.replace('/pricing'); return }
-
-      writeCache(userId, data)
-
-      const allowed = data.subscription_status === 'active'
-                   || data.subscription_status === 'trialing'
-      if (!allowed) { router.replace('/pricing'); return }
-
-      setProfile(data)
-      setStatus('allowed')
+    if (!session?.user) {
+      setState('no-auth')
+      return
     }
 
-    check()
-  }, [router])
+    const userId = session.user.id
+    const token  = session.access_token
 
-  if (status === 'loading') {
+    // Try cache first
+    const cached = readCache(userId)
+    const profile = cached ?? await fetchProfile(token)
+
+    if (!profile) {
+      setState('no-sub')
+      return
+    }
+
+    if (!cached) writeCache(userId, profile)
+    else {
+      // Refresh cache in background
+      fetchProfile(token).then(p => { if (p) writeCache(userId, p) })
+    }
+
+    const status = profile.subscription_status
+
+    if (status === 'active' || status === 'trialing') {
+      setState('allowed')
+
+      // Notify about trial ending soon
+      if (status === 'trialing' && profile.subscription_end_date && !toastFiredRef.current) {
+        const days = daysUntil(profile.subscription_end_date)
+        if (days <= 3 && days >= 0) {
+          toastFiredRef.current = true
+          toast({
+            type:    'info',
+            title:   days === 0 ? 'Your free trial ends today' : `Your free trial ends in ${days} day${days === 1 ? '' : 's'}`,
+            message: 'You will be charged automatically when the trial ends. Cancel anytime in billing.',
+            action:  { label: 'Manage billing', onClick: () => window.location.href = '/pricing' },
+            duration: 0, // sticky
+          })
+        }
+      }
+      return
+    }
+
+    if (status === 'past_due') {
+      setState('past-due')
+      if (!toastFiredRef.current) {
+        toastFiredRef.current = true
+        toast({
+          type:    'error',
+          title:   'Payment failed',
+          message: 'Your last payment did not go through. Update your billing to keep access.',
+          action:  { label: 'Update billing', onClick: () => window.location.href = '/pricing' },
+          duration: 0, // sticky
+        })
+      }
+      // Still allow map access with warning banner
+      setState('allowed')
+      return
+    }
+
+    if (status === 'canceled') {
+      setState('canceled')
+      return
+    }
+
+    // No subscription or unknown status
+    setState('no-sub')
+  }, [toast])
+
+  // Initial check
+  useEffect(() => { check() }, [check])
+
+  // Re-check when auth state changes (user signs in / out)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        clearSubCache()
+        check()
+      }
+      if (event === 'SIGNED_OUT') {
+        clearSubCache()
+        setState('no-auth')
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [check])
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  if (state === 'loading') {
     return (
       <div className="flex flex-1 items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
@@ -123,12 +172,47 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     )
   }
 
-  return (
-    <>
-      {profile?.subscription_status === 'trialing' && (
-        <TrialBanner endDate={profile.subscription_end_date} />
-      )}
-      {children}
-    </>
-  )
+  if (state === 'no-auth') {
+    return (
+      <>
+        <div className="flex flex-1 items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+        </div>
+        <SignInModal
+          onClose={() => setState('no-auth')}
+          onSuccess={() => { clearSubCache(); check() }}
+        />
+      </>
+    )
+  }
+
+  if (state === 'no-sub') {
+    return (
+      <>
+        <div className="flex flex-1 items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+        </div>
+        <SubscriptionGateModal
+          reason="no-sub"
+          onSubscribed={() => { clearSubCache(); check() }}
+        />
+      </>
+    )
+  }
+
+  if (state === 'canceled') {
+    return (
+      <>
+        <div className="flex flex-1 items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+        </div>
+        <SubscriptionGateModal
+          reason="canceled"
+          onSubscribed={() => { clearSubCache(); check() }}
+        />
+      </>
+    )
+  }
+
+  return <>{children}</>
 }

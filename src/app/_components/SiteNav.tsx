@@ -52,7 +52,7 @@ function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[200] mt-2 w-40 overflow-hidden rounded-xl border border-border/60 bg-background shadow-[0_8px_24px_-8px_rgba(0,0,0,0.15)]">
+        <div className="animate-dropdown absolute right-0 top-full z-[200] mt-2 w-40 overflow-hidden rounded-xl border border-border/60 bg-background shadow-[0_8px_24px_-8px_rgba(0,0,0,0.15)]">
           {LANGUAGES.map(l => (
             <button
               type="button"
@@ -85,7 +85,7 @@ export default function SiteNav() {
   ]
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-[10000] border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
         {/* Logo */}
         <Link
