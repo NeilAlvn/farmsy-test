@@ -501,14 +501,10 @@ function Features() {
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 
-const PRICING_FEATURES = [
-  'Access to 12,717+ verified farms across NL & BE',
-  'Unlimited farm search results',
-  'Full farm details — phone, website, hours',
-  'Priority support & early access',
-]
-
 function Pricing() {
+  const t = useTranslations('pricing')
+  const features = [t('feature1'), t('feature2'), t('feature3'), t('feature4')]
+
   return (
     <section className="border-t border-border/60 px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
@@ -520,14 +516,14 @@ function Pricing() {
           className="mx-auto max-w-2xl text-center"
         >
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary">
-            Farmsy Premium
+            {t('eyebrow')}
           </p>
           <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.025em] text-foreground sm:text-5xl">
-            Simple,{' '}
-            <span className="serif-italic">transparent</span> pricing
+            {t('headline1')}{' '}
+            <span className="serif-italic">{t('headlineEmphasis')}</span>
           </h2>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-            Get unlimited access to every farm listing in the Netherlands and Belgium.
+            {t('subheading')}
           </p>
         </motion.div>
 
@@ -543,15 +539,15 @@ function Pricing() {
             className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
           >
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Monthly</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('monthly')}</p>
               <div className="flex items-baseline gap-1">
                 <span className="font-display text-5xl font-medium tracking-tight text-foreground">€4.99</span>
-                <span className="text-sm text-muted-foreground">/month</span>
+                <span className="text-sm text-muted-foreground">{t('perMonth')}</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Try free for 3 days, then €4.99/month</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t('monthlyTagline')}</p>
             </div>
             <ul className="space-y-3 flex-1">
-              {PRICING_FEATURES.map(f => (
+              {features.map(f => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
                   <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
                   {f}
@@ -562,7 +558,7 @@ function Pricing() {
               href="/pricing"
               className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80"
             >
-              Start free trial
+              {t('cta')}
             </Link>
           </motion.div>
 
@@ -578,18 +574,18 @@ function Pricing() {
           >
             <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
               <Zap className="h-3 w-3" />
-              Best value
+              {t('bestValue')}
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Yearly</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
               <div className="flex items-baseline gap-1">
                 <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
-                <span className="text-sm text-muted-foreground">/year</span>
+                <span className="text-sm text-muted-foreground">{t('perYear')}</span>
               </div>
-              <p className="mt-2 text-sm text-primary font-medium">Try free for 3 days, then €29.99/year · Save 50%</p>
+              <p className="mt-2 text-sm text-primary font-medium">{t('yearlyTagline')}</p>
             </div>
             <ul className="space-y-3 flex-1">
-              {PRICING_FEATURES.map(f => (
+              {features.map(f => (
                 <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
                   <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
                   {f}
@@ -601,13 +597,13 @@ function Pricing() {
               className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
-              Start free trial
+              {t('cta')}
             </Link>
           </motion.div>
 
         </div>
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          All prices include VAT. Payments processed securely by Stripe.
+          {t('finePrint')}
         </p>
       </div>
     </section>
@@ -616,42 +612,7 @@ function Pricing() {
 
 // ─── FAQ ─────────────────────────────────────────────────────────────────────
 
-const FAQ_ITEMS: { q: string; a: ReactNode }[] = [
-  {
-    q: 'Is Farmsy free to use?',
-    a: 'Browsing the full farm map requires a Farmsy Premium subscription (€4.99/month or €29.99/year). You can start with a 3-day free trial — no charge until day 3, and you can cancel anytime before then.',
-  },
-  {
-    q: 'What areas are covered?',
-    a: 'We currently cover the Netherlands and Belgium. Farm listings come from OpenStreetMap, Foursquare, and Overture Maps. We are working to improve coverage in both countries.',
-  },
-  {
-    q: 'Where does the farm data come from?',
-    a: (
-      <>
-        Our listings are built from a mix of four sources:{' '}
-        <strong>OpenStreetMap</strong>,{' '}
-        <strong>Foursquare</strong>,{' '}
-        <strong>Overture Maps</strong>, and{' '}
-        <strong>Traces</strong>. Phone numbers, websites, photos, and location data are combined from all four to give you the most complete picture possible.
-      </>
-    ),
-  },
-  {
-    q: 'How do I claim my farm listing?',
-    a: 'Find your farm on the map and open its detail panel. Tap "Claim this farm" and sign in with your email. Once verified, you can update your contact details, opening hours, description, and more. Claiming is free.',
-  },
-  {
-    q: 'How often is the data updated?',
-    a: 'Data is regularly reviewed by our team. The best way to keep a listing current is for the farm owner to claim it — claimed listings can be edited directly and changes appear immediately.',
-  },
-  {
-    q: 'Do you have a mobile app?',
-    a: 'Not yet — but our website is fully responsive and works great on mobile. You can add it to your home screen for an app-like experience. A native app is on our roadmap.',
-  },
-]
-
-function FAQItem({ q, a }: { q: string; a: ReactNode }) {
+function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="border-b border-border/60 last:border-0">
@@ -677,6 +638,12 @@ function FAQItem({ q, a }: { q: string; a: ReactNode }) {
 }
 
 function FAQ() {
+  const t = useTranslations('homeFaq')
+  const items = [1, 2, 3, 4, 5, 6].map(i => ({
+    q: t(`q${i}` as 'q1'),
+    a: t(`a${i}` as 'a1'),
+  }))
+
   return (
     <section className="border-t border-border/60 px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
@@ -689,20 +656,20 @@ function FAQ() {
             variants={fadeUp}
           >
             <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary">
-              FAQ
+              {t('eyebrow')}
             </p>
             <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.025em] text-foreground sm:text-5xl">
-              Got{' '}
-              <span className="serif-italic">questions?</span>
+              {t('headline')}{' '}
+              <span className="serif-italic">{t('headlineEmphasis')}</span>
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted-foreground max-w-xs">
-              Everything you need to know about finding local farms and using Farmsy.
+              {t('subtext')}
             </p>
             <Link
               href="/faq"
               className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline underline-offset-4"
             >
-              View all questions <ArrowRight className="h-4 w-4" />
+              {t('viewAll')} <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
 
@@ -714,7 +681,7 @@ function FAQ() {
             variants={fadeUp}
             className="rounded-2xl border border-border bg-card px-8"
           >
-            {FAQ_ITEMS.map((item, i) => (
+            {items.map((item, i) => (
               <FAQItem key={i} {...item} />
             ))}
           </motion.div>

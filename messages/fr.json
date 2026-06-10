@@ -1,6 +1,11 @@
 {
   "nav": {
-    "comingSoon": "Bientôt disponible"
+    "comingSoon": "Bientôt",
+    "map": "Carte",
+    "about": "À propos",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "forFarmers": "Pour les Agriculteurs"
   },
   "hero": {
     "badge": "Pays-Bas & Belgique",
@@ -53,6 +58,44 @@
       "desc": "Web et mobile. Trouvez des fermes locales où que vous soyez, quand vous en avez besoin."
     }
   },
+  "pricing": {
+    "eyebrow": "Farmsy Premium",
+    "subheading": "Accédez à toutes les fermes des Pays-Bas et de Belgique sans limite.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "monthlyTagline": "3 jours gratuits, puis €4,99/mois",
+    "yearlyTagline": "3 jours gratuits, puis €29,99/an · Économisez 50%",
+    "bestValue": "Meilleure offre",
+    "cta": "Démarrer l'essai gratuit",
+    "finePrint": "Tous les prix incluent la TVA. Paiements traités par Stripe.",
+    "feature1": "Accès à 12 717+ fermes vérifiées aux Pays-Bas & Belgique",
+    "feature2": "Résultats de recherche illimités",
+    "feature3": "Détails complets — téléphone, site web, horaires",
+    "feature4": "Support prioritaire & accès anticipé",
+    "headline1": "Tarifs simples et",
+    "headlineEmphasis": "transparents"
+  },
+  "homeFaq": {
+    "eyebrow": "FAQ",
+    "headline": "Des",
+    "headlineEmphasis": "questions?",
+    "subtext": "Tout ce que vous devez savoir sur la recherche de fermes locales et l'utilisation de Farmsy.",
+    "viewAll": "Voir toutes les questions",
+    "q1": "Farmsy est-il gratuit?",
+    "a1": "L'accès à la carte complète nécessite un abonnement Farmsy Premium (€4,99/mois ou €29,99/an). Vous pouvez commencer avec un essai gratuit de 3 jours — aucun frais jusqu'au jour 3, et vous pouvez annuler à tout moment.",
+    "q2": "Quelles zones sont couvertes?",
+    "a2": "Nous couvrons actuellement les Pays-Bas et la Belgique. Les données proviennent d'OpenStreetMap, Foursquare et Overture Maps. Nous travaillons à améliorer la couverture dans les deux pays.",
+    "q3": "D'où viennent les données des fermes?",
+    "a3": "Nos annonces sont construites à partir de quatre sources: OpenStreetMap, Foursquare, Overture Maps et Traces. Numéros de téléphone, sites web, photos et données de localisation sont combinés pour vous donner l'image la plus complète possible.",
+    "q4": "Comment revendiquer ma fiche de ferme?",
+    "a4": "Trouvez votre ferme sur la carte et ouvrez son panneau de détails. Appuyez sur \"Revendiquer cette ferme\" et connectez-vous avec votre e-mail. Une fois vérifié, vous pouvez mettre à jour vos coordonnées, horaires et description. La revendication est gratuite.",
+    "q5": "À quelle fréquence les données sont-elles mises à jour?",
+    "a5": "Les données sont régulièrement examinées par notre équipe. La meilleure façon de maintenir une fiche à jour est que le propriétaire la revendique — les fiches revendiquées peuvent être modifiées directement et les changements apparaissent immédiatement.",
+    "q6": "Avez-vous une application mobile?",
+    "a6": "Pas encore — mais notre site web est entièrement responsive et fonctionne très bien sur mobile. Vous pouvez l'ajouter à votre écran d'accueil. Une application native est sur notre feuille de route."
+  },
   "cta": {
     "eyebrow": "Accès anticipé",
     "headline1": "Soyez le premier à savoir",
@@ -68,6 +111,18 @@
   "footer": {
     "privacy": "Confidentialité",
     "terms": "Conditions",
-    "copyright": "© 2026 Farmsy"
+    "copyright": "© 2026 Farmsy",
+    "platform": "Plateforme",
+    "legal": "Juridique",
+    "map": "Carte",
+    "aboutUs": "À propos",
+    "helpFaq": "Aide & FAQ",
+    "privacyPolicy": "Politique de confidentialité",
+    "contact": "Contact",
+    "brandDesc": "Connecter les gens aux fermes locales aux Pays-Bas et en Belgique.",
+    "forFarmers": "Pour les Agriculteurs",
+    "forFarmersTagline": "Soyez trouvé par les amateurs de produits locaux",
+    "forFarmersDesc": "Revendiquez votre fiche gratuite pour garder vos informations à jour et attirer plus de visiteurs.",
+    "claimListing": "Revendiquer votre fiche"
   }
 }

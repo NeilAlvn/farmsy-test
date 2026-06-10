@@ -1,6 +1,11 @@
 {
   "nav": {
-    "comingSoon": "Demnächst verfügbar"
+    "comingSoon": "Demnächst",
+    "map": "Karte",
+    "about": "Über uns",
+    "faq": "FAQ",
+    "contact": "Kontakt",
+    "forFarmers": "Für Landwirte"
   },
   "hero": {
     "badge": "Niederlande & Belgien",
@@ -53,6 +58,44 @@
       "desc": "Web und mobil. Finden Sie lokale Bauernhöfe, wo immer Sie sind, wann immer Sie möchten."
     }
   },
+  "pricing": {
+    "eyebrow": "Farmsy Premium",
+    "subheading": "Unbegrenzter Zugang zu allen Hofeinträgen in den Niederlanden und Belgien.",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "perMonth": "/Monat",
+    "perYear": "/Jahr",
+    "monthlyTagline": "3 Tage kostenlos testen, dann €4,99/Monat",
+    "yearlyTagline": "3 Tage kostenlos testen, dann €29,99/Jahr · 50% sparen",
+    "bestValue": "Bestes Angebot",
+    "cta": "Kostenlose Testversion starten",
+    "finePrint": "Alle Preise inkl. MwSt. Zahlungen verarbeitet von Stripe.",
+    "feature1": "Zugang zu 12.717+ verifizierten Höfen in NL & BE",
+    "feature2": "Unbegrenzte Suchergebnisse",
+    "feature3": "Vollständige Hofdaten — Telefon, Website, Öffnungszeiten",
+    "feature4": "Prioritätssupport & Früher Zugang",
+    "headline1": "Einfache, transparente",
+    "headlineEmphasis": "Preise"
+  },
+  "homeFaq": {
+    "eyebrow": "FAQ",
+    "headline": "Haben Sie",
+    "headlineEmphasis": "Fragen?",
+    "subtext": "Alles, was Sie über das Finden lokaler Bauernhöfe und die Nutzung von Farmsy wissen müssen.",
+    "viewAll": "Alle Fragen anzeigen",
+    "q1": "Ist Farmsy kostenlos?",
+    "a1": "Die vollständige Hofkarte erfordert ein Farmsy Premium-Abonnement (€4,99/Monat oder €29,99/Jahr). Sie können mit einer kostenlosen 3-tägigen Testversion beginnen — keine Kosten bis Tag 3, und Sie können jederzeit vorher kündigen.",
+    "q2": "Welche Gebiete werden abgedeckt?",
+    "a2": "Wir decken derzeit die Niederlande und Belgien ab. Hofdaten stammen von OpenStreetMap, Foursquare und Overture Maps. Wir arbeiten daran, die Abdeckung in beiden Ländern zu verbessern.",
+    "q3": "Woher kommen die Hofdaten?",
+    "a3": "Unsere Einträge werden aus vier Quellen zusammengestellt: OpenStreetMap, Foursquare, Overture Maps und Traces. Telefonnummern, Websites, Fotos und Standortdaten werden kombiniert, um das vollständigste Bild zu liefern.",
+    "q4": "Wie kann ich meinen Hofeintrag beanspruchen?",
+    "a4": "Finden Sie Ihren Hof auf der Karte und öffnen Sie das Detailfeld. Tippen Sie auf \"Diesen Hof beanspruchen\" und melden Sie sich mit Ihrer E-Mail an. Nach der Verifizierung können Sie Kontaktdaten, Öffnungszeiten und Beschreibung aktualisieren. Das Beanspruchen ist kostenlos.",
+    "q5": "Wie oft werden die Daten aktualisiert?",
+    "a5": "Daten werden regelmäßig von unserem Team überprüft. Der beste Weg, einen Eintrag aktuell zu halten, ist, dass der Hofbesitzer ihn beansprucht — beanspruchte Einträge können direkt bearbeitet werden und Änderungen erscheinen sofort.",
+    "q6": "Haben Sie eine mobile App?",
+    "a6": "Noch nicht — aber unsere Website ist vollständig responsive und funktioniert hervorragend auf Mobilgeräten. Sie können sie zu Ihrem Startbildschirm hinzufügen. Eine native App ist auf unserer Roadmap."
+  },
   "cta": {
     "eyebrow": "Früher Zugang",
     "headline1": "Seien Sie der Erste,",
@@ -68,6 +111,18 @@
   "footer": {
     "privacy": "Datenschutz",
     "terms": "Nutzungsbedingungen",
-    "copyright": "© 2026 Farmsy"
+    "copyright": "© 2026 Farmsy",
+    "platform": "Plattform",
+    "legal": "Rechtliches",
+    "map": "Karte",
+    "aboutUs": "Über uns",
+    "helpFaq": "Hilfe & FAQ",
+    "privacyPolicy": "Datenschutz",
+    "contact": "Kontakt",
+    "brandDesc": "Menschen mit lokalen Bauernhöfen in den Niederlanden und Belgien verbinden.",
+    "forFarmers": "Für Landwirte",
+    "forFarmersTagline": "Von lokalen Lebensmittelliebhabern gefunden werden",
+    "forFarmersDesc": "Beanspruchen Sie Ihren kostenlosen Eintrag, um Ihre Informationen aktuell zu halten und mehr Besucher anzuziehen.",
+    "claimListing": "Eintrag beanspruchen"
   }
 }

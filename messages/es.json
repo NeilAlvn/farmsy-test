@@ -1,6 +1,11 @@
 {
   "nav": {
-    "comingSoon": "Próximamente"
+    "comingSoon": "Próximamente",
+    "map": "Mapa",
+    "about": "Acerca de",
+    "faq": "FAQ",
+    "contact": "Contacto",
+    "forFarmers": "Para Agricultores"
   },
   "hero": {
     "badge": "Países Bajos & Bélgica",
@@ -53,6 +58,44 @@
       "desc": "Web y móvil. Encuentra granjas locales donde estés, cuando las necesites."
     }
   },
+  "pricing": {
+    "eyebrow": "Farmsy Premium",
+    "subheading": "Accede a todos los listados de granjas en los Países Bajos y Bélgica sin límite.",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "monthlyTagline": "3 días gratis, luego €4,99/mes",
+    "yearlyTagline": "3 días gratis, luego €29,99/año · Ahorra 50%",
+    "bestValue": "Mejor valor",
+    "cta": "Iniciar prueba gratuita",
+    "finePrint": "Todos los precios incluyen IVA. Pagos procesados por Stripe.",
+    "feature1": "Acceso a 12.717+ granjas verificadas en NL & BE",
+    "feature2": "Resultados de búsqueda ilimitados",
+    "feature3": "Detalles completos — teléfono, web, horarios",
+    "feature4": "Soporte prioritario & acceso anticipado",
+    "headline1": "Precios simples y",
+    "headlineEmphasis": "transparentes"
+  },
+  "homeFaq": {
+    "eyebrow": "FAQ",
+    "headline": "¿Tienes",
+    "headlineEmphasis": "preguntas?",
+    "subtext": "Todo lo que necesitas saber sobre cómo encontrar granjas locales y usar Farmsy.",
+    "viewAll": "Ver todas las preguntas",
+    "q1": "¿Farmsy es gratuito?",
+    "a1": "Explorar el mapa completo de granjas requiere una suscripción Farmsy Premium (€4,99/mes o €29,99/año). Puedes comenzar con una prueba gratuita de 3 días — sin cargo hasta el día 3, y puedes cancelar en cualquier momento antes.",
+    "q2": "¿Qué áreas están cubiertas?",
+    "a2": "Actualmente cubrimos los Países Bajos y Bélgica. Los datos de granjas provienen de OpenStreetMap, Foursquare y Overture Maps. Trabajamos para mejorar la cobertura en ambos países.",
+    "q3": "¿De dónde provienen los datos de las granjas?",
+    "a3": "Nuestros listados se construyen a partir de cuatro fuentes: OpenStreetMap, Foursquare, Overture Maps y Traces. Números de teléfono, sitios web, fotos y datos de ubicación se combinan para darte la imagen más completa posible.",
+    "q4": "¿Cómo reclamo mi listado de granja?",
+    "a4": "Encuentra tu granja en el mapa y abre su panel de detalles. Toca \"Reclamar esta granja\" e inicia sesión con tu correo. Una vez verificado, puedes actualizar tus datos de contacto, horarios y descripción. Reclamar es gratuito.",
+    "q5": "¿Con qué frecuencia se actualizan los datos?",
+    "a5": "Los datos son revisados regularmente por nuestro equipo. La mejor manera de mantener un listado actualizado es que el propietario lo reclame — los listados reclamados pueden editarse directamente y los cambios aparecen de inmediato.",
+    "q6": "¿Tienen una aplicación móvil?",
+    "a6": "Todavía no — pero nuestro sitio web es totalmente responsive y funciona muy bien en móvil. Puedes añadirlo a tu pantalla de inicio para una experiencia similar a una app. Una app nativa está en nuestra hoja de ruta."
+  },
   "cta": {
     "eyebrow": "Acceso anticipado",
     "headline1": "Sé el primero en saber",
@@ -68,6 +111,18 @@
   "footer": {
     "privacy": "Privacidad",
     "terms": "Términos",
-    "copyright": "© 2026 Farmsy"
+    "copyright": "© 2026 Farmsy",
+    "platform": "Plataforma",
+    "legal": "Legal",
+    "map": "Mapa",
+    "aboutUs": "Acerca de",
+    "helpFaq": "Ayuda & FAQ",
+    "privacyPolicy": "Política de privacidad",
+    "contact": "Contacto",
+    "brandDesc": "Conectando personas con granjas locales en los Países Bajos y Bélgica.",
+    "forFarmers": "Para Agricultores",
+    "forFarmersTagline": "Sé encontrado por amantes de la comida local",
+    "forFarmersDesc": "Reclama tu listado gratuito para mantener tu información actualizada y atraer más visitantes a tu granja.",
+    "claimListing": "Reclamar tu listado"
   }
 }

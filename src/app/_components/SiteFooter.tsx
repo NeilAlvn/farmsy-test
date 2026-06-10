@@ -24,6 +24,7 @@ function TikTokIcon({ className }: { className?: string }) {
 
 export default function SiteFooter() {
   const t = useTranslations('footer')
+
   return (
     <footer className="border-t border-border/60 px-6 pt-20 pb-10" style={{ backgroundColor: 'var(--card)' }}>
       <div className="mx-auto max-w-6xl">
@@ -36,7 +37,7 @@ export default function SiteFooter() {
               Farmsy
             </Link>
             <p className="mt-4 max-w-[200px] text-sm leading-relaxed text-muted-foreground">
-              Connecting people with local farms across the Netherlands and Belgium.
+              {t('brandDesc')}
             </p>
             <div className="mt-6 flex items-center gap-4">
               <a
@@ -63,17 +64,17 @@ export default function SiteFooter() {
           {/* Platform */}
           <div>
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
-              Platform
+              {t('platform')}
             </p>
             <ul className="space-y-3.5 text-sm">
-              {[
-                { label: 'Map',        href: '/map' },
-                { label: 'About Us',   href: '/about' },
-                { label: 'Help & FAQ', href: '/faq' },
-              ].map(({ label, href }) => (
+              {([
+                { key: 'map',     href: '/map' },
+                { key: 'aboutUs', href: '/about' },
+                { key: 'helpFaq', href: '/faq' },
+              ] as const).map(({ key, href }) => (
                 <li key={href}>
                   <Link href={href} className="text-muted-foreground transition-colors hover:text-foreground">
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
@@ -83,17 +84,17 @@ export default function SiteFooter() {
           {/* Legal */}
           <div>
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
-              Legal
+              {t('legal')}
             </p>
             <ul className="space-y-3.5 text-sm">
-              {[
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms',          href: '/terms' },
-                { label: 'Contact',        href: '/contact' },
-              ].map(({ label, href }) => (
+              {([
+                { key: 'privacyPolicy', href: '/privacy' },
+                { key: 'terms',         href: '/terms' },
+                { key: 'contact',       href: '/contact' },
+              ] as const).map(({ key, href }) => (
                 <li key={href}>
                   <Link href={href} className="text-muted-foreground transition-colors hover:text-foreground">
-                    {label}
+                    {t(key)}
                   </Link>
                 </li>
               ))}
@@ -109,20 +110,20 @@ export default function SiteFooter() {
               className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]"
               style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.12)', color: 'var(--primary)' }}
             >
-              For Farmers
+              {t('forFarmers')}
             </span>
             <h3 className="mt-4 font-display text-xl font-medium leading-snug tracking-tight text-foreground">
-              Get found by <span className="font-display italic">local food lovers</span>
+              {t('forFarmersTagline')}
             </h3>
             <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-              Claim your free listing to keep your information accurate and attract more visitors directly to your farm.
+              {t('forFarmersDesc')}
             </p>
             <Link
               href="/farmers"
               className="mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)' }}
             >
-              Claim your listing <ArrowRight className="h-4 w-4" />
+              {t('claimListing')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>

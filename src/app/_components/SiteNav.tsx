@@ -15,13 +15,6 @@ const LANGUAGES = [
   { code: 'es', label: 'Español' },
 ]
 
-const NAV_LINKS = [
-  { label: 'Map',         href: '/map' },
-  { label: 'About',       href: '/about' },
-  { label: 'FAQ',         href: '/faq' },
-  { label: 'Contact',     href: '/contact' },
-]
-
 function LanguageSwitcher() {
   const locale = useLocale()
   const router = useRouter()
@@ -83,6 +76,14 @@ function LanguageSwitcher() {
 
 export default function SiteNav() {
   const t = useTranslations('nav')
+
+  const NAV_LINKS = [
+    { label: t('map'),     href: '/map' },
+    { label: t('about'),   href: '/about' },
+    { label: t('faq'),     href: '/faq' },
+    { label: t('contact'), href: '/contact' },
+  ]
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
@@ -110,15 +111,15 @@ export default function SiteNav() {
             className="text-sm font-medium transition-colors hover:opacity-80"
             style={{ color: 'var(--primary)' }}
           >
-            For Farmers
+            {t('forFarmers')}
           </Link>
         </nav>
 
-        {/* Right */}
+        {/* Right — shrink-0 + whitespace-nowrap prevents layout shift on language switch */}
         <div className="flex shrink-0 items-center gap-3">
           <LanguageSwitcher />
           <HeaderAuth />
-          <span className="hidden items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground sm:inline-flex">
+          <span className="hidden shrink-0 items-center gap-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground sm:inline-flex">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />

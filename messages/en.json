@@ -1,6 +1,11 @@
 {
   "nav": {
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "map": "Map",
+    "about": "About",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "forFarmers": "For Farmers"
   },
   "hero": {
     "badge": "Netherlands & Belgium",
@@ -53,6 +58,44 @@
       "desc": "Web and mobile. Find local farms wherever you are, whenever you need them."
     }
   },
+  "pricing": {
+    "eyebrow": "Farmsy Premium",
+    "subheading": "Get unlimited access to every farm listing in the Netherlands and Belgium.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "monthlyTagline": "Try free for 3 days, then €4.99/month",
+    "yearlyTagline": "Try free for 3 days, then €29.99/year · Save 50%",
+    "bestValue": "Best value",
+    "cta": "Start free trial",
+    "finePrint": "All prices include VAT. Payments processed securely by Stripe.",
+    "feature1": "Access to 12,717+ verified farms across NL & BE",
+    "feature2": "Unlimited farm search results",
+    "feature3": "Full farm details — phone, website, hours",
+    "feature4": "Priority support & early access",
+    "headline1": "Simple, transparent",
+    "headlineEmphasis": "pricing"
+  },
+  "homeFaq": {
+    "eyebrow": "FAQ",
+    "headline": "Got",
+    "headlineEmphasis": "questions?",
+    "subtext": "Everything you need to know about finding local farms and using Farmsy.",
+    "viewAll": "View all questions",
+    "q1": "Is Farmsy free to use?",
+    "a1": "Browsing the full farm map requires a Farmsy Premium subscription (€4.99/month or €29.99/year). You can start with a 3-day free trial — no charge until day 3, and you can cancel anytime before then.",
+    "q2": "What areas are covered?",
+    "a2": "We currently cover the Netherlands and Belgium. Farm listings come from OpenStreetMap, Foursquare, and Overture Maps. We are working to improve coverage in both countries.",
+    "q3": "Where does the farm data come from?",
+    "a3": "Our listings are built from a mix of four sources: OpenStreetMap, Foursquare, Overture Maps, and Traces. Phone numbers, websites, photos, and location data are combined from all four to give you the most complete picture possible.",
+    "q4": "How do I claim my farm listing?",
+    "a4": "Find your farm on the map and open its detail panel. Tap \"Claim this farm\" and sign in with your email. Once verified, you can update your contact details, opening hours, description, and more. Claiming is free.",
+    "q5": "How often is the data updated?",
+    "a5": "Data is regularly reviewed by our team. The best way to keep a listing current is for the farm owner to claim it — claimed listings can be edited directly and changes appear immediately.",
+    "q6": "Do you have a mobile app?",
+    "a6": "Not yet — but our website is fully responsive and works great on mobile. You can add it to your home screen for an app-like experience. A native app is on our roadmap."
+  },
   "cta": {
     "eyebrow": "Early access",
     "headline1": "Be the first to know",
@@ -68,6 +111,18 @@
   "footer": {
     "privacy": "Privacy",
     "terms": "Terms",
-    "copyright": "© 2026 Farmsy"
+    "copyright": "© 2026 Farmsy",
+    "platform": "Platform",
+    "legal": "Legal",
+    "map": "Map",
+    "aboutUs": "About Us",
+    "helpFaq": "Help & FAQ",
+    "privacyPolicy": "Privacy Policy",
+    "contact": "Contact",
+    "brandDesc": "Connecting people with local farms across the Netherlands and Belgium.",
+    "forFarmers": "For Farmers",
+    "forFarmersTagline": "Get found by local food lovers",
+    "forFarmersDesc": "Claim your free listing to keep your information accurate and attract more visitors directly to your farm.",
+    "claimListing": "Claim your listing"
   }
 }

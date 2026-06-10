@@ -1,6 +1,11 @@
 {
   "nav": {
-    "comingSoon": "Binnenkort beschikbaar"
+    "comingSoon": "Binnenkort",
+    "map": "Kaart",
+    "about": "Over ons",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "forFarmers": "Voor Boeren"
   },
   "hero": {
     "badge": "Nederland & België",
@@ -53,6 +58,44 @@
       "desc": "Web en mobiel. Vind lokale boerderijen waar je ook bent, wanneer je maar wilt."
     }
   },
+  "pricing": {
+    "eyebrow": "Farmsy Premium",
+    "subheading": "Krijg onbeperkte toegang tot alle boerderijvermeldingen in Nederland en België.",
+    "monthly": "Maandelijks",
+    "yearly": "Jaarlijks",
+    "perMonth": "/maand",
+    "perYear": "/jaar",
+    "monthlyTagline": "3 dagen gratis proberen, daarna €4,99/maand",
+    "yearlyTagline": "3 dagen gratis proberen, daarna €29,99/jaar · Bespaar 50%",
+    "bestValue": "Beste waarde",
+    "cta": "Start gratis proefperiode",
+    "finePrint": "Alle prijzen zijn inclusief btw. Betalingen verwerkt door Stripe.",
+    "feature1": "Toegang tot 12.717+ geverifieerde boerderijen in NL & BE",
+    "feature2": "Onbeperkte zoekresultaten",
+    "feature3": "Volledige boerderijgegevens — telefoon, website, openingstijden",
+    "feature4": "Prioriteitsondersteuning & vroege toegang",
+    "headline1": "Eenvoudige, transparante",
+    "headlineEmphasis": "prijzen"
+  },
+  "homeFaq": {
+    "eyebrow": "FAQ",
+    "headline": "Heb je",
+    "headlineEmphasis": "vragen?",
+    "subtext": "Alles wat je moet weten over het vinden van lokale boerderijen en het gebruik van Farmsy.",
+    "viewAll": "Bekijk alle vragen",
+    "q1": "Is Farmsy gratis te gebruiken?",
+    "a1": "Het bekijken van de volledige boerderijkaart vereist een Farmsy Premium-abonnement (€4,99/maand of €29,99/jaar). Je kunt beginnen met een gratis proefperiode van 3 dagen — geen kosten tot dag 3, en je kunt op elk moment daarvoor annuleren.",
+    "q2": "Welke gebieden worden gedekt?",
+    "a2": "We dekken momenteel Nederland en België. Boerderijvermeldingen komen van OpenStreetMap, Foursquare en Overture Maps. We werken aan verbetering van de dekking in beide landen.",
+    "q3": "Waar komen de boerderijgegevens vandaan?",
+    "a3": "Onze vermeldingen zijn samengesteld uit vier bronnen: OpenStreetMap, Foursquare, Overture Maps en Traces. Telefoonnummers, websites, foto's en locatiegegevens worden gecombineerd voor het meest volledige beeld.",
+    "q4": "Hoe claim ik mijn boerderijvermelding?",
+    "a4": "Vind je boerderij op de kaart en open het detailpaneel. Tik op \"Claim deze boerderij\" en meld je aan met je e-mail. Na verificatie kun je contactgegevens, openingstijden en beschrijving bijwerken. Claimen is gratis.",
+    "q5": "Hoe vaak worden de gegevens bijgewerkt?",
+    "a5": "Gegevens worden regelmatig door ons team beoordeeld. De beste manier om een vermelding actueel te houden is dat de boer deze claimt — geclaimde vermeldingen kunnen direct worden bewerkt en wijzigingen verschijnen onmiddellijk.",
+    "q6": "Hebben jullie een mobiele app?",
+    "a6": "Nog niet — maar onze website werkt volledig responsief en werkt uitstekend op mobiel. Je kunt hem aan je startscherm toevoegen voor een app-achtige ervaring. Een native app staat op onze roadmap."
+  },
   "cta": {
     "eyebrow": "Vroege toegang",
     "headline1": "Wees de eerste die het weet",
@@ -68,6 +111,18 @@
   "footer": {
     "privacy": "Privacy",
     "terms": "Gebruiksvoorwaarden",
-    "copyright": "© 2026 Farmsy"
+    "copyright": "© 2026 Farmsy",
+    "platform": "Platform",
+    "legal": "Juridisch",
+    "map": "Kaart",
+    "aboutUs": "Over ons",
+    "helpFaq": "Help & FAQ",
+    "privacyPolicy": "Privacybeleid",
+    "contact": "Contact",
+    "brandDesc": "Mensen verbinden met lokale boerderijen in Nederland en België.",
+    "forFarmers": "Voor Boeren",
+    "forFarmersTagline": "Word gevonden door lokale voedselliefhebbers",
+    "forFarmersDesc": "Claim je gratis vermelding om je informatie actueel te houden en meer bezoekers naar je boerderij te trekken.",
+    "claimListing": "Claim je vermelding"
   }
 }
