@@ -46,18 +46,18 @@ export default function FarmCard({ farm, idx }: FarmCardProps) {
   return (
     <Link
       href={`/map?id=${farm.osm_id}`}
-      className="group bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.12)] transition-all duration-500 flex flex-col"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-500 hover:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.1)]"
       onPointerOver={(e) => {
         const img = e.currentTarget.querySelector('img')
         if (img && img.naturalWidth === 0 && img.complete) e.currentTarget.style.display = 'none'
       }}
     >
       {/* ── Image ── */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative h-40 shrink-0 overflow-hidden">
         <img
           src={farm.image}
           alt={farm.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           onError={(e) => {
             const card = e.currentTarget.closest('a')
             if (card) card.style.display = 'none'
@@ -65,41 +65,42 @@ export default function FarmCard({ farm, idx }: FarmCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
         {farm.image?.includes('googleusercontent.com') && (
-          <span className="absolute bottom-1 right-2 text-[9px] text-white/60">Photo: Google</span>
+          <span className="absolute bottom-1 right-2 text-[9px] text-white/50">Photo: Google</span>
         )}
 
-        <HeartButton osmId={farm.osm_id} className="absolute top-3 right-3" />
+        <HeartButton osmId={farm.osm_id} className="absolute right-3 top-3" />
 
         {idx < 3 && (
-          <div className="absolute top-3 left-3">
-            <span className="bg-white/90 backdrop-blur-md text-emerald-700 text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest shadow-sm">
+          <div className="absolute left-3 top-3">
+            <span className="rounded-lg bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest shadow-sm backdrop-blur-md" style={{ color: 'var(--primary)' }}>
               Top Pick
             </span>
           </div>
         )}
 
-        {/* City + name on image */}
+        {/* City + name over image */}
         <div className="absolute bottom-3 left-4 right-4 text-white">
-          <p className="text-xs font-bold flex items-center gap-1 mb-1 text-emerald-400">
-            <MapPin className="w-3 h-3" />
+          <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-white/70">
+            <MapPin className="h-3 w-3" />
             {farm.city || 'Local Area'}
           </p>
-          <h3 className="font-bold text-base leading-snug group-hover:text-emerald-300 transition-colors line-clamp-2">
+          <h3 className="font-display text-base font-medium leading-snug tracking-tight transition-colors line-clamp-2 group-hover:text-white/90">
             {farm.name}
           </h3>
         </div>
       </div>
 
       {/* ── Body ── */}
-      <div className="p-4 flex-1 flex flex-col gap-3">
+      <div className="flex flex-1 flex-col gap-3 p-4">
 
         {/* Type tags */}
         {types.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {types.map((t) => (
+            {types.map(t => (
               <span
                 key={t}
-                className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md"
+                className="rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)', color: 'var(--primary)' }}
               >
                 {t}
               </span>
@@ -109,7 +110,7 @@ export default function FarmCard({ farm, idx }: FarmCardProps) {
 
         {/* Description */}
         {farm.description && (
-          <p className="text-gray-500 text-xs leading-relaxed line-clamp-3">
+          <p className="line-clamp-3 text-xs leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {farm.description}
           </p>
         )}
@@ -118,37 +119,38 @@ export default function FarmCard({ farm, idx }: FarmCardProps) {
         {farm.avg_rating != null && farm.review_count != null && farm.review_count > 0 && (
           <div className="flex items-center gap-1.5">
             <StarRating rating={farm.avg_rating} size={12} />
-            <span className="text-xs font-semibold text-gray-600">{farm.avg_rating.toFixed(1)}</span>
-            <span className="text-xs text-gray-400">({farm.review_count})</span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--foreground)' }}>{farm.avg_rating.toFixed(1)}</span>
+            <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>({farm.review_count})</span>
           </div>
         )}
 
-        {/* Contact / hours indicators */}
-        <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1.5 pt-2 border-t border-gray-50">
+        {/* Contact / hours */}
+        <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1.5 border-t pt-2" style={{ borderColor: 'var(--border)' }}>
           {farm.opening_hours && (
-            <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
-              <Clock className="w-3 h-3 text-emerald-500" />
+            <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: 'var(--muted-foreground)' }}>
+              <Clock className="h-3 w-3" style={{ color: 'var(--primary)' }} />
               {farm.opening_hours.split(/[\n;]/)[0].trim().slice(0, 28)}
             </span>
           )}
           {farm.phone && (
-            <span className="flex items-center gap-1 text-[11px] text-gray-400 font-medium">
-              <Phone className="w-3 h-3 text-emerald-500" />
+            <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: 'var(--muted-foreground)' }}>
+              <Phone className="h-3 w-3" style={{ color: 'var(--primary)' }} />
               {farm.phone}
             </span>
           )}
           {farm.website && (
-            <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold">
-              <Globe className="w-3 h-3" />
+            <span className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: 'var(--primary)' }}>
+              <Globe className="h-3 w-3" />
               Website
             </span>
           )}
           {!farm.opening_hours && !farm.phone && !farm.website && (
-            <span className="text-[11px] text-gray-300 italic">No contact info yet</span>
+            <span className="text-[11px] italic" style={{ color: 'var(--muted-foreground)', opacity: 0.5 }}>No contact info yet</span>
           )}
         </div>
+
         {farm.enrichment_source === 'google_places' && (
-          <p className="text-[10px] text-gray-400 mt-1">Business information from Google</p>
+          <p className="mt-1 text-[10px]" style={{ color: 'var(--muted-foreground)', opacity: 0.6 }}>Business information from Google</p>
         )}
       </div>
     </Link>

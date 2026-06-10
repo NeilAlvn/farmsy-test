@@ -41,7 +41,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
   const [tabFade, setTabFade]   = useState(true)
   const fadeTimer               = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const { addFarm, removeFarm, hasFarm } = useTrip()
-  const inTrip = hasFarm(farm.osm_id)
+  const inTrip = hasFarm(farm.osm_id!)
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10)
@@ -147,7 +147,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
           >
             <X size={16} className="text-gray-500" />
           </button>
-          <HeartButton osmId={farm.osm_id} className="absolute top-3 left-3" />
+          <HeartButton osmId={farm.osm_id!} className="absolute top-3 left-3" />
         </div>
 
         {/* ── Name + rating strip ───────────────────────────────────────────── */}
@@ -278,7 +278,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
             </div>
 
             <div className={tab === 'reviews' ? 'p-5' : 'hidden'}>
-              <ReviewsSection farmOsmId={farm.osm_id} />
+              <ReviewsSection farmOsmId={farm.osm_id!} />
             </div>
 
           </div>
@@ -299,10 +299,10 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
           <button
             onClick={() => {
               if (inTrip) {
-                removeFarm(farm.osm_id)
+                removeFarm(farm.osm_id!)
               } else {
                 addFarm({
-                  osmId: farm.osm_id,
+                  osmId: farm.osm_id!,
                   name: farm.name,
                   lat: farm.lat,
                   lng: farm.lng,

@@ -31,9 +31,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Environment variables — never commit secrets
+.env
+.env.local
+.env*.local
+.env.production
+.env.development
+.env.stripe
 !.env.example
+!.env.local.example
 
 # vercel
 .vercel
@@ -48,6 +54,25 @@ next-env.d.ts
 
 # Data processing archive (local only — not for deployment)
 /_archive/
+
+# Scripts directory — DB queries, migrations, one-off importers
+src/scripts/
+
+# Scraped / exported data files
+scraped_descriptions*.json
+messages/
+
+# Backup files of any kind
+*.backup.*
+*_backup.json
+*_backup.sql
+
+# Temp files
+temp_loc.json
+temp_*
+
+# SQL files anywhere in the tree
+*.sql
 
 # Claude Code local settings
 .claude/

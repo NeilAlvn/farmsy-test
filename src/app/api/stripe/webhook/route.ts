@@ -1,0 +1,103 @@
+import { createClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
+
+export const dynamic = 'force-dynamic'
+
+// Stripe requires the raw body to verify the signature
+export const config = { api: { bodyParser: false } }
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+
+async function updateProfile(
+  userId: string,
+  fields: Record<string, unknown>,
+) {
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+  await sb.from('profiles').update(fields).eq('id', userId)
+}
+
+export async function POST(request: Request) {
+  const rawBody = await request.text()
+  const sig = request.headers.get('stripe-signature')
+
+  if (!sig || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return Response.json({ error: 'Missing signature' }, { status: 400 })
+  }
+
+  let event: Stripe.Event
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET)
+  } catch {
+    return Response.json({ error: 'Invalid signature' }, { status: 400 })
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      const userId = session.metadata?.supabase_user_id
+      const plan   = session.metadata?.plan
+
+      if (userId && session.subscription) {
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Stripe.Subscription & { current_period_end: number }
+        await updateProfile(userId, {
+          stripe_subscription_id: sub.id,
+          subscription_status:    'active',
+          subscription_plan:      plan ?? null,
+          subscription_end_date:  new Date(sub.current_period_end * 1000).toISOString(),
+        })
+      }
+      break
+    }
+
+    case 'customer.subscription.updated': {
+      const sub    = event.data.object as Stripe.Subscription & { current_period_end: number }
+      const userId = sub.metadata?.supabase_user_id
+      const plan   = sub.metadata?.plan
+
+      if (userId) {
+        const status = sub.status === 'active' ? 'active'
+                     : sub.status === 'past_due' ? 'past_due'
+                     : 'canceled'
+
+        await updateProfile(userId, {
+          subscription_status:   status,
+          subscription_plan:     plan ?? null,
+          subscription_end_date: new Date(sub.current_period_end * 1000).toISOString(),
+        })
+      }
+      break
+    }
+
+    case 'customer.subscription.deleted': {
+      const sub    = event.data.object as Stripe.Subscription
+      const userId = sub.metadata?.supabase_user_id
+
+      if (userId) {
+        await updateProfile(userId, {
+          subscription_status:    'canceled',
+          subscription_plan:      null,
+          subscription_end_date:  null,
+          stripe_subscription_id: null,
+        })
+      }
+      break
+    }
+
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice & { subscription?: string }
+      if (invoice.subscription) {
+        const sub    = await stripe.subscriptions.retrieve(invoice.subscription)
+        const userId = sub.metadata?.supabase_user_id
+        if (userId) {
+          await updateProfile(userId, { subscription_status: 'past_due' })
+        }
+      }
+      break
+    }
+  }
+
+  return Response.json({ received: true })
+}

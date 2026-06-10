@@ -25,6 +25,7 @@ import HeartButton from '@/app/_components/HeartButton'
 
 // SlimFarm: loaded for all farms on initial page load. Heavy fields omitted.
 export interface SlimFarm {
+  id: string
   name: string
   lat: number
   lng: number
@@ -36,7 +37,7 @@ export interface SlimFarm {
   phone: string | null
   opening_hours: string | null
   image: string | null
-  osm_id: string
+  osm_id: string | null
   primary_tag: string | null
   farm_type: string[] | null
   enrichment_source: string | null
@@ -275,7 +276,7 @@ function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm:
                 const types = farm.farm_type ?? []
                 return (
                   <div
-                    key={farm.osm_id}
+                    key={farm.osm_id ?? farm.id}
                     onClick={() => onSelect(farm)}
                     role="button"
                     tabIndex={0}
@@ -303,7 +304,7 @@ function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm:
                         <span className="absolute bottom-1 right-2 text-[9px] text-white/60">Photo: Google</span>
                       )}
 
-                      <HeartButton osmId={farm.osm_id} className="absolute top-3 right-3" />
+                      <HeartButton osmId={farm.osm_id!} className="absolute top-3 right-3" />
 
                       {idx < 3 && (
                         <div className="absolute top-3 left-3">
@@ -418,7 +419,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
     // Fetch deferred fields in background
     try {
-      const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id)}`)
+      const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id!)}`)
       if (res.ok) {
         const details = await res.json() as { description: string | null; email: string | null; facebook: string | null; instagram: string | null; organic: string | null; produce: string | null; operator: string | null }
         setSelectedFarm(prev => prev?.osm_id === slim.osm_id ? { ...prev, ...details } : prev)
@@ -500,7 +501,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   const markerElements = useMemo(() => {
     return visible.map(farm => (
       <Marker
-        key={farm.osm_id}
+        key={farm.osm_id ?? farm.id}
         position={[farm.lat, farm.lng]}
         icon={farmIcon(farm.farm_type?.[0], smallMarkers)}
         eventHandlers={{
@@ -635,7 +636,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
               <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden py-2">
                 {suggestions.map(farm => (
                   <button
-                    key={farm.osm_id}
+                    key={farm.osm_id ?? farm.id}
                     onMouseDown={e => { e.preventDefault(); handleSuggestionClick(farm) }}
                     className="flex items-center gap-4 w-full px-6 py-3 hover:bg-emerald-50 transition-colors group"
                   >
