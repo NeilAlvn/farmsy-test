@@ -11,6 +11,30 @@ interface Profile {
   subscription_end_date: string | null
 }
 
+// ─── Session cache ────────────────────────────────────────────────────────────
+// Avoids a round-trip DB call on every map visit. TTL: 5 minutes.
+
+const CACHE_KEY = 'farmsy:sub'
+const CACHE_TTL = 5 * 60 * 1000
+
+function readCache(userId: string): Profile | null {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+    const { uid, profile, ts } = JSON.parse(raw) as { uid: string; profile: Profile; ts: number }
+    if (uid !== userId || Date.now() - ts > CACHE_TTL) return null
+    return profile
+  } catch { return null }
+}
+
+function writeCache(userId: string, profile: Profile) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ uid: userId, profile, ts: Date.now() }))
+  } catch { /* ignore — quota errors etc. */ }
+}
+
+// ─── Trial banner ──────────────────────────────────────────────────────────────
+
 function trialDaysLeft(endDate: string | null): number {
   if (!endDate) return 0
   const ms = new Date(endDate).getTime() - Date.now()
@@ -38,6 +62,8 @@ function TrialBanner({ endDate }: { endDate: string | null }) {
   )
 }
 
+// ─── Guard ─────────────────────────────────────────────────────────────────────
+
 export default function SubscriptionGuard({ children }: { children: ReactNode }) {
   const router = useRouter()
   const [status, setStatus] = useState<Status>('loading')
@@ -45,6 +71,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
 
   useEffect(() => {
     async function check() {
+      // getSession() reads from localStorage — fast, no network call
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.user) {
@@ -52,22 +79,52 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         return
       }
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status, subscription_end_date')
-        .eq('id', session.user.id)
-        .single()
+      const userId = session.user.id
 
-      const allowed = data?.subscription_status === 'active'
-                   || data?.subscription_status === 'trialing'
-
-      if (!allowed) {
-        router.replace('/pricing')
+      // Check session cache first — eliminates DB round trip on repeat visits
+      const cached = readCache(userId)
+      if (cached) {
+        const allowed = cached.subscription_status === 'active'
+                     || cached.subscription_status === 'trialing'
+        if (!allowed) { router.replace('/pricing'); return }
+        setProfile(cached)
+        setStatus('allowed')
+        // Refresh in background so cache stays fresh
+        refreshProfile(userId)
         return
       }
 
-      setProfile(data)
-      setStatus('allowed')
+      // No cache — fetch from DB
+      await refreshProfile(userId, true)
+    }
+
+    async function refreshProfile(userId: string, applyResult = false) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('subscription_status, subscription_end_date')
+        .eq('id', userId)
+        .single()
+
+      if (!data) {
+        if (applyResult) router.replace('/pricing')
+        return
+      }
+
+      writeCache(userId, data)
+
+      if (applyResult) {
+        const allowed = data.subscription_status === 'active'
+                     || data.subscription_status === 'trialing'
+        if (!allowed) { router.replace('/pricing'); return }
+        setProfile(data)
+        setStatus('allowed')
+      } else {
+        // Background refresh: update profile if subscription status changed
+        setProfile(prev => {
+          if (!prev) return prev
+          return prev.subscription_status !== data.subscription_status ? data : prev
+        })
+      }
     }
 
     check()

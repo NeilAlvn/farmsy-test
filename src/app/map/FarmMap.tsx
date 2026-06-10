@@ -498,8 +498,18 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
   const smallMarkers = zoom < 10
 
+  // At low zoom every farm collapses into a cluster anyway.
+  // Cap to 1500 to prevent React from freezing the browser with 12k+ elements.
+  const markersToRender = useMemo(() => {
+    if (zoom < 9 && visible.length > 1500) {
+      const step = Math.ceil(visible.length / 1500)
+      return visible.filter((_, i) => i % step === 0)
+    }
+    return visible
+  }, [visible, zoom])
+
   const markerElements = useMemo(() => {
-    return visible.map(farm => (
+    return markersToRender.map(farm => (
       <Marker
         key={farm.osm_id ?? farm.id}
         position={[farm.lat, farm.lng]}
@@ -512,12 +522,12 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
         }}
       />
     ))
-  }, [visible, smallMarkers, openFarm])
+  }, [markersToRender, smallMarkers, openFarm])
 
   const handleBoundsInit   = useCallback((b: L.LatLngBounds) => { setBounds(b) }, [])
   const handleBoundsChange = useCallback((b: L.LatLngBounds) => {
     clearTimeout(boundsTimer.current)
-    boundsTimer.current = setTimeout(() => setBounds(b), 250)
+    boundsTimer.current = setTimeout(() => setBounds(b), 400)
   }, [])
 
   useEffect(() => {
