@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import MapLoader from './MapLoader'
+import SubscriptionGuard from '@/app/_components/SubscriptionGuard'
 import type { SlimFarm } from './FarmMap'
 
 export const dynamic = 'force-dynamic'
@@ -116,5 +117,9 @@ export default async function MapPage() {
     )
   }
 
-  return <MapLoader farms={farms} />
+  return (
+    <SubscriptionGuard>
+      <MapLoader farms={farms} />
+    </SubscriptionGuard>
+  )
 }

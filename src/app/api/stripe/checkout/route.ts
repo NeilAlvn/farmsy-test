@@ -56,9 +56,13 @@ export async function POST(request: Request) {
     success_url: `${appUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${appUrl}/subscription/cancelled`,
     metadata:    { supabase_user_id: userId, plan },
+    // 3-day free trial — card collected upfront, no charge until day 3
     subscription_data: {
+      trial_period_days: 3,
       metadata: { supabase_user_id: userId, plan },
     },
+    // Require card details even during trial
+    payment_method_collection: 'always',
   })
 
   return Response.json({ url: session.url })

@@ -8,10 +8,9 @@ import { Check, Zap } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 const FEATURES = [
+  'Access to 12,717+ verified farms across NL & BE',
   'Unlimited farm search results',
   'Full farm details (phone, website, hours)',
-  'Export farms to Excel / CSV',
-  'Email alerts for new farms near you',
   'Priority customer support',
   'Early access to new features',
 ]
@@ -36,6 +35,7 @@ export default function PricingPage() {
   }, [])
 
   const isPaid = profile?.subscription_status === 'active'
+              || profile?.subscription_status === 'trialing'
 
   async function handleCheckout(plan: 'monthly' | 'yearly') {
     if (!user) {
@@ -103,7 +103,7 @@ export default function PricingPage() {
                 <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€4.99</span>
                 <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>/month</span>
               </div>
-              <p className="text-sm mt-2" style={{ color: 'var(--muted-foreground)' }}>Cancel any time.</p>
+              <p className="text-sm mt-2" style={{ color: 'var(--muted-foreground)' }}>Try free for 3 days, then €4.99/month</p>
             </div>
 
             <ul className="space-y-3 flex-1">
@@ -125,14 +125,19 @@ export default function PricingPage() {
                 {loading === 'portal' ? 'Loading…' : 'Manage subscription'}
               </button>
             ) : (
-              <button
-                onClick={() => handleCheckout('monthly')}
-                disabled={loading === 'monthly'}
-                className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
-              >
-                {loading === 'monthly' ? 'Loading…' : 'Start monthly plan'}
-              </button>
+              <>
+                <button
+                  onClick={() => handleCheckout('monthly')}
+                  disabled={loading === 'monthly'}
+                  className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
+                  style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
+                >
+                  {loading === 'monthly' ? 'Loading…' : 'Start your 3-day free trial'}
+                </button>
+                <p className="text-xs text-center -mt-3" style={{ color: 'var(--muted-foreground)' }}>
+                  No charge for 3 days. Cancel anytime before trial ends and you won't be billed.
+                </p>
+              </>
             )}
           </div>
 
@@ -154,7 +159,7 @@ export default function PricingPage() {
                 <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>/year</span>
               </div>
               <p className="text-sm mt-2" style={{ color: 'var(--primary)' }}>
-                Save 50% vs monthly · €2.50/month
+                Try free for 3 days, then €29.99/year · Save 50%
               </p>
             </div>
 
@@ -177,14 +182,19 @@ export default function PricingPage() {
                 {loading === 'portal' ? 'Loading…' : 'Manage subscription'}
               </button>
             ) : (
-              <button
-                onClick={() => handleCheckout('yearly')}
-                disabled={loading === 'yearly'}
-                className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              >
-                {loading === 'yearly' ? 'Loading…' : 'Start yearly plan'}
-              </button>
+              <>
+                <button
+                  onClick={() => handleCheckout('yearly')}
+                  disabled={loading === 'yearly'}
+                  className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                >
+                  {loading === 'yearly' ? 'Loading…' : 'Start your 3-day free trial'}
+                </button>
+                <p className="text-xs text-center -mt-3" style={{ color: 'var(--muted-foreground)' }}>
+                  No charge for 3 days. Cancel anytime before trial ends and you won't be billed.
+                </p>
+              </>
             )}
           </div>
         </div>
