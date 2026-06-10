@@ -527,7 +527,7 @@ function Pricing() {
           </p>
         </motion.div>
 
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto items-start">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto items-stretch">
 
           {/* Monthly */}
           <motion.div
