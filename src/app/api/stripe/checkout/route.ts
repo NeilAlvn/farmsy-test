@@ -47,14 +47,14 @@ export async function POST(request: Request) {
       .eq('id', userId)
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+  const origin = new URL(request.url).origin
 
   const session = await stripe.checkout.sessions.create({
     customer:   customerId,
     mode:       'subscription',
     line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
-    success_url: `${appUrl}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url:  `${appUrl}/subscription/cancelled`,
+    success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url:  `${origin}/subscription/cancelled`,
     metadata:    { supabase_user_id: userId, plan },
     // 3-day free trial — card collected upfront, no charge until day 3
     subscription_data: {

@@ -27,9 +27,11 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No active subscription' }, { status: 404 })
   }
 
+  const origin = new URL(request.url).origin
+
   const session = await stripe.billingPortal.sessions.create({
     customer:   profile.stripe_customer_id,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+    return_url: `${origin}/pricing`,
   })
 
   return Response.json({ url: session.url })
