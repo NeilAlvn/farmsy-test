@@ -14,10 +14,10 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         Open the{' '}
-        <Link href="/map" className="text-emerald-600 hover:underline font-medium">interactive map</Link> and use the
-        &ldquo;Locate me&rdquo; button (the crosshair icon in the search bar) to jump to your current location.
-        You can also type a city name or postal code in the search box. The map will show all farms in the visible area —
-        tap any pin to see details.
+        <Link href="/map" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+          interactive map
+        </Link>{' '}
+        and use the "Locate me" button (crosshair icon) to jump to your location. You can also type a city or postal code. Tap any pin to see farm details.
       </>
     ),
   },
@@ -29,26 +29,19 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'How do I claim my farm listing?',
     a: (
       <>
-        Find your farm on the map and open its detail panel. Tap <strong>&ldquo;Claim this farm&rdquo;</strong> and
-        sign in with your email. Once verified, you can update your contact details, opening hours, description, and
-        more. Claiming is free and takes only a few minutes.
+        Find your farm on the map and open its detail panel. Tap <strong>"Claim this farm"</strong> and sign in with your email. Once verified, you can update your contact details, opening hours, description, and more. Claiming is free.
       </>
     ),
   },
   {
     q: 'What areas are covered?',
-    a: 'We currently cover the Netherlands and Belgium. Farm listings come from OpenStreetMap, Foursquare, and Overture Maps. We are working to improve coverage in both countries.',
+    a: 'We currently cover the Netherlands and Belgium. Listings come from OpenStreetMap, Foursquare, Overture Maps, and Traces. We are continuously improving coverage in both countries.',
   },
   {
     q: 'Where does the farm data come from?',
     a: (
       <>
-        Our data comes from three sources:
-        <ul className="list-disc list-inside mt-2 space-y-1">
-          <li><strong>OpenStreetMap</strong> — volunteer-contributed geographic data (Netherlands &amp; Belgium)</li>
-          <li><strong>Google Places</strong> — used to enrich listings with phone numbers, websites, and photos</li>
-        </ul>
-        Listings show a small attribution note when data comes from Google Places.
+        Our data is built from four sources: <strong>OpenStreetMap</strong>, <strong>Foursquare</strong>, <strong>Overture Maps</strong>, and <strong>Traces</strong>. Phone numbers, websites, photos, and locations are combined from all four for the most complete picture possible.
       </>
     ),
   },
@@ -56,11 +49,10 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'How often is the data updated?',
     a: (
       <>
-        Data is regularly reviewed and updated by our team. The best way to ensure a listing stays current is for the
-        farm owner to <strong>claim it</strong> — claimed listings can be edited directly at any time and changes
-        appear immediately. If you spot something outdated,{' '}
-        <Link href="/contact" className="text-emerald-600 hover:underline font-medium">let us know</Link> and we&apos;ll
-        take a look.
+        Data is regularly reviewed by our team. The best way to keep a listing current is for the farm owner to claim it — claimed listings can be edited directly and changes appear immediately. If you spot something outdated,{' '}
+        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+          let us know
+        </Link>.
       </>
     ),
   },
@@ -69,12 +61,14 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         Yes —{' '}
-        <Link href="/contact" className="text-emerald-600 hover:underline font-medium">contact us</Link> with the farm&apos;s
-        name, location, and any details you have and we&apos;ll review it for addition. You can also add the farm to{' '}
-        <a href="https://www.openstreetmap.org/edit" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline font-medium">
+        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+          contact us
+        </Link>{' '}
+        with the farm's name and location and we'll review it. You can also add it to{' '}
+        <a href="https://www.openstreetmap.org/edit" target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
           OpenStreetMap
         </a>{' '}
-        — open geographic data that we draw from when building our database.
+        — open geographic data we draw from when building our database.
       </>
     ),
   },
@@ -82,10 +76,10 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'Why is my farm information wrong?',
     a: (
       <>
-        If you own the farm, the fastest fix is to <strong>claim your listing</strong> — you can then edit everything
-        directly. If you&apos;re a customer who spotted an error, please use the &ldquo;Report incorrect info&rdquo; link
-        at the bottom of the farm detail panel, or{' '}
-        <Link href="/contact" className="text-emerald-600 hover:underline font-medium">contact us</Link>.
+        If you own the farm, the fastest fix is to <strong>claim your listing</strong> — you can then edit everything directly. If you're a visitor who spotted an error, use the "Report incorrect info" link at the bottom of the farm detail panel, or{' '}
+        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+          contact us
+        </Link>.
       </>
     ),
   },
@@ -93,15 +87,17 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     q: 'Is my personal data safe?',
     a: (
       <>
-        We collect only what we need. Consumer visitors have no data collected beyond anonymous usage statistics.
-        Account holders (farmers) have their email stored securely via Supabase Auth. See our{' '}
-        <Link href="/privacy" className="text-emerald-600 hover:underline font-medium">Privacy Policy</Link> for full details.
+        We collect only what we need. Visitors have no personal data collected beyond anonymous analytics. Account holders have their email stored securely via Supabase Auth. See our{' '}
+        <Link href="/privacy" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+          Privacy Policy
+        </Link>{' '}
+        for full details.
       </>
     ),
   },
   {
     q: 'Do you have a mobile app?',
-    a: 'Not yet — but our website is fully responsive and works well on mobile browsers. You can add it to your home screen for an app-like experience.',
+    a: 'Not yet — but our website is fully responsive and works great on mobile. You can add it to your home screen for an app-like experience. A native app is on our roadmap.',
   },
 ]
 
@@ -109,63 +105,67 @@ export default function FaqPage() {
   return (
     <ContentLayout>
 
-      {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 text-white py-24 px-4 overflow-hidden relative">
-        <div className="absolute inset-0 opacity-[0.12]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        <div className="max-w-3xl mx-auto relative">
-          <p className="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-3">Help &amp; Support</p>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6 leading-tight">
-            Frequently asked questions
+      {/* Page header */}
+      <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
+        <div className="mx-auto max-w-3xl">
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
+            Help &amp; Support
+          </p>
+          <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
+            Frequently asked{' '}
+            <span className="serif-italic" style={{ color: 'var(--primary)' }}>questions</span>
           </h1>
-          <p className="text-emerald-100/80 text-lg leading-relaxed max-w-2xl mb-8">
+          <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             Everything you need to know about finding local farms and using Farmsy.
           </p>
-          <Link
-            href="/map"
-            className="inline-flex items-center gap-2 bg-white text-emerald-900 font-bold px-6 py-3 rounded-full hover:bg-emerald-50 transition-all shadow-lg"
-          >
-            Explore the map <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       </section>
 
-      {/* ── Questions ────────────────────────────────────────────── */}
-      <div className="py-16 px-4">
-        <div className="max-w-3xl mx-auto space-y-4">
+      {/* Questions */}
+      <section className="px-6 py-20">
+        <div className="mx-auto max-w-3xl space-y-3">
           {FAQS.map(({ q, a }, i) => (
             <details
               key={i}
-              className="group bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden"
+              className="group overflow-hidden rounded-2xl border"
+              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
             >
-              <summary className="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer list-none select-none hover:bg-gray-50 transition-colors">
-                <span className="font-bold text-gray-900">{q}</span>
-                <span className="shrink-0 w-6 h-6 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 group-open:rotate-45 transition-transform duration-200 text-lg leading-none">
+              <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-4 px-6 py-5 transition-colors hover:opacity-80">
+                <span className="font-medium leading-snug" style={{ color: 'var(--foreground)' }}>{q}</span>
+                <span
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-lg leading-none transition-transform duration-200 group-open:rotate-45"
+                  style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+                  aria-hidden
+                >
                   +
                 </span>
               </summary>
-              <div className="px-6 pb-6 pt-1 text-gray-600 leading-relaxed border-t border-gray-50">
+              <div className="border-t px-6 pb-6 pt-4 text-sm leading-relaxed" style={{ borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}>
                 {a}
               </div>
             </details>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* ── CTA ──────────────────────────────────────────────────── */}
-      <div className="py-16 px-4 bg-gray-50">
-        <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-3">Still have questions?</h2>
-          <p className="text-gray-500 mb-6">
-            We&apos;re happy to help. Send us a message and we&apos;ll get back to you within one business day.
+      {/* CTA */}
+      <section className="px-6 py-20" style={{ borderTop: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
+        <div className="mx-auto max-w-xl text-center">
+          <h2 className="font-display text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
+            Still have <span className="serif-italic">questions?</span>
+          </h2>
+          <p className="mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+            We're happy to help. Send us a message and we'll get back to you within one business day.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-full transition-colors shadow-md shadow-emerald-600/20"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
+            style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
           >
-            Contact us
+            Contact us <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
+      </section>
 
     </ContentLayout>
   )

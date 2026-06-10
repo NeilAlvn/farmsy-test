@@ -21,6 +21,7 @@ import {
   Play,
   Check,
   Loader2,
+  Zap,
 } from 'lucide-react'
 import FarmCard from '@/app/FarmCard'
 import type { FarmPreview } from '@/app/page'
@@ -61,6 +62,7 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
         <Stats />
         <FeaturedFarms farms={farms} />
         <Features />
+        <Pricing />
         <FAQ />
       </main>
       <SiteFooter />
@@ -492,6 +494,122 @@ function Features() {
             )
           })}
         </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Pricing ──────────────────────────────────────────────────────────────────
+
+const PRICING_FEATURES = [
+  'Unlimited farm search results',
+  'Full farm details — phone, website, hours',
+  'Export farms to Excel / CSV',
+  'Email alerts for new farms near you',
+  'Priority support & early access',
+]
+
+function Pricing() {
+  return (
+    <section className="border-t border-border/60 px-6 py-24 sm:py-32">
+      <div className="mx-auto max-w-6xl">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-100px' }}
+          variants={fadeUp}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary">
+            Farmsy Premium
+          </p>
+          <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.025em] text-foreground sm:text-5xl">
+            Simple,{' '}
+            <span className="serif-italic">transparent</span> pricing
+          </h2>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+            Get unlimited access to every farm listing in the Netherlands and Belgium.
+          </p>
+        </motion.div>
+
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto items-start">
+
+          {/* Monthly */}
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-50px' }}
+            variants={fadeUp}
+            transition={{ delay: 0.05 }}
+            className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
+          >
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Monthly</p>
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€4.99</span>
+                <span className="text-sm text-muted-foreground">/month</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">Cancel any time.</p>
+            </div>
+            <ul className="space-y-3 flex-1">
+              {PRICING_FEATURES.map(f => (
+                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/pricing"
+              className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80"
+            >
+              Get started
+            </Link>
+          </motion.div>
+
+          {/* Yearly — highlighted */}
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-50px' }}
+            variants={fadeUp}
+            transition={{ delay: 0.12 }}
+            className="relative rounded-2xl p-8 flex flex-col gap-6 overflow-hidden"
+            style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
+          >
+            <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+              <Zap className="h-3 w-3" />
+              Best value
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Yearly</p>
+              <div className="flex items-baseline gap-1">
+                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
+                <span className="text-sm text-muted-foreground">/year</span>
+              </div>
+              <p className="mt-2 text-sm text-primary font-medium">Save 50% · €2.50/month</p>
+            </div>
+            <ul className="space-y-3 flex-1">
+              {PRICING_FEATURES.map(f => (
+                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                  <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/pricing"
+              className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+            >
+              Get started
+            </Link>
+          </motion.div>
+
+        </div>
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          All prices include VAT. Payments processed securely by Stripe.
+        </p>
       </div>
     </section>
   )
