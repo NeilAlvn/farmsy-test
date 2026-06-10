@@ -3,9 +3,6 @@ import Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 
-// Stripe requires the raw body to verify the signature
-export const config = { api: { bodyParser: false } }
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 async function updateProfile(

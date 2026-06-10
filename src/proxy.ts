@@ -8,7 +8,7 @@ const DEFAULT_LOCALE = 'en'
 // Unauthenticated visitors are redirected to the sign-in page.
 const AUTH_REQUIRED = ['/favorites', '/trips', '/profile', '/dashboard', '/admin']
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   // ── Auth guard ────────────────────────────────────────────────────────────
