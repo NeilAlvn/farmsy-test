@@ -60,7 +60,6 @@ src/scripts/
 
 # Scraped / exported data files
 scraped_descriptions*.json
-messages/
 
 # Backup files of any kind
 *.backup.*

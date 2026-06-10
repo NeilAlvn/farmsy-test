@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "comingSoon": "Demnächst verfügbar"
+  },
+  "hero": {
+    "badge": "Niederlande & Belgien",
+    "headline1": "Lokale Bauernhöfe,",
+    "headline2": "frisch",
+    "headlineEmphasis": "direkt von der Quelle.",
+    "subheadline": "Farmsy verbindet Sie mit verifizierten Bauernhöfen in den Niederlanden und Belgien. Von Hofläden bis zu Bio-Produzenten — entdecken, vernetzen und unterstützen Sie die lokale Landwirtschaft.",
+    "launchingSoon": "Seien Sie einer der Ersten, die Farmsy erleben. Bald verfügbar."
+  },
+  "subscribe": {
+    "placeholder": "E-Mail-Adresse eingeben",
+    "cta": "Frühen Zugang erhalten",
+    "consent": "Ich möchte Updates von Farmsy erhalten.",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "success": "Sie stehen auf der Liste. Wir melden uns bald.",
+    "errorEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    "errorConsent": "Bitte akzeptieren Sie die Einwilligung, um fortzufahren.",
+    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "farms": {
+    "eyebrow": "Frisch vom Hof",
+    "headline1": "Echte Bauernhöfe,",
+    "headlineEmphasis": "echte Produkte.",
+    "exploreMap": "Vollständige Karte erkunden"
+  },
+  "stats": {
+    "eyebrow": "Zahlen & Fakten",
+    "verifiedFarms": "Verifizierte Bauernhöfe",
+    "coverage": "Abdeckung",
+    "launching": "Markteinführung"
+  },
+  "features": {
+    "eyebrow": "Was kommt",
+    "headline1": "Alles, was Sie brauchen, um",
+    "headlineEmphasis": "lokal zu essen.",
+    "findFarms": {
+      "title": "Lokale Höfe finden",
+      "desc": "Entdecken Sie verifizierte Bauernhöfe in Ihrer Region. Suchen Sie nach Standort, Art oder Bio-Zertifizierung."
+    },
+    "verified": {
+      "title": "Verifiziert & vertrauenswürdig",
+      "desc": "Jeder Hof ist verifiziert. SKAL-zertifizierte Bio-Höfe sind klar gekennzeichnet."
+    },
+    "connect": {
+      "title": "Direkt verbinden",
+      "desc": "Sehen Sie Produkte, Öffnungszeiten und verbinden Sie sich direkt mit den Menschen hinter Ihrem Essen."
+    },
+    "available": {
+      "title": "Immer verfügbar",
+      "desc": "Web und mobil. Finden Sie lokale Bauernhöfe, wo immer Sie sind, wann immer Sie möchten."
+    }
+  },
+  "cta": {
+    "eyebrow": "Früher Zugang",
+    "headline1": "Seien Sie der Erste,",
+    "headlineEmphasis": "wenn wir starten.",
+    "subtext": "Tragen Sie sich in die Vorstart-Liste ein. Kein Spam — nur eine E-Mail, wenn Farmsy live geht."
+  },
+  "store": {
+    "downloadOn": "Laden im",
+    "getItOn": "Jetzt bei",
+    "free": "Kostenlos herunterladen · iOS & Android",
+    "comingSoon": "Demnächst"
+  },
+  "footer": {
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "copyright": "© 2026 Farmsy"
+  }
+}

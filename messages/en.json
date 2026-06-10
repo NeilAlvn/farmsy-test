@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "comingSoon": "Coming soon"
+  },
+  "hero": {
+    "badge": "Netherlands & Belgium",
+    "headline1": "Local farms,",
+    "headline2": "fresh",
+    "headlineEmphasis": "from the source.",
+    "subheadline": "Farmsy connects you with verified farms across the Netherlands and Belgium. From farm shops to organic producers — discover, connect, and support local agriculture.",
+    "launchingSoon": "Be among the first to experience Farmsy. Launching soon."
+  },
+  "subscribe": {
+    "placeholder": "Enter your email",
+    "cta": "Get Early Access",
+    "consent": "I'd like to receive updates from Farmsy.",
+    "privacyPolicy": "Privacy policy",
+    "success": "You're on the list. We'll be in touch soon.",
+    "errorEmail": "Please enter a valid email address.",
+    "errorConsent": "Please accept the consent to continue.",
+    "errorGeneric": "Something went wrong. Try again."
+  },
+  "farms": {
+    "eyebrow": "Fresh from the farm",
+    "headline1": "Real farms,",
+    "headlineEmphasis": "real produce.",
+    "exploreMap": "Explore full map"
+  },
+  "stats": {
+    "eyebrow": "By the numbers",
+    "verifiedFarms": "Verified farms",
+    "coverage": "Coverage",
+    "launching": "Launching"
+  },
+  "features": {
+    "eyebrow": "What's coming",
+    "headline1": "Everything you need to",
+    "headlineEmphasis": "eat local.",
+    "findFarms": {
+      "title": "Find local farms",
+      "desc": "Discover verified farms in your region. Search by location, type, or organic certification."
+    },
+    "verified": {
+      "title": "Verified & trusted",
+      "desc": "Every farm is verified. SKAL-certified organic farms are clearly marked for transparency."
+    },
+    "connect": {
+      "title": "Connect directly",
+      "desc": "View farm products, opening hours, and connect directly with the people behind your food."
+    },
+    "available": {
+      "title": "Always available",
+      "desc": "Web and mobile. Find local farms wherever you are, whenever you need them."
+    }
+  },
+  "cta": {
+    "eyebrow": "Early access",
+    "headline1": "Be the first to know",
+    "headlineEmphasis": "when we launch.",
+    "subtext": "Join the pre-launch list. No spam — just one email when Farmsy goes live."
+  },
+  "store": {
+    "downloadOn": "Download on the",
+    "getItOn": "Get it on",
+    "free": "Free to download · iOS & Android",
+    "comingSoon": "Coming soon"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© 2026 Farmsy"
+  }
+}

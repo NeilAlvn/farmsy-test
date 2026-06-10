@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "comingSoon": "Binnenkort beschikbaar"
+  },
+  "hero": {
+    "badge": "Nederland & België",
+    "headline1": "Lokale boerderijen,",
+    "headline2": "vers",
+    "headlineEmphasis": "rechtstreeks van de bron.",
+    "subheadline": "Farmsy verbindt je met geverifieerde boerderijen in Nederland en België. Van boerderijwinkels tot biologische producenten — ontdek, maak contact en steun de lokale landbouw.",
+    "launchingSoon": "Wees een van de eersten die Farmsy ervaart. Binnenkort beschikbaar."
+  },
+  "subscribe": {
+    "placeholder": "Voer je e-mailadres in",
+    "cta": "Vroeg toegang krijgen",
+    "consent": "Ik wil graag updates ontvangen van Farmsy.",
+    "privacyPolicy": "Privacybeleid",
+    "success": "Je staat op de lijst. We nemen snel contact met je op.",
+    "errorEmail": "Voer een geldig e-mailadres in.",
+    "errorConsent": "Accepteer de toestemming om door te gaan.",
+    "errorGeneric": "Er is iets misgegaan. Probeer opnieuw."
+  },
+  "farms": {
+    "eyebrow": "Vers van de boerderij",
+    "headline1": "Echte boerderijen,",
+    "headlineEmphasis": "echte producten.",
+    "exploreMap": "Verken de volledige kaart"
+  },
+  "stats": {
+    "eyebrow": "In cijfers",
+    "verifiedFarms": "Geverifieerde boerderijen",
+    "coverage": "Dekking",
+    "launching": "Lancering"
+  },
+  "features": {
+    "eyebrow": "Wat eraan komt",
+    "headline1": "Alles wat je nodig hebt om",
+    "headlineEmphasis": "lokaal te eten.",
+    "findFarms": {
+      "title": "Vind lokale boerderijen",
+      "desc": "Ontdek geverifieerde boerderijen in jouw regio. Zoek op locatie, type of biologisch certificaat."
+    },
+    "verified": {
+      "title": "Geverifieerd & vertrouwd",
+      "desc": "Elke boerderij is geverifieerd. SKAL-gecertificeerde biologische boerderijen zijn duidelijk gemarkeerd."
+    },
+    "connect": {
+      "title": "Direct contact",
+      "desc": "Bekijk producten, openingstijden en neem direct contact op met de mensen achter je eten."
+    },
+    "available": {
+      "title": "Altijd beschikbaar",
+      "desc": "Web en mobiel. Vind lokale boerderijen waar je ook bent, wanneer je maar wilt."
+    }
+  },
+  "cta": {
+    "eyebrow": "Vroege toegang",
+    "headline1": "Wees de eerste die het weet",
+    "headlineEmphasis": "wanneer we lanceren.",
+    "subtext": "Schrijf je in voor de pre-launch lijst. Geen spam — alleen één e-mail wanneer Farmsy live gaat."
+  },
+  "store": {
+    "downloadOn": "Download in de",
+    "getItOn": "Verkrijgbaar op",
+    "free": "Gratis te downloaden · iOS & Android",
+    "comingSoon": "Binnenkort"
+  },
+  "footer": {
+    "privacy": "Privacy",
+    "terms": "Gebruiksvoorwaarden",
+    "copyright": "© 2026 Farmsy"
+  }
+}

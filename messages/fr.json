@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "comingSoon": "Bientôt disponible"
+  },
+  "hero": {
+    "badge": "Pays-Bas & Belgique",
+    "headline1": "Fermes locales,",
+    "headline2": "frais",
+    "headlineEmphasis": "directement à la source.",
+    "subheadline": "Farmsy vous connecte avec des fermes vérifiées aux Pays-Bas et en Belgique. Des magasins à la ferme aux producteurs biologiques — découvrez, connectez et soutenez l'agriculture locale.",
+    "launchingSoon": "Soyez parmi les premiers à découvrir Farmsy. Lancement imminent."
+  },
+  "subscribe": {
+    "placeholder": "Entrez votre adresse e-mail",
+    "cta": "Accès anticipé",
+    "consent": "Je souhaite recevoir des mises à jour de Farmsy.",
+    "privacyPolicy": "Politique de confidentialité",
+    "success": "Vous êtes sur la liste. Nous vous contacterons bientôt.",
+    "errorEmail": "Veuillez entrer une adresse e-mail valide.",
+    "errorConsent": "Veuillez accepter le consentement pour continuer.",
+    "errorGeneric": "Une erreur s'est produite. Réessayez."
+  },
+  "farms": {
+    "eyebrow": "Frais de la ferme",
+    "headline1": "Des vraies fermes,",
+    "headlineEmphasis": "de vrais produits.",
+    "exploreMap": "Explorer la carte complète"
+  },
+  "stats": {
+    "eyebrow": "En chiffres",
+    "verifiedFarms": "Fermes vérifiées",
+    "coverage": "Couverture",
+    "launching": "Lancement"
+  },
+  "features": {
+    "eyebrow": "Ce qui arrive",
+    "headline1": "Tout ce dont vous avez besoin pour",
+    "headlineEmphasis": "manger local.",
+    "findFarms": {
+      "title": "Trouver des fermes locales",
+      "desc": "Découvrez des fermes vérifiées dans votre région. Recherchez par localisation, type ou certification bio."
+    },
+    "verified": {
+      "title": "Vérifié & fiable",
+      "desc": "Chaque ferme est vérifiée. Les fermes biologiques certifiées SKAL sont clairement indiquées."
+    },
+    "connect": {
+      "title": "Contact direct",
+      "desc": "Consultez les produits, les horaires d'ouverture et contactez directement les personnes derrière votre alimentation."
+    },
+    "available": {
+      "title": "Toujours disponible",
+      "desc": "Web et mobile. Trouvez des fermes locales où que vous soyez, quand vous en avez besoin."
+    }
+  },
+  "cta": {
+    "eyebrow": "Accès anticipé",
+    "headline1": "Soyez le premier à savoir",
+    "headlineEmphasis": "quand nous lançons.",
+    "subtext": "Rejoignez la liste de pré-lancement. Pas de spam — juste un e-mail quand Farmsy sera en ligne."
+  },
+  "store": {
+    "downloadOn": "Télécharger sur l'",
+    "getItOn": "Disponible sur",
+    "free": "Téléchargement gratuit · iOS & Android",
+    "comingSoon": "Bientôt"
+  },
+  "footer": {
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "copyright": "© 2026 Farmsy"
+  }
+}

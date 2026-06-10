@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "comingSoon": "Próximamente"
+  },
+  "hero": {
+    "badge": "Países Bajos & Bélgica",
+    "headline1": "Granjas locales,",
+    "headline2": "fresco",
+    "headlineEmphasis": "directamente de la fuente.",
+    "subheadline": "Farmsy te conecta con granjas verificadas en los Países Bajos y Bélgica. Desde tiendas en la granja hasta productores orgánicos — descubre, conecta y apoya la agricultura local.",
+    "launchingSoon": "Sé de los primeros en experimentar Farmsy. Próximamente."
+  },
+  "subscribe": {
+    "placeholder": "Introduce tu correo electrónico",
+    "cta": "Acceso anticipado",
+    "consent": "Me gustaría recibir actualizaciones de Farmsy.",
+    "privacyPolicy": "Política de privacidad",
+    "success": "Estás en la lista. Nos pondremos en contacto pronto.",
+    "errorEmail": "Por favor, introduce una dirección de correo válida.",
+    "errorConsent": "Por favor, acepta el consentimiento para continuar.",
+    "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "farms": {
+    "eyebrow": "Fresco de la granja",
+    "headline1": "Granjas reales,",
+    "headlineEmphasis": "productos reales.",
+    "exploreMap": "Explorar el mapa completo"
+  },
+  "stats": {
+    "eyebrow": "En números",
+    "verifiedFarms": "Granjas verificadas",
+    "coverage": "Cobertura",
+    "launching": "Lanzamiento"
+  },
+  "features": {
+    "eyebrow": "Lo que viene",
+    "headline1": "Todo lo que necesitas para",
+    "headlineEmphasis": "comer local.",
+    "findFarms": {
+      "title": "Encontrar granjas locales",
+      "desc": "Descubre granjas verificadas en tu región. Busca por ubicación, tipo o certificación orgánica."
+    },
+    "verified": {
+      "title": "Verificado & confiable",
+      "desc": "Cada granja está verificada. Las granjas orgánicas certificadas SKAL están claramente marcadas."
+    },
+    "connect": {
+      "title": "Conectar directamente",
+      "desc": "Consulta productos, horarios de apertura y conéctate directamente con las personas detrás de tu comida."
+    },
+    "available": {
+      "title": "Siempre disponible",
+      "desc": "Web y móvil. Encuentra granjas locales donde estés, cuando las necesites."
+    }
+  },
+  "cta": {
+    "eyebrow": "Acceso anticipado",
+    "headline1": "Sé el primero en saber",
+    "headlineEmphasis": "cuándo lanzamos.",
+    "subtext": "Únete a la lista de prelanzamiento. Sin spam — solo un correo cuando Farmsy esté en vivo."
+  },
+  "store": {
+    "downloadOn": "Descargar en",
+    "getItOn": "Disponible en",
+    "free": "Descarga gratuita · iOS & Android",
+    "comingSoon": "Próximamente"
+  },
+  "footer": {
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "copyright": "© 2026 Farmsy"
+  }
+}
