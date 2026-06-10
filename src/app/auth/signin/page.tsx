@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import {
   Wheat, Mail, Lock, Eye, EyeOff,
-  Loader2, AlertCircle, ArrowLeft,
+  Loader2, AlertCircle, ArrowLeft, Check,
 } from 'lucide-react'
 
 function SignInForm() {
@@ -73,14 +73,15 @@ function SignInForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--background)' }}>
       <div className="p-4">
         <Link
-          href="/map"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors font-medium"
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
+          style={{ color: 'var(--muted-foreground)' }}
         >
           <ArrowLeft size={16} />
-          Back to map
+          Back to home
         </Link>
       </div>
 
@@ -89,28 +90,38 @@ function SignInForm() {
 
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center mb-3 shadow-lg shadow-emerald-200">
-              <Wheat size={24} color="white" strokeWidth={2} />
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+              style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.12)', border: '1px solid oklch(0.36 0.07 145 / 0.2)' }}
+            >
+              <Wheat size={22} strokeWidth={1.75} style={{ color: 'var(--primary)' }} />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">Farmsy</h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <h1 className="text-xl font-bold" style={{ color: 'var(--foreground)' }}>Farmsy</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>
               {mode === 'signin' ? 'Sign in to your account' : 'Create a new account'}
             </p>
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-
+          <div
+            className="rounded-2xl border p-6"
+            style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
+          >
             {/* Mode tabs */}
-            <div className="flex rounded-xl bg-gray-100 p-1 mb-6">
+            <div
+              className="flex rounded-xl p-1 mb-6"
+              style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.06)' }}
+            >
               {(['signin', 'signup'] as const).map(m => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => { setMode(m); setError(null); setSuccessMsg(null) }}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    mode === m ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
-                  }`}
+                  className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all"
+                  style={mode === m
+                    ? { backgroundColor: 'var(--card)', color: 'var(--foreground)', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                    : { color: 'var(--muted-foreground)' }
+                  }
                 >
                   {m === 'signin' ? 'Sign in' : 'Register'}
                 </button>
@@ -118,15 +129,22 @@ function SignInForm() {
             </div>
 
             {successMsg && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 mb-4 text-sm text-emerald-700">
+              <div
+                className="flex items-start gap-2.5 rounded-xl px-4 py-3 mb-4 text-sm"
+                style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)', border: '1px solid oklch(0.36 0.07 145 / 0.2)', color: 'var(--primary)' }}
+              >
+                <Check size={15} className="shrink-0 mt-0.5" />
                 {successMsg}
               </div>
             )}
 
             {error && (
-              <div className="flex items-start gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
-                <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
-                <p className="text-sm text-red-600">{error}</p>
+              <div
+                className="flex items-start gap-2.5 rounded-xl px-4 py-3 mb-4"
+                style={{ backgroundColor: 'oklch(0.62 0.2 25 / 0.06)', border: '1px solid oklch(0.62 0.2 25 / 0.15)', color: 'var(--destructive)' }}
+              >
+                <AlertCircle size={15} className="shrink-0 mt-0.5" />
+                <p className="text-sm">{error}</p>
               </div>
             )}
 
@@ -134,7 +152,8 @@ function SignInForm() {
             <button
               type="button"
               onClick={handleGoogle}
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors mb-5"
+              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl text-sm font-semibold transition-opacity hover:opacity-80 mb-5"
+              style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
             >
               <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
                 <path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/>
@@ -147,10 +166,12 @@ function SignInForm() {
 
             <div className="relative mb-5">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-100" />
+                <div className="w-full border-t" style={{ borderColor: 'var(--border)' }} />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-gray-400 font-medium">or continue with email</span>
+                <span className="px-3 text-xs font-medium" style={{ backgroundColor: 'var(--card)', color: 'var(--muted-foreground)' }}>
+                  or continue with email
+                </span>
               </div>
             </div>
 
@@ -158,11 +179,11 @@ function SignInForm() {
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>
                   Email address
                 </label>
                 <div className="relative">
-                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
                   <input
                     type="email"
                     required
@@ -170,18 +191,23 @@ function SignInForm() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl text-sm transition-colors focus:outline-none"
+                    style={{
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--foreground)',
+                    }}
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>
                   Password
                 </label>
                 <div className="relative">
-                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -189,13 +215,19 @@ function SignInForm() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full pl-10 pr-11 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+                    className="w-full pl-10 pr-11 py-3 rounded-xl text-sm transition-colors focus:outline-none"
+                    style={{
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--foreground)',
+                    }}
                   />
                   <button
                     type="button"
                     tabIndex={-1}
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-70"
+                    style={{ color: 'var(--muted-foreground)' }}
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
@@ -205,11 +237,11 @@ function SignInForm() {
               {/* Confirm password — signup only */}
               {mode === 'signup' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium mb-1.5" style={{ color: 'var(--foreground)' }}>
                     Confirm password
                   </label>
                   <div className="relative">
-                    <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
@@ -217,7 +249,12 @@ function SignInForm() {
                       value={confirmPassword}
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Repeat password"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl text-sm transition-colors focus:outline-none"
+                      style={{
+                        border: '1px solid var(--border)',
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--foreground)',
+                      }}
                     />
                   </div>
                 </div>
@@ -226,7 +263,8 @@ function SignInForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2 mt-2"
+                className="w-full py-3.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
               >
                 {loading
                   ? <><Loader2 size={15} className="animate-spin" /> Please wait…</>
@@ -235,8 +273,11 @@ function SignInForm() {
             </form>
           </div>
 
-          <p className="text-center text-xs text-gray-400 mt-4">
-            By signing in you agree to our terms of service.
+          <p className="text-center text-xs mt-4" style={{ color: 'var(--muted-foreground)' }}>
+            By signing in you agree to our{' '}
+            <Link href="/terms" className="underline underline-offset-2 hover:opacity-70" style={{ color: 'var(--muted-foreground)' }}>
+              terms of service
+            </Link>.
           </p>
         </div>
       </div>

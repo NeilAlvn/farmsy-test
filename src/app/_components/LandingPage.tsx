@@ -502,10 +502,9 @@ function Features() {
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 
 const PRICING_FEATURES = [
+  'Access to 12,717+ verified farms across NL & BE',
   'Unlimited farm search results',
   'Full farm details — phone, website, hours',
-  'Export farms to Excel / CSV',
-  'Email alerts for new farms near you',
   'Priority support & early access',
 ]
 
@@ -549,7 +548,7 @@ function Pricing() {
                 <span className="font-display text-5xl font-medium tracking-tight text-foreground">€4.99</span>
                 <span className="text-sm text-muted-foreground">/month</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Cancel any time.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Try free for 3 days, then €4.99/month</p>
             </div>
             <ul className="space-y-3 flex-1">
               {PRICING_FEATURES.map(f => (
@@ -563,7 +562,7 @@ function Pricing() {
               href="/pricing"
               className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80"
             >
-              Get started
+              Start free trial
             </Link>
           </motion.div>
 
@@ -587,7 +586,7 @@ function Pricing() {
                 <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
                 <span className="text-sm text-muted-foreground">/year</span>
               </div>
-              <p className="mt-2 text-sm text-primary font-medium">Save 50% · €2.50/month</p>
+              <p className="mt-2 text-sm text-primary font-medium">Try free for 3 days, then €29.99/year · Save 50%</p>
             </div>
             <ul className="space-y-3 flex-1">
               {PRICING_FEATURES.map(f => (
@@ -602,7 +601,7 @@ function Pricing() {
               className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
-              Get started
+              Start free trial
             </Link>
           </motion.div>
 
@@ -620,7 +619,7 @@ function Pricing() {
 const FAQ_ITEMS: { q: string; a: ReactNode }[] = [
   {
     q: 'Is Farmsy free to use?',
-    a: 'Yes — completely free for consumers. Finding farms, getting directions, checking opening hours, and browsing listings all cost nothing and require no account.',
+    a: 'Browsing the full farm map requires a Farmsy Premium subscription (€4.99/month or €29.99/year). You can start with a 3-day free trial — no charge until day 3, and you can cancel anytime before then.',
   },
   {
     q: 'What areas are covered?',

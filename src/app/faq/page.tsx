@@ -23,7 +23,11 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: 'Is Farmsy free to use?',
-    a: 'Yes — completely free for consumers. Finding farms, getting directions, checking opening hours, and browsing listings all cost nothing and require no account.',
+    a: (
+      <>
+        Browsing the full farm map requires a Farmsy Premium subscription (€4.99/month or €29.99/year). Every new account gets a <strong>3-day free trial</strong> — your card is collected upfront but not charged until day 3. Cancel before then and you won't be billed. Claiming your farm listing is always free.
+      </>
+    ),
   },
   {
     q: 'How do I claim my farm listing?',
