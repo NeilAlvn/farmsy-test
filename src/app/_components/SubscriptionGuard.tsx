@@ -36,26 +36,19 @@ function writeCache(userId: string, profile: Profile) {
 function trialDaysLeft(endDate: string | null): number {
   if (!endDate) return 0
   const ms = new Date(endDate).getTime() - Date.now()
-  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)))
+  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)))
 }
 
 function TrialBanner({ endDate }: { endDate: string | null }) {
   const days = trialDaysLeft(endDate)
-  const text = days <= 1 ? 'Your trial ends today' : `${days} days left in your free trial`
+  const text = days < 1 ? 'Your free trial ends today' : `${days} days left in your free trial`
 
   return (
     <div
-      className="flex items-center justify-center gap-3 px-4 py-2.5 text-sm font-medium"
+      className="flex items-center justify-center px-4 py-2.5 text-sm font-medium"
       style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
     >
       <span>{text}</span>
-      <a
-        href="/pricing"
-        className="rounded-lg px-3 py-1 text-xs font-bold transition hover:opacity-80"
-        style={{ backgroundColor: 'var(--primary-foreground)', color: 'var(--primary)' }}
-      >
-        Choose a plan
-      </a>
     </div>
   )
 }

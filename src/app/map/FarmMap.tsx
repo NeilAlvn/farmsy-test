@@ -582,7 +582,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-white text-gray-900">
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-white text-gray-900">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="flex-shrink-0 z-[9999] absolute top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-none">

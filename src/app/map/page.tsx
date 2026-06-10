@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
 import MapLoader from './MapLoader'
 import SubscriptionGuard from '@/app/_components/SubscriptionGuard'
+import SiteNav from '@/app/_components/SiteNav'
+import SiteFooter from '@/app/_components/SiteFooter'
 import type { SlimFarm } from './FarmMap'
 
 export const dynamic = 'force-dynamic'
@@ -125,8 +127,12 @@ export default async function MapPage() {
   }
 
   return (
-    <SubscriptionGuard>
-      <MapLoader farms={farms} />
-    </SubscriptionGuard>
+    <div className="flex flex-col h-screen">
+      <SiteNav />
+      <SubscriptionGuard>
+        <MapLoader farms={farms} />
+      </SubscriptionGuard>
+      <SiteFooter />
+    </div>
   )
 }
