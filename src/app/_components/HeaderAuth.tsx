@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User, LogOut, ChevronDown, Heart, LayoutDashboard, Route } from 'lucide-react'
@@ -26,13 +26,20 @@ function getStoredUser(): SupabaseUser | null {
 
 export default function HeaderAuth() {
   const router = useRouter()
-  // ssr:false means this only ever runs in the browser, so getStoredUser()
-  // runs synchronously in the useState initializer — correct state from frame one.
-  const [user, setUser]             = useState<SupabaseUser | null>(getStoredUser)
+  // null matches SSR (server has no session). useLayoutEffect fires
+  // synchronously after hydration, before first browser paint, so signed-in
+  // users see the avatar on first paint — never the wrong Sign in button.
+  const [user, setUser]             = useState<SupabaseUser | null>(null)
   const [open, setOpen]             = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { pendingFarms } = useTrip()
+
+  // Read localStorage before first browser paint so signed-in users never
+  // see the Sign in button. Runs after hydration but before any paint.
+  useLayoutEffect(() => {
+    setUser(getStoredUser())
+  }, [])
 
   useEffect(() => {
     // Confirm with the real session (validates token expiry, refreshes if needed)
@@ -65,7 +72,7 @@ export default function HeaderAuth() {
 
   if (!user) {
     return (
-      <div className="shrink-0 w-[72px] flex items-center justify-end">
+      <div className="shrink-0 w-[72px] h-9 flex items-center justify-end">
         <button
           onClick={() => setShowSignIn(true)}
           className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
@@ -82,7 +89,7 @@ export default function HeaderAuth() {
     : user.email?.[0].toUpperCase() ?? 'U'
 
   return (
-    <div className="shrink-0 w-[72px] flex items-center justify-end">
+    <div className="shrink-0 w-[72px] h-9 flex items-center justify-end">
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(o => !o)}
