@@ -41,14 +41,10 @@ function Modal({ onClose, onSuccess }: Props) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
     document.addEventListener('keydown', onKey)
-    // Reserve scrollbar space so the page doesn't shift when overflow is hidden
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
     document.body.style.overflow = 'hidden'
-    document.body.style.paddingRight = `${scrollbarWidth}px`
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
-      document.body.style.paddingRight = ''
     }
   }, [close])
 
