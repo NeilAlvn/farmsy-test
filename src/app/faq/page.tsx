@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { ArrowRight } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
@@ -8,104 +9,61 @@ export const metadata: Metadata = {
   description: 'Frequently asked questions about Farmsy — finding local farms in the Netherlands and Belgium.',
 }
 
-const FAQS: { q: string; a: React.ReactNode }[] = [
-  {
-    q: 'How do I find farms near me?',
-    a: (
-      <>
-        Open the{' '}
-        <Link href="/map" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          interactive map
-        </Link>{' '}
-        and use the "Locate me" button (crosshair icon) to jump to your location. You can also type a city or postal code. Tap any pin to see farm details.
-      </>
-    ),
-  },
-  {
-    q: 'Is Farmsy free to use?',
-    a: (
-      <>
-        Browsing the full farm map requires a Farmsy Premium subscription (€4.99/month or €29.99/year). Every new account gets a <strong>3-day free trial</strong> — your card is collected upfront but not charged until day 3. Cancel before then and you won't be billed. Claiming your farm listing is always free.
-      </>
-    ),
-  },
-  {
-    q: 'How do I claim my farm listing?',
-    a: (
-      <>
-        Find your farm on the map and open its detail panel. Tap <strong>"Claim this farm"</strong> and sign in with your email. Once verified, you can update your contact details, opening hours, description, and more. Claiming is free.
-      </>
-    ),
-  },
-  {
-    q: 'What areas are covered?',
-    a: 'We currently cover the Netherlands and Belgium. Listings come from OpenStreetMap, Foursquare, Overture Maps, and Traces. We are continuously improving coverage in both countries.',
-  },
-  {
-    q: 'Where does the farm data come from?',
-    a: (
-      <>
-        Our data is built from four sources: <strong>OpenStreetMap</strong>, <strong>Foursquare</strong>, <strong>Overture Maps</strong>, and <strong>Traces</strong>. Phone numbers, websites, photos, and locations are combined from all four for the most complete picture possible.
-      </>
-    ),
-  },
-  {
-    q: 'How often is the data updated?',
-    a: (
-      <>
-        Data is regularly reviewed by our team. The best way to keep a listing current is for the farm owner to claim it — claimed listings can be edited directly and changes appear immediately. If you spot something outdated,{' '}
-        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          let us know
-        </Link>.
-      </>
-    ),
-  },
-  {
-    q: 'Can I suggest a farm to add?',
-    a: (
-      <>
-        Yes —{' '}
-        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          contact us
-        </Link>{' '}
-        with the farm's name and location and we'll review it. You can also add it to{' '}
-        <a href="https://www.openstreetmap.org/edit" target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          OpenStreetMap
-        </a>{' '}
-        — open geographic data we draw from when building our database.
-      </>
-    ),
-  },
-  {
-    q: 'Why is my farm information wrong?',
-    a: (
-      <>
-        If you own the farm, the fastest fix is to <strong>claim your listing</strong> — you can then edit everything directly. If you're a visitor who spotted an error, use the "Report incorrect info" link at the bottom of the farm detail panel, or{' '}
-        <Link href="/contact" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          contact us
-        </Link>.
-      </>
-    ),
-  },
-  {
-    q: 'Is my personal data safe?',
-    a: (
-      <>
-        We collect only what we need. Visitors have no personal data collected beyond anonymous analytics. Account holders have their email stored securely via Supabase Auth. See our{' '}
-        <Link href="/privacy" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-          Privacy Policy
-        </Link>{' '}
-        for full details.
-      </>
-    ),
-  },
-  {
-    q: 'Do you have a mobile app?',
-    a: 'Not yet — but our website is fully responsive and works great on mobile. You can add it to your home screen for an app-like experience. A native app is on our roadmap.',
-  },
-]
+export default async function FaqPage() {
+  const t = await getTranslations('faq')
 
-export default function FaqPage() {
+  const linkClass = 'font-medium underline underline-offset-4'
+  const linkStyle = { color: 'var(--primary)' }
+
+  const FAQS = [
+    {
+      q: t('q1'),
+      a: t.rich('a1', {
+        mapLink: (c) => <Link href="/map" className={linkClass} style={linkStyle}>{c}</Link>,
+      }),
+    },
+    {
+      q: t('q2'),
+      a: t.rich('a2', { b: (c) => <strong>{c}</strong> }),
+    },
+    {
+      q: t('q3'),
+      a: t.rich('a3', { b: (c) => <strong>{c}</strong> }),
+    },
+    { q: t('q4'), a: t('a4') },
+    {
+      q: t('q5'),
+      a: t.rich('a5', { b: (c) => <strong>{c}</strong> }),
+    },
+    {
+      q: t('q6'),
+      a: t.rich('a6', {
+        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+      }),
+    },
+    {
+      q: t('q7'),
+      a: t.rich('a7', {
+        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+        osmLink:     (c) => <a href="https://www.openstreetmap.org/edit" target="_blank" rel="noopener noreferrer" className={linkClass} style={linkStyle}>{c}</a>,
+      }),
+    },
+    {
+      q: t('q8'),
+      a: t.rich('a8', {
+        b:           (c) => <strong>{c}</strong>,
+        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+      }),
+    },
+    {
+      q: t('q9'),
+      a: t.rich('a9', {
+        privacyLink: (c) => <Link href="/privacy" className={linkClass} style={linkStyle}>{c}</Link>,
+      }),
+    },
+    { q: t('q10'), a: t('a10') },
+  ]
+
   return (
     <ContentLayout>
 
@@ -113,14 +71,14 @@ export default function FaqPage() {
       <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
         <div className="mx-auto max-w-3xl">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
-            Help &amp; Support
+            {t('eyebrow')}
           </p>
           <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
-            Frequently asked{' '}
-            <span className="serif-italic" style={{ color: 'var(--primary)' }}>questions</span>
+            {t('headline')}{' '}
+            <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
           </h1>
           <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            Everything you need to know about finding local farms and using Farmsy.
+            {t('subheading')}
           </p>
         </div>
       </section>
@@ -156,17 +114,17 @@ export default function FaqPage() {
       <section className="px-6 py-20" style={{ borderTop: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
         <div className="mx-auto max-w-xl text-center">
           <h2 className="font-display text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
-            Still have <span className="serif-italic">questions?</span>
+            {t('ctaTitle')} <span className="serif-italic">{t('ctaTitleEmphasis')}</span>
           </h2>
           <p className="mt-4 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            We're happy to help. Send us a message and we'll get back to you within one business day.
+            {t('ctaSubtext')}
           </p>
           <Link
             href="/contact"
             className="mt-8 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
             style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
           >
-            Contact us <ArrowRight className="h-4 w-4" />
+            {t('ctaButton')} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>

@@ -2,40 +2,8 @@
 
 import { useState } from 'react'
 import { Mail, MessageSquare, Store, Lightbulb, ArrowRight } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import ContentLayout from '@/app/_components/ContentLayout'
-
-const TOPICS = [
-  { value: 'general',  label: 'General question' },
-  { value: 'farm',     label: 'Farm owner / claim inquiry' },
-  { value: 'data',     label: 'Incorrect farm data' },
-  { value: 'feedback', label: 'Feedback or suggestion' },
-  { value: 'privacy',  label: 'Privacy / data request' },
-  { value: 'other',    label: 'Other' },
-]
-
-const CONTACT_CARDS = [
-  {
-    Icon: Store,
-    title: 'Farm owners',
-    desc: 'Questions about claiming your listing, updating your information, or removing your farm.',
-    email: 'farms@farmsy.nl',
-    subject: 'Farm owner inquiry',
-  },
-  {
-    Icon: MessageSquare,
-    title: 'Support',
-    desc: "Can't find a farm, spotted an error, or need help? We'll get back to you quickly.",
-    email: 'info@farmsy.nl',
-    subject: 'Support request',
-  },
-  {
-    Icon: Lightbulb,
-    title: 'Feedback',
-    desc: "Ideas for new features, farms we should add, or anything you'd like to see improve.",
-    email: 'feedback@farmsy.nl',
-    subject: 'Feedback',
-  },
-]
 
 const inputStyle = {
   backgroundColor: 'var(--card)',
@@ -49,6 +17,41 @@ const inputStyle = {
 }
 
 export default function ContactPage() {
+  const t = useTranslations('contact')
+
+  const TOPICS = [
+    { value: 'general',  label: t('topicGeneral') },
+    { value: 'farm',     label: t('topicFarm') },
+    { value: 'data',     label: t('topicData') },
+    { value: 'feedback', label: t('topicFeedback') },
+    { value: 'privacy',  label: t('topicPrivacy') },
+    { value: 'other',    label: t('topicOther') },
+  ]
+
+  const CONTACT_CARDS = [
+    {
+      Icon: Store,
+      title: t('farmOwnerTitle'),
+      desc: t('farmOwnerDesc'),
+      email: 'farms@farmsy.nl',
+      subject: 'Farm owner inquiry',
+    },
+    {
+      Icon: MessageSquare,
+      title: t('supportTitle'),
+      desc: t('supportDesc'),
+      email: 'info@farmsy.nl',
+      subject: 'Support request',
+    },
+    {
+      Icon: Lightbulb,
+      title: t('feedbackTitle'),
+      desc: t('feedbackDesc'),
+      email: 'feedback@farmsy.nl',
+      subject: 'Feedback',
+    },
+  ]
+
   const [topic, setTopic] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -70,14 +73,14 @@ export default function ContactPage() {
       <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
         <div className="mx-auto max-w-3xl">
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
-            Get in touch
+            {t('eyebrow')}
           </p>
           <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
-            We&apos;d love to{' '}
-            <span className="serif-italic" style={{ color: 'var(--primary)' }}>hear from you</span>
+            {t('headline')}{' '}
+            <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
           </h1>
           <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            Questions, farm data requests, or just want to say hello — we typically respond within one business day.
+            {t('subheading')}
           </p>
         </div>
       </section>
@@ -90,7 +93,7 @@ export default function ContactPage() {
             {/* Form */}
             <div className="lg:col-span-3">
               <h2 className="font-display text-2xl font-medium tracking-tight mb-8" style={{ color: 'var(--foreground)' }}>
-                Send us a message
+                {t('formTitle')}
               </h2>
 
               {sent ? (
@@ -102,43 +105,43 @@ export default function ContactPage() {
                     <Mail className="h-7 w-7" style={{ color: 'var(--primary-foreground)' }} />
                   </div>
                   <h3 className="mb-2 text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                    Message opened in your email app
+                    {t('successTitle')}
                   </h3>
                   <p className="mb-5 text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                    Your email client should have opened with the message pre-filled. Send it from there and we'll get back to you soon.
+                    {t('successMessage')}
                   </p>
                   <button
                     onClick={() => setSent(false)}
                     className="text-sm font-medium underline underline-offset-4"
                     style={{ color: 'var(--primary)' }}
                   >
-                    Send another message
+                    {t('successAnother')}
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="name">Name</label>
-                      <input id="name" type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
+                      <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="name">{t('fieldName')}</label>
+                      <input id="name" type="text" required value={name} onChange={e => setName(e.target.value)} placeholder={t('namePlaceholder')} style={inputStyle} />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="email">Email</label>
-                      <input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={inputStyle} />
+                      <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="email">{t('fieldEmail')}</label>
+                      <input id="email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder={t('emailPlaceholder')} style={inputStyle} />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="topic">Topic</label>
+                    <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="topic">{t('fieldTopic')}</label>
                     <select id="topic" required value={topic} onChange={e => setTopic(e.target.value)} style={{ ...inputStyle, backgroundColor: 'var(--card)' }}>
-                      <option value="" disabled>Select a topic…</option>
-                      {TOPICS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                      <option value="" disabled>{t('topicPlaceholder')}</option>
+                      {TOPICS.map(tp => <option key={tp.value} value={tp.value}>{tp.label}</option>)}
                     </select>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="message">Message</label>
-                    <textarea id="message" required rows={5} value={message} onChange={e => setMessage(e.target.value)} placeholder="How can we help?" style={{ ...inputStyle, resize: 'none' }} />
+                    <label className="text-sm font-medium" style={{ color: 'var(--foreground)' }} htmlFor="message">{t('fieldMessage')}</label>
+                    <textarea id="message" required rows={5} value={message} onChange={e => setMessage(e.target.value)} placeholder={t('messagePlaceholder')} style={{ ...inputStyle, resize: 'none' }} />
                   </div>
 
                   <button
@@ -146,10 +149,10 @@ export default function ContactPage() {
                     className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
                     style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
                   >
-                    Send message <ArrowRight className="h-4 w-4" />
+                    {t('sendBtn')} <ArrowRight className="h-4 w-4" />
                   </button>
                   <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                    This opens your email app. No data is sent to our servers from this form.
+                    {t('disclaimer')}
                   </p>
                 </form>
               )}
@@ -158,7 +161,7 @@ export default function ContactPage() {
             {/* Contact cards */}
             <div className="lg:col-span-2 space-y-4">
               <h2 className="font-display text-2xl font-medium tracking-tight mb-8" style={{ color: 'var(--foreground)' }}>
-                Direct contact
+                {t('directTitle')}
               </h2>
               {CONTACT_CARDS.map(({ Icon, title, desc, email: addr, subject }) => (
                 <a

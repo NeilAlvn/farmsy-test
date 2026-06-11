@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
+import { getTranslations } from 'next-intl/server'
 import { MapPin, Database, Users, Leaf, ArrowRight, Globe } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
@@ -8,108 +10,83 @@ export const metadata: Metadata = {
   description: 'Learn about Farmsy — connecting consumers with local farms across the Netherlands and Belgium.',
 }
 
-const DATA_SOURCES = [
-  {
-    name: 'OpenStreetMap',
-    region: 'Netherlands & Belgium',
-    description: 'The open geographic database that powers our core farm locations, addresses, and opening hours. Data contributed by thousands of volunteers worldwide.',
-    license: 'Open Database License (ODbL)',
-  },
-  {
-    name: 'Foursquare',
-    region: 'Enrichment',
-    description: 'Used to enrich listings with additional business details such as phone numbers, websites, and photos.',
-    license: 'Foursquare Developer Terms',
-  },
-  {
-    name: 'Overture Maps',
-    region: 'Enrichment',
-    description: 'Open map data from the Overture Maps Foundation, used to fill gaps in coverage and add verified location data.',
-    license: 'CDLA Permissive 2.0',
-  },
-  {
-    name: 'Traces',
-    region: 'Enrichment',
-    description: 'Location intelligence platform providing supplementary contact information and business details for farm listings.',
-    license: 'Commercial license',
-  },
-]
+export default async function AboutPage() {
+  const t = await getTranslations('about')
 
-const VALUES = [
-  {
-    Icon: Leaf,
-    title: 'Local first',
-    desc: 'We believe fresh food tastes better and is better for the planet when it travels fewer kilometres from field to fork.',
-  },
-  {
-    Icon: Globe,
-    title: 'Open data',
-    desc: 'Our core dataset is built on OpenStreetMap — a community-driven, open geographic database anyone can contribute to.',
-  },
-  {
-    Icon: Users,
-    title: 'Farmer-owned',
-    desc: 'Farmers can claim their listing for free and keep their own information accurate — hours, contact details, and more.',
-  },
-  {
-    Icon: Database,
-    title: 'Transparent sources',
-    desc: 'We clearly attribute every data source — OpenStreetMap, Foursquare, Overture Maps, and Traces — on every listing where it applies.',
-  },
-]
+  const VALUES = [
+    { Icon: Leaf,     title: t('v1Title'), desc: t('v1Desc') },
+    { Icon: Globe,    title: t('v2Title'), desc: t('v2Desc') },
+    { Icon: Users,    title: t('v3Title'), desc: t('v3Desc') },
+    { Icon: Database, title: t('v4Title'), desc: t('v4Desc') },
+  ]
 
-export default function AboutPage() {
+  const DATA_SOURCES = [
+    { name: 'OpenStreetMap',  region: t('osmRegion'),        description: t('osmDesc'),        license: 'Open Database License (ODbL)' },
+    { name: 'Foursquare',     region: t('foursquareRegion'), description: t('foursquareDesc'), license: 'Foursquare Developer Terms' },
+    { name: 'Overture Maps',  region: t('overtureRegion'),   description: t('overtureDesc'),   license: 'CDLA Permissive 2.0' },
+    { name: 'Traces',         region: t('tracesRegion'),     description: t('tracesDesc'),     license: 'Commercial license' },
+  ]
+
+  const b = (chunks: React.ReactNode) => <strong style={{ color: 'var(--foreground)' }}>{chunks}</strong>
+
   return (
     <ContentLayout>
 
       {/* Page header */}
       <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-        <div className="mx-auto max-w-3xl">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
-            About us
-          </p>
-          <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
-            Connecting people with the{' '}
-            <span className="serif-italic" style={{ color: 'var(--primary)' }}>farmers who feed them</span>
-          </h1>
-          <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            Farmsy is a free map of local farms, roadside stands, and direct-to-consumer food producers in the Netherlands and Belgium.
-          </p>
-          <Link
-            href="/map"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
-            style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-          >
-            Explore the map <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-12 items-center">
+          <div>
+            <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
+              {t('eyebrow')}
+            </p>
+            <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
+              {t('headline')}{' '}
+              <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
+            </h1>
+            <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              {t('subheading')}
+            </p>
+            <Link
+              href="/map"
+              className="mt-8 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+            >
+              {t('exploreMap')} <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="relative aspect-[4/3] hidden lg:block overflow-hidden rounded-2xl border border-border shadow-sm">
+            <Image 
+              src="/images/local-food.webp" 
+              alt="Local food produce" 
+              fill 
+              priority
+              className="object-cover"
+            />
+          </div>
         </div>
       </section>
 
       {/* Mission */}
       <section className="px-6 py-20" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-        <div className="mx-auto max-w-3xl space-y-5 text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>Our mission</p>
-          <h2 className="font-display text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
-            Making local food <span className="serif-italic">discoverable</span>
+        <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+          <p className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('missionEyebrow')}</p>
+          <h2 className="font-display text-4xl font-medium tracking-[-0.02em] leading-[1.1]" style={{ color: 'var(--foreground)' }}>
+            {t('missionTitle')} <span className="serif-italic">{t('missionTitleEmphasis')}</span>
           </h2>
-          <p>
-            Industrial food supply chains have made it hard to know where our food actually comes from. Farmsy exists to make local food <strong style={{ color: 'var(--foreground)' }}>discoverable</strong>. We map every farm shop, pick-your-own field, roadside egg stand, and artisan producer we can find — and make that information freely available to anyone.
-          </p>
-          <p>
-            We cover the <strong style={{ color: 'var(--foreground)' }}>Netherlands and Belgium</strong>, two countries with a rich tradition of small-scale farming and direct sales. Our database holds thousands of verified locations updated regularly from open-data sources.
-          </p>
-          <p>
-            For farmers: listing your business is <strong style={{ color: 'var(--foreground)' }}>free</strong>. Claim your page and you can update your contact details, opening hours, and description directly.
-          </p>
+          <div className="space-y-5">
+            <p>{t.rich('mission1', { b })}</p>
+            <p>{t.rich('mission2', { b })}</p>
+            <p>{t.rich('mission3', { b })}</p>
+          </div>
         </div>
       </section>
 
       {/* Values */}
       <section className="px-6 py-20" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
         <div className="mx-auto max-w-5xl">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>What we stand for</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('valuesEyebrow')}</p>
           <h2 className="font-display mb-12 text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
-            Our <span className="serif-italic">values</span>
+            {t('valuesTitle')} <span className="serif-italic">{t('valuesTitleEmphasis')}</span>
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {VALUES.map(({ Icon, title, desc }) => (
@@ -128,12 +105,12 @@ export default function AboutPage() {
       {/* Data sources */}
       <section className="px-6 py-20" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
         <div className="mx-auto max-w-5xl">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>Transparency</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('sourcesEyebrow')}</p>
           <h2 className="font-display mb-3 text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
-            Data <span className="serif-italic">sources</span>
+            {t('sourcesTitle')} <span className="serif-italic">{t('sourcesTitleEmphasis')}</span>
           </h2>
           <p className="mb-12 max-w-2xl text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            We rely on open and attributed data. Below is a transparent breakdown of where our farm information comes from.
+            {t('sourcesSubheading')}
           </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {DATA_SOURCES.map(({ name, region, description, license }) => (
@@ -150,10 +127,13 @@ export default function AboutPage() {
           </div>
           <p className="mt-8 flex items-start gap-1.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>
             <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Farm listings from OpenStreetMap are © OpenStreetMap contributors, available under the{' '}
-            <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-80">
-              Open Database License
-            </a>.
+            {t.rich('osmNotice', {
+              link: (chunks) => (
+                <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:opacity-80">
+                  {chunks}
+                </a>
+              ),
+            })}
           </p>
         </div>
       </section>
@@ -161,22 +141,18 @@ export default function AboutPage() {
       {/* Coverage */}
       <section className="px-6 py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>Where we are</p>
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('coverageEyebrow')}</p>
           <h2 className="font-display mb-10 text-3xl font-medium tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
-            <span className="serif-italic">Coverage</span>
+            <span className="serif-italic">{t('coverageTitle')}</span>
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--primary)' }}>Netherlands 🇳🇱</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                Full coverage via OpenStreetMap. Includes farm shops, pick-your-own, roadside stands, honey producers, dairies, markets, and more.
-              </p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--primary)' }}>{t('nlLabel')}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{t('nlDesc')}</p>
             </div>
             <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--primary)' }}>Belgium 🇧🇪</p>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                Coverage via OpenStreetMap, Foursquare, Overture Maps, and Traces — covering Flanders, Wallonia, and Brussels.
-              </p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--primary)' }}>{t('beLabel')}</p>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{t('beDesc')}</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   motion,
@@ -103,6 +104,22 @@ function LandingNav() {
 function Hero({ source: _source }: { source: string }) {
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-20 sm:pt-28 sm:pb-32">
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/hero-farm.webp"
+          alt="Sunlit Dutch farm field"
+          fill
+          priority
+          className="object-cover opacity-15"
+        />
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: 'linear-gradient(to bottom, transparent, var(--background) 95%)' 
+          }} 
+        />
+      </div>
       {/* Subtle radial glow */}
       <div
         className="pointer-events-none absolute inset-0"

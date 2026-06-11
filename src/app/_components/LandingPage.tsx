@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import {
   motion,
   useInView,
@@ -60,6 +61,7 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
       <main>
         <Hero />
         <Stats />
+        <Categories />
         <FeaturedFarms farms={farms} />
         <Features />
         <Pricing />
@@ -75,7 +77,23 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
 function Hero() {
   const t = useTranslations('hero')
   return (
-    <section className="relative px-6 pb-24 pt-16 sm:pt-24">
+    <section className="relative overflow-hidden px-6 pb-24 pt-16 sm:pt-24">
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/hero-farm.webp"
+          alt="Sunlit Dutch farm field"
+          fill
+          priority
+          className="object-cover opacity-20"
+        />
+        <div 
+          className="absolute inset-0" 
+          style={{ 
+            background: 'linear-gradient(to bottom, transparent, var(--background) 95%)' 
+          }} 
+        />
+      </div>
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
         {/* Left — copy */}
         <div className="text-center lg:text-left">
@@ -299,6 +317,61 @@ function SubscribeForm({ id, dark = false }: { id: string; dark?: boolean }) {
         </p>
       )}
     </form>
+  )
+}
+
+// ─── Categories ──────────────────────────────────────────────────────────────
+
+function Categories() {
+  const t = useTranslations('categories')
+  const cats = [
+    { id: 'dairy',   image: '/images/dairy-farm.webp' },
+    { id: 'produce', image: '/images/produce-closeup.webp' },
+    { id: 'cheese',  image: '/images/cheese-display.webp' },
+  ]
+  
+  return (
+    <section className="px-6 py-24 sm:py-32 border-t border-border/60">
+       <div className="mx-auto max-w-6xl">
+         <motion.h2 
+           initial="hidden"
+           whileInView="show"
+           viewport={{ once: true, margin: '-100px' }}
+           variants={fadeUp}
+           className="font-display text-3xl font-medium tracking-tight mb-12"
+         >
+           {t('title')}
+         </motion.h2>
+         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+           {cats.map((cat, i) => (
+             <motion.div
+               key={cat.id}
+               initial="hidden"
+               whileInView="show"
+               viewport={{ once: true, margin: '-50px' }}
+               variants={fadeUp}
+               transition={{ delay: i * 0.1 }}
+             >
+               <Link 
+                 href={`/map?category=${cat.id}`}
+                 className="group relative block h-64 overflow-hidden rounded-2xl border border-border"
+               >
+                 <Image 
+                   src={cat.image} 
+                   alt={cat.id} 
+                   fill 
+                   className="object-cover transition-transform duration-700 group-hover:scale-110"
+                 />
+                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+                 <div className="absolute inset-0 flex items-center justify-center">
+                   <h3 className="text-white text-3xl font-display font-medium tracking-tight">{t(cat.id as any)}</h3>
+                 </div>
+               </Link>
+             </motion.div>
+           ))}
+         </div>
+       </div>
+    </section>
   )
 }
 
