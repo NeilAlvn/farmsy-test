@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import MapGateLink from './MapGateLink'
+import PageTransition from './PageTransition'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   motion,
@@ -44,25 +45,27 @@ interface Props {
 
 export default function LandingClient({ source, farms }: Props) {
   return (
-    <div
-      className="relative min-h-screen"
-      style={{
-        backgroundColor: 'var(--background)',
-        color: 'var(--foreground)',
-        backgroundImage: `
-          radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.36 0.07 145 / 0.05), transparent 70%),
-          radial-gradient(ellipse 50% 40% at 100% 100%, oklch(0.7 0.08 80 / 0.08), transparent 70%)
-        `,
-      }}
-    >
-      <LandingNav />
-      <Hero source={source} />
-      <Stats />
-      <FeaturedFarms farms={farms} />
-      <Features />
-      <SecondaryCTA source={source} />
-      <LandingFooter />
-    </div>
+    <PageTransition>
+      <div
+        className="relative min-h-screen"
+        style={{
+          backgroundColor: 'var(--background)',
+          color: 'var(--foreground)',
+          backgroundImage: `
+            radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.36 0.07 145 / 0.05), transparent 70%),
+            radial-gradient(ellipse 50% 40% at 100% 100%, oklch(0.7 0.08 80 / 0.08), transparent 70%)
+          `,
+        }}
+      >
+        <LandingNav />
+        <Hero source={source} />
+        <Stats />
+        <FeaturedFarms farms={farms} />
+        <Features />
+        <SecondaryCTA source={source} />
+        <LandingFooter />
+      </div>
+    </PageTransition>
   )
 }
 
