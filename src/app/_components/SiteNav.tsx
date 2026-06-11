@@ -13,14 +13,7 @@ import MapGateLink from './MapGateLink'
 // let the client read localStorage synchronously on first render.
 const HeaderAuth = dynamic(() => import('./HeaderAuth'), {
   ssr: false,
-  loading: () => (
-    <div
-      className="shrink-0 inline-flex items-center rounded-lg border border-transparent px-3 py-1.5 text-xs opacity-0 pointer-events-none select-none"
-      aria-hidden
-    >
-      Sign in
-    </div>
-  ),
+  loading: () => <div className="shrink-0 w-[72px]" aria-hidden />,
 })
 
 const LANGUAGES = [

@@ -67,15 +67,15 @@ export default function HeaderAuth() {
 
   if (!user) {
     return (
-      <>
+      <div className="shrink-0 w-[72px] flex items-center justify-end">
         <button
           onClick={() => setShowSignIn(true)}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
         >
           Sign in
         </button>
         {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
-      </>
+      </div>
     )
   }
 
@@ -84,7 +84,8 @@ export default function HeaderAuth() {
     : user.email?.[0].toUpperCase() ?? 'U'
 
   return (
-    <div className="relative shrink-0" ref={menuRef}>
+    <div className="shrink-0 w-[72px] flex items-center justify-end">
+    <div className="relative" ref={menuRef}>
       <button
         onClick={() => setOpen(o => !o)}
         className="flex items-center gap-1.5 rounded-full p-1 pr-2 transition-colors hover:bg-border/30"
@@ -154,6 +155,7 @@ export default function HeaderAuth() {
           </nav>
         </div>
       )}
+    </div>
     </div>
   )
 }
