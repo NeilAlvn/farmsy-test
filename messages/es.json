@@ -61,13 +61,10 @@
   "pricing": {
     "eyebrow": "Farmsy Premium",
     "subheading": "Accede a todos los listados de granjas en los Países Bajos y Bélgica sin límite.",
-    "monthly": "Mensual",
     "yearly": "Anual",
-    "perMonth": "/mes",
     "perYear": "/año",
-    "monthlyTagline": "3 días gratis, luego €4,99/mes",
-    "yearlyTagline": "3 días gratis, luego €29,99/año · Ahorra 50%",
-    "bestValue": "Mejor valor",
+    "yearlyTagline": "3 días gratis, luego €29,99/año",
+    "yearlyRenew": "Se renueva anualmente de forma automática. Cancela cuando quieras.",
     "cta": "Iniciar tu prueba gratuita de 3 días",
     "trialNotice": "Sin cargos durante 3 días. Cancela antes de que termine la prueba y no se te cobrará.",
     "manageSub": "Gestionar suscripción",
@@ -77,7 +74,11 @@
     "feature3": "Detalles completos — teléfono, web, horarios",
     "feature4": "Soporte prioritario & acceso anticipado",
     "headline1": "Precios simples y",
-    "headlineEmphasis": "transparentes"
+    "headlineEmphasis": "transparentes",
+    "lifetimeLabel": "De por vida",
+    "lifetimeTagline": "Paga una vez, acceso para siempre",
+    "lifetimeBadge": "Oferta por tiempo limitado",
+    "lifetimeCta": "Obtener acceso de por vida"
   },
   "homeFaq": {
     "eyebrow": "FAQ",

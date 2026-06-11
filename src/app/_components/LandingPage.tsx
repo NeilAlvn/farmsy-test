@@ -602,7 +602,7 @@ function Pricing() {
 
         <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto items-stretch">
 
-          {/* Monthly */}
+          {/* Yearly */}
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -612,12 +612,12 @@ function Pricing() {
             className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
           >
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('monthly')}</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
               <div className="flex items-baseline gap-1">
-                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€4.99</span>
-                <span className="text-sm text-muted-foreground">{t('perMonth')}</span>
+                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
+                <span className="text-sm text-muted-foreground">{t('perYear')}</span>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">{t('monthlyTagline')}</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t('yearlyTagline')}</p>
             </div>
             <ul className="space-y-3 flex-1">
               {features.map(f => (
@@ -635,7 +635,7 @@ function Pricing() {
             </Link>
           </motion.div>
 
-          {/* Yearly — highlighted */}
+          {/* Lifetime — highlighted */}
           <motion.div
             initial="hidden"
             whileInView="show"
@@ -647,15 +647,15 @@ function Pricing() {
           >
             <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
               <Zap className="h-3 w-3" />
-              {t('bestValue')}
+              {t('lifetimeBadge')}
             </div>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
-              <div className="flex items-baseline gap-1">
-                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
-                <span className="text-sm text-muted-foreground">{t('perYear')}</span>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('lifetimeLabel')}</p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€49.99</span>
+                <span className="text-lg line-through text-muted-foreground">€59.99</span>
               </div>
-              <p className="mt-2 text-sm text-primary font-medium">{t('yearlyTagline')}</p>
+              <p className="mt-2 text-sm font-medium" style={{ color: 'var(--primary)' }}>{t('lifetimeTagline')}</p>
             </div>
             <ul className="space-y-3 flex-1">
               {features.map(f => (
@@ -670,7 +670,7 @@ function Pricing() {
               className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
-              {t('cta')}
+              {t('lifetimeCta')}
             </Link>
           </motion.div>
 

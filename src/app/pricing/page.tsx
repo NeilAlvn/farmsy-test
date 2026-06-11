@@ -13,8 +13,8 @@ export default function PricingPage() {
   const t = useTranslations('pricing')
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<{ subscription_status?: string } | null>(null)
-  const [loading, setLoading]       = useState<'monthly' | 'yearly' | 'portal' | null>(null)
+  const [profile, setProfile] = useState<{ subscription_status?: string; subscription_plan?: string } | null>(null)
+  const [loading, setLoading]       = useState<'yearly' | 'lifetime' | 'portal' | null>(null)
   const [showSignIn, setShowSignIn] = useState(false)
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function PricingPage() {
       setUser(session.user)
       const { data } = await supabase
         .from('profiles')
-        .select('subscription_status')
+        .select('subscription_status, subscription_plan')
         .eq('id', session.user.id)
         .single()
       setProfile(data)
@@ -40,12 +40,12 @@ export default function PricingPage() {
     return () => subscription.unsubscribe()
   }, [])
 
-  const isPaid = profile?.subscription_status === 'active'
-              || profile?.subscription_status === 'trialing'
+  const isPaid     = profile?.subscription_status === 'active' || profile?.subscription_status === 'trialing'
+  const isLifetime = profile?.subscription_plan === 'lifetime'
 
   const FEATURES = [t('feature1'), t('feature2'), t('feature3'), t('feature4')]
 
-  async function handleCheckout(plan: 'monthly' | 'yearly') {
+  async function handleCheckout(plan: 'yearly' | 'lifetime') {
     if (!user) {
       setShowSignIn(true)
       return
@@ -110,15 +110,16 @@ export default function PricingPage() {
       <section className="pb-24 px-4">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 
-          {/* Monthly */}
+          {/* Yearly */}
           <div className="rounded-3xl border p-8 flex flex-col gap-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('monthly')}</p>
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('yearly')}</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€4.99</span>
-                <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t('perMonth')}</span>
+                <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
+                <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t('perYear')}</span>
               </div>
-              <p className="text-sm mt-2" style={{ color: 'var(--muted-foreground)' }}>{t('monthlyTagline')}</p>
+              <p className="text-sm mt-2" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyTagline')}</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyRenew')}</p>
             </div>
 
             <ul className="space-y-3 flex-1">
@@ -130,7 +131,7 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            {isPaid ? (
+            {isPaid && !isLifetime ? (
               <button
                 onClick={handlePortal}
                 disabled={loading === 'portal'}
@@ -139,15 +140,23 @@ export default function PricingPage() {
               >
                 {loading === 'portal' ? 'Loading…' : t('manageSub')}
               </button>
+            ) : isLifetime ? (
+              <button
+                disabled
+                className="w-full py-3 rounded-2xl font-semibold text-sm opacity-40 cursor-not-allowed"
+                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
+              >
+                {t('cta')}
+              </button>
             ) : (
               <>
                 <button
-                  onClick={() => handleCheckout('monthly')}
-                  disabled={loading === 'monthly'}
+                  onClick={() => handleCheckout('yearly')}
+                  disabled={loading === 'yearly'}
                   className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
                   style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
                 >
-                  {loading === 'monthly' ? 'Loading…' : t('cta')}
+                  {loading === 'yearly' ? 'Loading…' : t('cta')}
                 </button>
                 <p className="text-xs text-center -mt-3" style={{ color: 'var(--muted-foreground)' }}>
                   {t('trialNotice')}
@@ -156,7 +165,7 @@ export default function PricingPage() {
             )}
           </div>
 
-          {/* Yearly — highlighted */}
+          {/* Lifetime — highlighted */}
           <div
             className="rounded-3xl p-8 flex flex-col gap-6 relative overflow-hidden"
             style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
@@ -164,18 +173,16 @@ export default function PricingPage() {
             <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
               <Zap className="w-3 h-3" />
-              {t('bestValue')}
+              {t('lifetimeBadge')}
             </div>
 
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('yearly')}</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
-                <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t('perYear')}</span>
+              <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('lifetimeLabel')}</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€49.99</span>
+                <span className="text-lg line-through" style={{ color: 'var(--muted-foreground)' }}>€59.99</span>
               </div>
-              <p className="text-sm mt-2" style={{ color: 'var(--primary)' }}>
-                {t('yearlyTagline')}
-              </p>
+              <p className="text-sm mt-2" style={{ color: 'var(--primary)' }}>{t('lifetimeTagline')}</p>
             </div>
 
             <ul className="space-y-3 flex-1">
@@ -187,29 +194,23 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            {isPaid ? (
+            {isLifetime ? (
               <button
-                onClick={handlePortal}
-                disabled={loading === 'portal'}
+                disabled
+                className="w-full py-3 rounded-2xl font-bold text-sm opacity-60 cursor-not-allowed"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+              >
+                ✓ Active
+              </button>
+            ) : (
+              <button
+                onClick={() => handleCheckout('lifetime')}
+                disabled={loading === 'lifetime'}
                 className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
               >
-                {loading === 'portal' ? 'Loading…' : t('manageSub')}
+                {loading === 'lifetime' ? 'Loading…' : t('lifetimeCta')}
               </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => handleCheckout('yearly')}
-                  disabled={loading === 'yearly'}
-                  className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
-                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-                >
-                  {loading === 'yearly' ? 'Loading…' : t('cta')}
-                </button>
-                <p className="text-xs text-center -mt-3" style={{ color: 'var(--muted-foreground)' }}>
-                  {t('trialNotice')}
-                </p>
-              </>
             )}
           </div>
         </div>

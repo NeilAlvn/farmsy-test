@@ -61,13 +61,10 @@
   "pricing": {
     "eyebrow": "Farmsy Premium",
     "subheading": "Accédez à toutes les fermes des Pays-Bas et de Belgique sans limite.",
-    "monthly": "Mensuel",
     "yearly": "Annuel",
-    "perMonth": "/mois",
     "perYear": "/an",
-    "monthlyTagline": "3 jours gratuits, puis €4,99/mois",
-    "yearlyTagline": "3 jours gratuits, puis €29,99/an · Économisez 50%",
-    "bestValue": "Meilleure offre",
+    "yearlyTagline": "3 jours gratuits, puis €29,99/an",
+    "yearlyRenew": "Renouvellement annuel automatique. Annulable à tout moment.",
     "cta": "Démarrer votre essai gratuit de 3 jours",
     "trialNotice": "Aucun frais pendant 3 jours. Annulez avant la fin de l'essai et vous ne serez pas facturé.",
     "manageSub": "Gérer l'abonnement",
@@ -77,7 +74,11 @@
     "feature3": "Détails complets — téléphone, site web, horaires",
     "feature4": "Support prioritaire & accès anticipé",
     "headline1": "Tarifs simples et",
-    "headlineEmphasis": "transparents"
+    "headlineEmphasis": "transparents",
+    "lifetimeLabel": "À vie",
+    "lifetimeTagline": "Payez une fois, accès pour toujours",
+    "lifetimeBadge": "Offre limitée",
+    "lifetimeCta": "Obtenir l'accès à vie"
   },
   "homeFaq": {
     "eyebrow": "FAQ",

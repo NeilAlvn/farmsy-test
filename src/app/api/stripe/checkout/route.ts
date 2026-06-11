@@ -6,12 +6,12 @@ export const dynamic = 'force-dynamic'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 const PRICE_IDS: Record<string, string> = {
-  monthly: process.env.STRIPE_MONTHLY_PRICE_ID!,
-  yearly:  process.env.STRIPE_YEARLY_PRICE_ID!,
+  yearly:   process.env.STRIPE_YEARLY_PRICE_ID!,
+  lifetime: process.env.STRIPE_LIFETIME_PRICE_ID!,
 }
 
 export async function POST(request: Request) {
-  const { plan, userId } = await request.json() as { plan: 'monthly' | 'yearly'; userId: string }
+  const { plan, userId } = await request.json() as { plan: 'yearly' | 'lifetime'; userId: string }
 
   if (!plan || !PRICE_IDS[plan]) {
     return Response.json({ error: 'Invalid plan' }, { status: 400 })
@@ -49,19 +49,31 @@ export async function POST(request: Request) {
 
   const origin = new URL(request.url).origin
 
+  if (plan === 'lifetime') {
+    // One-time payment — no trial, no subscription
+    const session = await stripe.checkout.sessions.create({
+      customer:    customerId,
+      mode:        'payment',
+      line_items:  [{ price: PRICE_IDS.lifetime, quantity: 1 }],
+      success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/subscription/cancelled`,
+      metadata:    { supabase_user_id: userId, plan: 'lifetime' },
+    })
+    return Response.json({ url: session.url })
+  }
+
+  // Yearly subscription — 3-day free trial, card required upfront
   const session = await stripe.checkout.sessions.create({
     customer:   customerId,
     mode:       'subscription',
-    line_items: [{ price: PRICE_IDS[plan], quantity: 1 }],
+    line_items: [{ price: PRICE_IDS.yearly, quantity: 1 }],
     success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${origin}/subscription/cancelled`,
-    metadata:    { supabase_user_id: userId, plan },
-    // 3-day free trial — card collected upfront, no charge until day 3
+    metadata:    { supabase_user_id: userId, plan: 'yearly' },
     subscription_data: {
       trial_period_days: 3,
-      metadata: { supabase_user_id: userId, plan },
+      metadata: { supabase_user_id: userId, plan: 'yearly' },
     },
-    // Require card details even during trial
     payment_method_collection: 'always',
   })
 

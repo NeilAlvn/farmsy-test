@@ -61,13 +61,10 @@
   "pricing": {
     "eyebrow": "Farmsy Premium",
     "subheading": "Unbegrenzter Zugang zu allen Hofeinträgen in den Niederlanden und Belgien.",
-    "monthly": "Monatlich",
     "yearly": "Jährlich",
-    "perMonth": "/Monat",
     "perYear": "/Jahr",
-    "monthlyTagline": "3 Tage kostenlos testen, dann €4,99/Monat",
-    "yearlyTagline": "3 Tage kostenlos testen, dann €29,99/Jahr · 50% sparen",
-    "bestValue": "Bestes Angebot",
+    "yearlyTagline": "3 Tage kostenlos testen, dann €29,99/Jahr",
+    "yearlyRenew": "Wird jährlich automatisch verlängert. Jederzeit kündbar.",
     "cta": "3-tägige kostenlose Testversion starten",
     "trialNotice": "Keine Kosten für 3 Tage. Kündigen Sie vor Ende des Tests und Sie werden nicht belastet.",
     "manageSub": "Abonnement verwalten",
@@ -77,7 +74,11 @@
     "feature3": "Vollständige Hofdaten — Telefon, Website, Öffnungszeiten",
     "feature4": "Prioritätssupport & Früher Zugang",
     "headline1": "Einfache, transparente",
-    "headlineEmphasis": "Preise"
+    "headlineEmphasis": "Preise",
+    "lifetimeLabel": "Lebenslang",
+    "lifetimeTagline": "Einmalig zahlen, für immer Zugang",
+    "lifetimeBadge": "Zeitlich begrenztes Angebot",
+    "lifetimeCta": "Lebenslangen Zugang erhalten"
   },
   "homeFaq": {
     "eyebrow": "FAQ",

@@ -41,13 +41,26 @@ export async function POST(request: Request) {
   }
 
   switch (event.type) {
-    // Checkout completed — subscription created (may be trialing or active)
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const userId  = session.metadata?.supabase_user_id
       const plan    = session.metadata?.plan
 
-      if (userId && session.subscription) {
+      if (!userId) break
+
+      // Lifetime = one-time payment, no subscription object
+      if (session.mode === 'payment') {
+        await updateProfile(userId, {
+          subscription_status:    'active',
+          subscription_plan:      'lifetime',
+          subscription_end_date:  null,
+          stripe_subscription_id: null,
+        })
+        break
+      }
+
+      // Yearly subscription — retrieve sub for accurate status + dates
+      if (session.subscription) {
         const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Stripe.Subscription & { current_period_end: number; trial_end: number | null }
         const dbStatus = stripeStatusToDb(sub.status)
 
@@ -55,7 +68,6 @@ export async function POST(request: Request) {
           stripe_subscription_id: sub.id,
           subscription_status:    dbStatus,
           subscription_plan:      plan ?? null,
-          // For trialing subs, end date is the trial end; for active it's period end
           subscription_end_date:  sub.trial_end
             ? new Date(sub.trial_end * 1000).toISOString()
             : new Date(sub.current_period_end * 1000).toISOString(),
@@ -64,7 +76,7 @@ export async function POST(request: Request) {
       break
     }
 
-    // Subscription changed — covers trial→active, active→past_due, cancellations, etc.
+    // Subscription updated — trial→active, renewals, past_due, cancellations
     case 'customer.subscription.updated': {
       const sub    = event.data.object as Stripe.Subscription & { current_period_end: number; trial_end: number | null }
       const userId = sub.metadata?.supabase_user_id
@@ -109,7 +121,6 @@ export async function POST(request: Request) {
       break
     }
 
-    // Trial ending soon (3 days warning from Stripe) — no action needed for now
     case 'customer.subscription.trial_will_end':
       break
   }

@@ -61,13 +61,10 @@
   "pricing": {
     "eyebrow": "Farmsy Premium",
     "subheading": "Get unlimited access to every farm listing in the Netherlands and Belgium.",
-    "monthly": "Monthly",
     "yearly": "Yearly",
-    "perMonth": "/month",
     "perYear": "/year",
-    "monthlyTagline": "Try free for 3 days, then €4.99/month",
-    "yearlyTagline": "Try free for 3 days, then €29.99/year · Save 50%",
-    "bestValue": "Best value",
+    "yearlyTagline": "Try free for 3 days, then €29.99/year",
+    "yearlyRenew": "Auto-renews annually. Cancel anytime.",
     "cta": "Start your 3-day free trial",
     "trialNotice": "No charge for 3 days. Cancel anytime before trial ends and you won't be billed.",
     "manageSub": "Manage subscription",
@@ -77,7 +74,11 @@
     "feature3": "Full farm details — phone, website, hours",
     "feature4": "Priority support & early access",
     "headline1": "Simple, transparent",
-    "headlineEmphasis": "pricing"
+    "headlineEmphasis": "pricing",
+    "lifetimeLabel": "Lifetime",
+    "lifetimeTagline": "Pay once, access forever",
+    "lifetimeBadge": "Limited time offer",
+    "lifetimeCta": "Get lifetime access"
   },
   "homeFaq": {
     "eyebrow": "FAQ",
