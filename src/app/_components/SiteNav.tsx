@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Globe, ChevronDown, Check } from 'lucide-react'
 import HeaderAuth from './HeaderAuth'
+import MapGateLink from './MapGateLink'
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -98,13 +99,23 @@ export default function SiteNav() {
         {/* Page links */}
         <nav className="hidden items-center gap-6 lg:flex">
           {NAV_LINKS.map(({ label, href }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {label}
-            </Link>
+            href === '/map' ? (
+              <MapGateLink
+                key={href}
+                href={href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {label}
+              </MapGateLink>
+            ) : (
+              <Link
+                key={href}
+                href={href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {label}
+              </Link>
+            )
           ))}
           <Link
             href="/farmers"

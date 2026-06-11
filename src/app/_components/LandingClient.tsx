@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import MapGateLink from './MapGateLink'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   motion,
@@ -85,14 +86,14 @@ function LandingNav() {
         </span>
 
         <div className="flex items-center gap-6">
-          <Link
+          <MapGateLink
             href="/map"
             className="group inline-flex items-center gap-1.5 text-sm font-medium transition"
             style={{ color: 'var(--muted-foreground)' }}
           >
             Explore map
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          </MapGateLink>
         </div>
       </div>
     </header>
@@ -406,7 +407,7 @@ function FeaturedFarms({ farms }: { farms: FarmPreview[] }) {
               <span className="serif-italic">real produce.</span>
             </h2>
           </div>
-          <Link
+          <MapGateLink
             href="/map"
             className="group inline-flex shrink-0 items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition hover:opacity-90"
             style={{
@@ -416,7 +417,7 @@ function FeaturedFarms({ farms }: { farms: FarmPreview[] }) {
           >
             Explore full map
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          </MapGateLink>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

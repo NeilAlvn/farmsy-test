@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import MapGateLink from './MapGateLink'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import {
@@ -352,21 +353,21 @@ function Categories() {
                variants={fadeUp}
                transition={{ delay: i * 0.1 }}
              >
-               <Link 
+               <MapGateLink
                  href={`/map?category=${cat.id}`}
                  className="group relative block h-64 overflow-hidden rounded-2xl border border-border"
                >
-                 <Image 
-                   src={cat.image} 
-                   alt={cat.id} 
-                   fill 
+                 <Image
+                   src={cat.image}
+                   alt={cat.id}
+                   fill
                    className="object-cover transition-transform duration-700 group-hover:scale-110"
                  />
                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
                  <div className="absolute inset-0 flex items-center justify-center">
                    <h3 className="text-white text-3xl font-display font-medium tracking-tight">{t(cat.id as any)}</h3>
                  </div>
-               </Link>
+               </MapGateLink>
              </motion.div>
            ))}
          </div>
@@ -409,14 +410,14 @@ function FeaturedFarms({ farms }: { farms: FarmPreview[] }) {
               <span className="serif-italic">{t('headlineEmphasis')}</span>
             </h2>
           </div>
-          <Link
+          <MapGateLink
             href="/map"
             className="group inline-flex shrink-0 items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition hover:opacity-90"
             style={{ backgroundColor: 'var(--foreground)', color: 'var(--background)' }}
           >
             {t('exploreMap')}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          </MapGateLink>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
