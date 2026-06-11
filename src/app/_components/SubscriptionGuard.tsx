@@ -199,6 +199,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         <SubscriptionGateModal
           reason="no-sub"
           onSubscribed={() => { clearSubCache(); check() }}
+          onClose={() => router.replace('/pricing')}
         />
       </>
     )
@@ -213,6 +214,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         <SubscriptionGateModal
           reason="canceled"
           onSubscribed={() => { clearSubCache(); check() }}
+          onClose={() => router.replace('/pricing')}
         />
       </>
     )
