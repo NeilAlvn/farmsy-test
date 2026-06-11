@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User, LogOut, ChevronDown, Heart, LayoutDashboard, Route } from 'lucide-react'
@@ -28,21 +28,16 @@ function getStoredUser(): SupabaseUser | null {
 
 export default function HeaderAuth() {
   const router = useRouter()
-  // Start null (matches server render); useLayoutEffect updates before first paint
-  const [user, setUser]             = useState<SupabaseUser | null>(null)
+  // ssr:false means this only ever runs in the browser, so getStoredUser()
+  // runs synchronously in the useState initializer — correct state from frame one.
+  const [user, setUser]             = useState<SupabaseUser | null>(getStoredUser)
   const [open, setOpen]             = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { pendingFarms } = useTrip()
 
-  // Runs synchronously before the browser paints — reads localStorage so the
-  // correct auth state is visible from the first frame, no loading flash.
-  useLayoutEffect(() => {
-    setUser(getStoredUser())
-  }, [])
-
   useEffect(() => {
-    // Confirm with the real session (validates token, handles expiry)
+    // Confirm with the real session (validates token expiry, refreshes if needed)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })

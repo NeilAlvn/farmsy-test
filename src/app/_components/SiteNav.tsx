@@ -1,12 +1,27 @@
 'use client'
 
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Globe, ChevronDown, Check } from 'lucide-react'
-import HeaderAuth from './HeaderAuth'
 import MapGateLink from './MapGateLink'
+
+// ssr: false — auth state lives in localStorage; server always renders
+// "not signed in" which causes a visible flash. Skip SSR entirely and
+// let the client read localStorage synchronously on first render.
+const HeaderAuth = dynamic(() => import('./HeaderAuth'), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="shrink-0 inline-flex items-center rounded-lg border border-transparent px-3 py-1.5 text-xs opacity-0 pointer-events-none select-none"
+      aria-hidden
+    >
+      Sign in
+    </div>
+  ),
+})
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
