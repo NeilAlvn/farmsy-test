@@ -57,7 +57,7 @@ export default function FarmersPage() {
 
         {/* Page header */}
         <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-          <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_0.7fr] gap-12 items-center">
+          <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_0.7fr] gap-12 items-start">
             <div>
               <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
                 {t('eyebrow')}
