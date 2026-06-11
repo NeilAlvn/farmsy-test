@@ -14,11 +14,9 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 // Returns the user if a valid session exists, null otherwise.
 function getStoredUser(): SupabaseUser | null {
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const hostname = new URL(url).hostname
-    const raw = localStorage.getItem(`sb-${hostname}-auth-token`)
-    if (!raw) return null
-    const parsed = JSON.parse(raw)
+    const key = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+    if (!key) return null
+    const parsed = JSON.parse(localStorage.getItem(key) ?? 'null')
     const user = parsed?.user
     return user?.id ? (user as SupabaseUser) : null
   } catch {
