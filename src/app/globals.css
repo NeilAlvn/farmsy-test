@@ -16,6 +16,10 @@
   --color-destructive: var(--destructive);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   --background: oklch(0.985 0.005 85);
   --foreground: oklch(0.18 0.01 60);
