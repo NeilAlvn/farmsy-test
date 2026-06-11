@@ -47,8 +47,11 @@ export default function HeaderAuth() {
     router.refresh()
   }
 
-  // Reserve space while loading to avoid layout shift
-  if (loading) return <div className="w-9 h-9" />
+  if (loading) return (
+    <div className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/70 px-3 py-1.5 text-xs opacity-0 pointer-events-none select-none" aria-hidden>
+      Sign in
+    </div>
+  )
 
   if (!user) {
     return (
