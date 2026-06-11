@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ImageIcon } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
@@ -69,17 +69,25 @@ export default async function FaqPage() {
 
       {/* Page header */}
       <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-        <div className="mx-auto max-w-3xl">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
-            {t('eyebrow')}
-          </p>
-          <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
-            {t('headline')}{' '}
-            <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
-          </h1>
-          <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            {t('subheading')}
-          </p>
+        <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-12 items-center">
+          <div>
+            <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
+              {t('eyebrow')}
+            </p>
+            <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
+              {t('headline')}{' '}
+              <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
+            </h1>
+            <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              {t('subheading')}
+            </p>
+          </div>
+          <div className="relative aspect-[4/3] hidden lg:flex items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex flex-col items-center gap-2" style={{ color: 'var(--muted-foreground)' }}>
+              <ImageIcon className="h-8 w-8 opacity-30" />
+              <span className="text-xs opacity-40">Image placeholder</span>
+            </div>
+          </div>
         </div>
       </section>
 

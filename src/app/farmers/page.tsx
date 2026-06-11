@@ -59,12 +59,9 @@ export default function FarmersPage() {
         <section className="px-6 pt-20 pb-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
           <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_0.7fr] gap-12 items-center">
             <div>
-              <span
-                className="mb-5 inline-block rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.16em]"
-                style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)', color: 'var(--primary)' }}
-              >
+              <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>
                 {t('eyebrow')}
-              </span>
+              </p>
               <h1 className="font-display text-5xl font-medium leading-[1.05] tracking-[-0.025em]" style={{ color: 'var(--foreground)' }}>
                 {t('headline')}{' '}
                 <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
