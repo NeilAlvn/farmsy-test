@@ -68,6 +68,8 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
   const router = useRouter()
   const [state, setState] = useState<GuardState>('loading')
   const toastFiredRef = useRef(false)
+  // Track whether sign-in succeeded so onClose doesn't redirect away
+  const didSignInRef = useRef(false)
 
   const check = useCallback(async () => {
     setState('loading')
@@ -181,8 +183,8 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
         </div>
         <SignInModal
-          onClose={() => router.replace('/')}
-          onSuccess={() => { clearSubCache(); check() }}
+          onClose={() => { if (!didSignInRef.current) router.replace('/'); didSignInRef.current = false }}
+          onSuccess={() => { didSignInRef.current = true; clearSubCache(); check() }}
         />
       </>
     )

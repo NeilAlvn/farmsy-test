@@ -24,7 +24,7 @@ interface Props {
 function Modal({ reason, onSubscribed, onClose }: Props) {
   const { toast } = useToast()
   const [visible, setVisible]         = useState(false)
-  const [loading, setLoading]         = useState<'monthly' | 'yearly' | 'portal' | 'auto' | null>(null)
+  const [loading, setLoading]         = useState<'yearly' | 'lifetime' | 'portal' | 'auto' | null>(null)
   const [autoTried, setAutoTried]     = useState(false)
   const [hasCard, setHasCard]         = useState<boolean | null>(null)
 
@@ -52,9 +52,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
         const res = await fetch('/api/stripe/auto-subscribe', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          // dry-run: we just need to know if the route would find a card
-          // We use plan=monthly but catch the error if no card found
-          body: JSON.stringify({ userId: session.user.id, plan: 'monthly', dryRun: true }),
+          body: JSON.stringify({ userId: session.user.id, plan: 'yearly', dryRun: true }),
         })
         const data = await res.json()
         setHasCard(data.error !== 'no_payment_method' && data.error !== 'no_customer')
@@ -81,7 +79,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
     return session?.user?.id ?? null
   }
 
-  async function handleAutoSubscribe(plan: 'monthly' | 'yearly') {
+  async function handleAutoSubscribe(plan: 'yearly') {
     const userId = await getUserId()
     if (!userId) return
 
@@ -124,7 +122,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
     }
   }
 
-  async function handleCheckout(plan: 'monthly' | 'yearly') {
+  async function handleCheckout(plan: 'yearly' | 'lifetime') {
     const userId = await getUserId()
     if (!userId) return
 
@@ -239,28 +237,16 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
         {/* Canceled: one-click resubscribe if card on file */}
         {reason === 'canceled' && hasCard && !autoTried && (
           <div className="px-6 py-4 flex flex-col gap-3">
-            <div className="flex gap-3">
-              <button
-                onClick={() => handleAutoSubscribe('monthly')}
-                disabled={isLoading}
-                className="flex-1 py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
-              >
-                {loading === 'auto'
-                  ? <><Loader2 size={13} className="animate-spin" /> Processing…</>
-                  : '€4.99 / month'}
-              </button>
-              <button
-                onClick={() => handleAutoSubscribe('yearly')}
-                disabled={isLoading}
-                className="flex-1 py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              >
-                {loading === 'auto'
-                  ? <><Loader2 size={13} className="animate-spin" /> Processing…</>
-                  : <><Zap size={13} /> €29.99 / year</>}
-              </button>
-            </div>
+            <button
+              onClick={() => handleAutoSubscribe('yearly')}
+              disabled={isLoading}
+              className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+            >
+              {loading === 'auto'
+                ? <><Loader2 size={13} className="animate-spin" /> Processing…</>
+                : <><Zap size={13} /> Reactivate — €29.99 / year</>}
+            </button>
             <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
               Your saved card will be charged immediately. Cancel anytime from billing.
             </p>
@@ -278,36 +264,6 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
         {(reason === 'no-sub' || (reason === 'canceled' && (!hasCard || autoTried))) && (
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            {/* Monthly */}
-            <div className="rounded-2xl border p-5 flex flex-col gap-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Monthly</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€4.99</span>
-                  <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>/month</span>
-                </div>
-                {reason === 'no-sub' && <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>3-day free trial</p>}
-              </div>
-              <ul className="space-y-2 flex-1">
-                {FEATURES.map(f => (
-                  <li key={f} className="flex items-start gap-2 text-xs" style={{ color: 'var(--foreground)' }}>
-                    <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => handleCheckout('monthly')}
-                disabled={isLoading}
-                className="w-full py-2.5 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
-              >
-                {loading === 'monthly'
-                  ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : reason === 'canceled' ? 'Subscribe monthly' : 'Start free trial'}
-              </button>
-            </div>
-
             {/* Yearly */}
             <div className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
               style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
@@ -323,7 +279,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
                   <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>/year</span>
                 </div>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>
-                  {reason === 'no-sub' ? '3-day free trial · ' : ''}Save 50%
+                  {reason === 'no-sub' ? '3-day free trial included' : 'Save vs lifetime'}
                 </p>
               </div>
               <ul className="space-y-2 flex-1">
@@ -343,6 +299,36 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
                 {loading === 'yearly'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
                   : reason === 'canceled' ? 'Subscribe yearly' : 'Start free trial'}
+              </button>
+            </div>
+
+            {/* Lifetime */}
+            <div className="rounded-2xl border p-5 flex flex-col gap-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Lifetime</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€49.99</span>
+                  <span className="text-sm line-through" style={{ color: 'var(--muted-foreground)' }}>€59.99</span>
+                </div>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>One-time · no renewals</p>
+              </div>
+              <ul className="space-y-2 flex-1">
+                {FEATURES.map(f => (
+                  <li key={f} className="flex items-start gap-2 text-xs" style={{ color: 'var(--foreground)' }}>
+                    <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => handleCheckout('lifetime')}
+                disabled={isLoading}
+                className="w-full py-2.5 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+                style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
+              >
+                {loading === 'lifetime'
+                  ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
+                  : 'Buy lifetime access'}
               </button>
             </div>
           </div>
