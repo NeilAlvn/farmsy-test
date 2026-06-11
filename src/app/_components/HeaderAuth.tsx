@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User, LogOut, ChevronDown, Heart, LayoutDashboard, Route } from 'lucide-react'
@@ -9,19 +9,42 @@ import { useTrip } from './TripProvider'
 import SignInModal from './SignInModal'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
+// Read the stored Supabase session synchronously from localStorage.
+// Supabase v2 stores it under sb-{hostname}-auth-token.
+// Returns the user if a valid session exists, null otherwise.
+function getStoredUser(): SupabaseUser | null {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const hostname = new URL(url).hostname
+    const raw = localStorage.getItem(`sb-${hostname}-auth-token`)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const user = parsed?.user
+    return user?.id ? (user as SupabaseUser) : null
+  } catch {
+    return null
+  }
+}
+
 export default function HeaderAuth() {
   const router = useRouter()
-  const [user, setUser]         = useState<SupabaseUser | null>(null)
-  const [loading, setLoading]   = useState(true)
-  const [open, setOpen]         = useState(false)
+  // Start null (matches server render); useLayoutEffect updates before first paint
+  const [user, setUser]             = useState<SupabaseUser | null>(null)
+  const [open, setOpen]             = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { pendingFarms } = useTrip()
 
+  // Runs synchronously before the browser paints — reads localStorage so the
+  // correct auth state is visible from the first frame, no loading flash.
+  useLayoutEffect(() => {
+    setUser(getStoredUser())
+  }, [])
+
   useEffect(() => {
+    // Confirm with the real session (validates token, handles expiry)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -46,12 +69,6 @@ export default function HeaderAuth() {
     router.push('/')
     router.refresh()
   }
-
-  if (loading) return (
-    <div className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-border/70 px-3 py-1.5 text-xs opacity-0 pointer-events-none select-none" aria-hidden>
-      Sign in
-    </div>
-  )
 
   if (!user) {
     return (
@@ -89,13 +106,11 @@ export default function HeaderAuth() {
 
       {open && (
         <div className="animate-dropdown absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]">
-          {/* User info */}
           <div className="border-b border-border/60 px-4 py-3">
             <p className="mb-0.5 text-xs text-muted-foreground">Signed in as</p>
             <p className="truncate text-sm font-semibold text-foreground">{user.email}</p>
           </div>
 
-          {/* Menu items */}
           <nav className="p-1.5 space-y-0.5">
             <Link
               href="/profile"
