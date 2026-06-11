@@ -78,7 +78,8 @@
     "lifetimeLabel": "À vie",
     "lifetimeTagline": "Payez une fois, accès pour toujours",
     "lifetimeBadge": "Offre limitée",
-    "lifetimeCta": "Obtenir l'accès à vie"
+    "lifetimeCta": "Obtenir l'accès à vie",
+    "lifetimeNotice": "Paiement unique. Aucun abonnement, aucun renouvellement, jamais."
   },
   "homeFaq": {
     "eyebrow": "FAQ",

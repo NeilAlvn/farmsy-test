@@ -78,7 +78,8 @@
     "lifetimeLabel": "Levenslang",
     "lifetimeTagline": "Eén keer betalen, voor altijd toegang",
     "lifetimeBadge": "Tijdelijke aanbieding",
-    "lifetimeCta": "Levenslange toegang krijgen"
+    "lifetimeCta": "Levenslange toegang krijgen",
+    "lifetimeNotice": "Eénmalige betaling. Geen abonnement, geen verlengingen, ooit."
   },
   "homeFaq": {
     "eyebrow": "FAQ",

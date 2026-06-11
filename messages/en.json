@@ -78,7 +78,8 @@
     "lifetimeLabel": "Lifetime",
     "lifetimeTagline": "Pay once, access forever",
     "lifetimeBadge": "Limited time offer",
-    "lifetimeCta": "Get lifetime access"
+    "lifetimeCta": "Get lifetime access",
+    "lifetimeNotice": "One-time payment. No subscription, no renewals, ever."
   },
   "homeFaq": {
     "eyebrow": "FAQ",

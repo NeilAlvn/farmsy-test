@@ -119,7 +119,6 @@ export default function PricingPage() {
                 <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>{t('perYear')}</span>
               </div>
               <p className="text-sm mt-2" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyTagline')}</p>
-              <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyRenew')}</p>
             </div>
 
             <ul className="space-y-3 flex-1">
@@ -131,25 +130,25 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            {isPaid && !isLifetime ? (
-              <button
-                onClick={handlePortal}
-                disabled={loading === 'portal'}
-                className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
-              >
-                {loading === 'portal' ? 'Loading…' : t('manageSub')}
-              </button>
-            ) : isLifetime ? (
-              <button
-                disabled
-                className="w-full py-3 rounded-2xl font-semibold text-sm opacity-40 cursor-not-allowed"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
-              >
-                {t('cta')}
-              </button>
-            ) : (
-              <>
+            <div className="flex flex-col gap-2">
+              {isPaid && !isLifetime ? (
+                <button
+                  onClick={handlePortal}
+                  disabled={loading === 'portal'}
+                  className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
+                  style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
+                >
+                  {loading === 'portal' ? 'Loading…' : t('manageSub')}
+                </button>
+              ) : isLifetime ? (
+                <button
+                  disabled
+                  className="w-full py-3 rounded-2xl font-semibold text-sm opacity-40 cursor-not-allowed"
+                  style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
+                >
+                  {t('cta')}
+                </button>
+              ) : (
                 <button
                   onClick={() => handleCheckout('yearly')}
                   disabled={loading === 'yearly'}
@@ -158,11 +157,11 @@ export default function PricingPage() {
                 >
                   {loading === 'yearly' ? 'Loading…' : t('cta')}
                 </button>
-                <p className="text-xs text-center -mt-3" style={{ color: 'var(--muted-foreground)' }}>
-                  {t('trialNotice')}
-                </p>
-              </>
-            )}
+              )}
+              <p className={`text-xs text-center ${!isPaid && !isLifetime ? '' : 'invisible'}`} style={{ color: 'var(--muted-foreground)' }}>
+                {t('yearlyRenew')}
+              </p>
+            </div>
           </div>
 
           {/* Lifetime — highlighted */}
@@ -185,7 +184,7 @@ export default function PricingPage() {
               <p className="text-sm mt-2" style={{ color: 'var(--primary)' }}>{t('lifetimeTagline')}</p>
             </div>
 
-            <ul className="space-y-3 flex-1">
+            <ul className="space-y-3">
               {FEATURES.map(f => (
                 <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--foreground)' }}>
                   <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
@@ -194,24 +193,29 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            {isLifetime ? (
-              <button
-                disabled
-                className="w-full py-3 rounded-2xl font-bold text-sm opacity-60 cursor-not-allowed"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              >
-                ✓ Active
-              </button>
-            ) : (
-              <button
-                onClick={() => handleCheckout('lifetime')}
-                disabled={loading === 'lifetime'}
-                className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              >
-                {loading === 'lifetime' ? 'Loading…' : t('lifetimeCta')}
-              </button>
-            )}
+            <div className="flex flex-col gap-2 mt-auto">
+              {isLifetime ? (
+                <button
+                  disabled
+                  className="w-full py-3 rounded-2xl font-bold text-sm opacity-60 cursor-not-allowed"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                >
+                  ✓ Active
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleCheckout('lifetime')}
+                  disabled={loading === 'lifetime'}
+                  className="w-full py-3 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                >
+                  {loading === 'lifetime' ? 'Loading…' : t('lifetimeCta')}
+                </button>
+              )}
+              <p className={`text-xs text-center ${!isLifetime ? '' : 'invisible'}`} style={{ color: 'var(--muted-foreground)' }}>
+                {t('lifetimeNotice')}
+              </p>
+            </div>
           </div>
         </div>
 

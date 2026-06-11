@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import SignInModal from './SignInModal'
 import SubscriptionGateModal from './SubscriptionGateModal'
@@ -64,6 +65,7 @@ function daysUntil(isoDate: string): number {
 
 export default function SubscriptionGuard({ children }: { children: ReactNode }) {
   const { toast } = useToast()
+  const router = useRouter()
   const [state, setState] = useState<GuardState>('loading')
   const toastFiredRef = useRef(false)
 
@@ -179,7 +181,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
         </div>
         <SignInModal
-          onClose={() => setState('no-auth')}
+          onClose={() => router.replace('/')}
           onSuccess={() => { clearSubCache(); check() }}
         />
       </>

@@ -78,7 +78,8 @@
     "lifetimeLabel": "Lebenslang",
     "lifetimeTagline": "Einmalig zahlen, für immer Zugang",
     "lifetimeBadge": "Zeitlich begrenztes Angebot",
-    "lifetimeCta": "Lebenslangen Zugang erhalten"
+    "lifetimeCta": "Lebenslangen Zugang erhalten",
+    "lifetimeNotice": "Einmalige Zahlung. Kein Abo, keine Verlängerungen, nie."
   },
   "homeFaq": {
     "eyebrow": "FAQ",
