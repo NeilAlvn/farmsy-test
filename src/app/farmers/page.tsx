@@ -7,8 +7,9 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import ContentLayout from '@/app/_components/ContentLayout'
 import SignInModal from '@/app/_components/SignInModal'
-import { ArrowRight, MapPin, Pencil, Users } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import FarmersBenefits from './FarmersBenefits'
 
 export default function FarmersPage() {
   const t = useTranslations('farmers')
@@ -17,9 +18,10 @@ export default function FarmersPage() {
   const [showSignIn, setShowSignIn] = useState(false)
 
   const BENEFITS = [
-    { Icon: MapPin,  title: t('b1Title'), desc: t('b1Desc') },
-    { Icon: Pencil,  title: t('b2Title'), desc: t('b2Desc') },
-    { Icon: Users,   title: t('b3Title'), desc: t('b3Desc') },
+    { title: t('b1Title'), desc: t('b1Desc') },
+    { title: t('b2Title'), desc: t('b2Desc') },
+    { title: t('b3Title'), desc: t('b3Desc') },
+    { title: t('b4Title'), desc: t('b4Desc') },
   ]
 
   const STEPS = [t('step1'), t('step2'), t('step3'), t('step4')]
@@ -98,26 +100,9 @@ export default function FarmersPage() {
         </section>
 
         {/* Benefits */}
-        <section className="px-6 py-20" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-          <div className="mx-auto max-w-3xl">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-              {BENEFITS.map(({ Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="rounded-2xl border p-6"
-                  style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
-                >
-                  <div
-                    className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl"
-                    style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}
-                  >
-                    <Icon className="h-5 w-5" style={{ color: 'var(--primary)' }} strokeWidth={1.5} />
-                  </div>
-                  <p className="mb-2 font-semibold" style={{ color: 'var(--foreground)' }}>{title}</p>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{desc}</p>
-                </div>
-              ))}
-            </div>
+        <section className="px-6 py-12" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)', backgroundColor: 'oklch(0.36 0.07 145 / 0.03)' }}>
+          <div className="mx-auto max-w-5xl">
+            <FarmersBenefits benefits={BENEFITS} />
           </div>
         </section>
 
