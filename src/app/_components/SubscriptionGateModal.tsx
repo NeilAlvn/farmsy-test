@@ -259,68 +259,17 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
 
         {/* Standard pricing cards (no-sub, or canceled with no card / different card) */}
         {(reason === 'no-sub' || (reason === 'canceled' && (!hasCard || autoTried))) && (
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-            {/* Free trial */}
-            {reason === 'no-sub' && (
-              <div className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
-                style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
-                <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
-                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-                  <Zap className="w-2.5 h-2.5" />
-                  Start free
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Free trial</p>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€0</span>
-                    <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>today</span>
-                  </div>
-                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>Then €29.99/year after 3 days</p>
-                </div>
-                <ul className="space-y-2 flex-1">
-                  {FEATURES.map(f => (
-                    <li key={f} className="flex items-start gap-2 text-xs" style={{ color: 'var(--foreground)' }}>
-                      <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => handleCheckout('yearly', 'trial')}
-                  disabled={isLoading}
-                  className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-                >
-                  {loading === 'trial'
-                    ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                    : 'Start free — no charge today'}
-                </button>
-                <p className="text-[10px] text-center -mt-2" style={{ color: 'var(--muted-foreground)' }}>
-                  Card required · auto-renews after trial
-                </p>
-              </div>
-            )}
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             {/* Yearly */}
-            <div className={`rounded-2xl p-5 flex flex-col gap-4 ${reason === 'canceled' ? 'relative overflow-hidden' : ''}`}
-              style={reason === 'canceled'
-                ? { background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }
-                : { borderColor: 'var(--border)', border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
-              {reason === 'canceled' && (
-                <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
-                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-                  <Zap className="w-2.5 h-2.5" />
-                  Best value
-                </div>
-              )}
+            <div className="rounded-3xl border p-6 flex flex-col gap-5" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Yearly</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Yearly</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
-                  <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>/year</span>
+                  <span className="text-4xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
+                  <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>/year</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Billed annually</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Billed annually</p>
               </div>
               <ul className="space-y-2 flex-1">
                 {FEATURES.map(f => (
@@ -333,26 +282,30 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               <button
                 onClick={() => handleCheckout('yearly')}
                 disabled={isLoading}
-                className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={reason === 'canceled'
-                  ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }
-                  : { border: '1px solid var(--border)', color: 'var(--foreground)' }}
+                className="w-full py-2.5 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
+                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
               >
                 {loading === 'yearly'
-                  ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : reason === 'canceled' ? 'Subscribe yearly' : 'Subscribe — €29.99/yr'}
+                  ? <><Loader2 size={13} className="animate-spin inline mr-1" /> Loading…</>
+                  : 'Subscribe Yearly'}
               </button>
             </div>
 
             {/* Lifetime */}
-            <div className="rounded-2xl border p-5 flex flex-col gap-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+            <div className="rounded-3xl p-6 flex flex-col gap-5 relative overflow-hidden"
+              style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
+              <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                <Zap className="w-2.5 h-2.5" />
+                Best value
+              </div>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Lifetime</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Lifetime</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€49.99</span>
+                  <span className="text-4xl font-extrabold" style={{ color: 'var(--foreground)' }}>€49.99</span>
                   <span className="text-sm line-through" style={{ color: 'var(--muted-foreground)' }}>€59.99</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>One-time · no renewals</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--primary)' }}>One-time · no renewals</p>
               </div>
               <ul className="space-y-2 flex-1">
                 {FEATURES.map(f => (
@@ -365,12 +318,12 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               <button
                 onClick={() => handleCheckout('lifetime')}
                 disabled={isLoading}
-                className="w-full py-2.5 rounded-xl font-semibold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
+                className="w-full py-2.5 rounded-2xl font-bold text-sm transition-opacity disabled:opacity-60"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
               >
                 {loading === 'lifetime'
-                  ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : 'Buy lifetime access'}
+                  ? <><Loader2 size={13} className="animate-spin inline mr-1" /> Loading…</>
+                  : 'Buy Lifetime Access'}
               </button>
             </div>
           </div>
