@@ -189,7 +189,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
       />
 
       <div
-        className="relative w-full max-w-4xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
+        className="relative w-full max-w-xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
         style={{
           transition: 'opacity 220ms ease, transform 220ms cubic-bezier(0.34,1.26,0.64,1)',
           opacity:    visible ? 1 : 0,
