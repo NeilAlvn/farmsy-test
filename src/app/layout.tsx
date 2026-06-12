@@ -6,6 +6,7 @@ import "./globals.css";
 import { FavoritesProvider } from "./_components/FavoritesProvider";
 import { TripProvider } from "./_components/TripProvider";
 import { ToastProvider } from "./_components/ToastProvider";
+import BfcacheReload from "./_components/BfcacheReload";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
+        <BfcacheReload />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>
             <TripProvider>

@@ -64,8 +64,8 @@
     "yearly": "Jährlich",
     "perYear": "/Jahr",
     "yearlyTagline": "3 Tage kostenlos testen, dann €29,99/Jahr",
-    "yearlyRenew": "Wird jährlich automatisch verlängert. Jederzeit kündbar.",
-    "cta": "3-tägige kostenlose Testversion starten",
+    "yearlyRenew": "Verlängert sich jährlich für €29,99. Jederzeit über Ihr Abrechnungsportal vor dem nächsten Verlängerungsdatum kündbar.",
+    "cta": "Start Free Trial",
     "trialNotice": "Keine Kosten für 3 Tage. Kündigen Sie vor Ende des Tests und Sie werden nicht belastet.",
     "manageSub": "Abonnement verwalten",
     "finePrint": "Alle Preise inkl. MwSt. Zahlungen verarbeitet von Stripe. Jederzeit über Ihr Abrechnungsportal kündigen.",
@@ -78,7 +78,7 @@
     "lifetimeLabel": "Lebenslang",
     "lifetimeTagline": "Einmalig zahlen, für immer Zugang",
     "lifetimeBadge": "Zeitlich begrenztes Angebot",
-    "lifetimeCta": "Lebenslangen Zugang erhalten",
+    "lifetimeCta": "Buy Lifetime Access",
     "lifetimeNotice": "Einmalige Zahlung. Kein Abo, keine Verlängerungen, nie."
   },
   "homeFaq": {

@@ -64,8 +64,8 @@
     "yearly": "Yearly",
     "perYear": "/year",
     "yearlyTagline": "Try free for 3 days, then €29.99/year",
-    "yearlyRenew": "Auto-renews annually. Cancel anytime.",
-    "cta": "Start your 3-day free trial",
+    "yearlyRenew": "Renews yearly at €29.99. Cancel anytime from your billing portal before renewal.",
+    "cta": "Start Free Trial",
     "trialNotice": "No charge for 3 days. Cancel anytime before trial ends and you won't be billed.",
     "manageSub": "Manage subscription",
     "finePrint": "All prices include VAT. Payments processed securely by Stripe. Cancel any time from your billing portal.",
@@ -78,7 +78,7 @@
     "lifetimeLabel": "Lifetime",
     "lifetimeTagline": "Pay once, access forever",
     "lifetimeBadge": "Limited time offer",
-    "lifetimeCta": "Get lifetime access",
+    "lifetimeCta": "Buy Lifetime Access",
     "lifetimeNotice": "One-time payment. No subscription, no renewals, ever."
   },
   "homeFaq": {

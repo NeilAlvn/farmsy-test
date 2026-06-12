@@ -132,6 +132,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
       })
       const { url, error } = await res.json()
       if (error) throw new Error(error)
+      sessionStorage.setItem('stripe_redirect', '1')
       window.location.href = url
     } catch {
       toast({ type: 'error', title: 'Could not start checkout', message: 'Please try again.' })
@@ -294,11 +295,8 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
                 >
                   {loading === 'trial'
                     ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                    : 'Start free — no charge today'}
+                    : 'Start Free Trial'}
                 </button>
-                <p className="text-[10px] text-center -mt-2" style={{ color: 'var(--muted-foreground)' }}>
-                  Card required · auto-renews after trial
-                </p>
               </div>
             )}
 
@@ -340,7 +338,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               >
                 {loading === 'yearly'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : reason === 'canceled' ? 'Subscribe yearly' : 'Subscribe — €29.99/yr'}
+                  : 'Subscribe Yearly'}
               </button>
             </div>
 
@@ -370,7 +368,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               >
                 {loading === 'lifetime'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : 'Buy lifetime access'}
+                  : 'Buy Lifetime Access'}
               </button>
             </div>
           </div>

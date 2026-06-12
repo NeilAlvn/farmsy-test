@@ -64,8 +64,8 @@
     "yearly": "Anual",
     "perYear": "/año",
     "yearlyTagline": "3 días gratis, luego €29,99/año",
-    "yearlyRenew": "Se renueva anualmente de forma automática. Cancela cuando quieras.",
-    "cta": "Iniciar tu prueba gratuita de 3 días",
+    "yearlyRenew": "Se renueva cada año por €29,99. Cancela cuando quieras desde tu portal de facturación antes de la próxima fecha de renovación.",
+    "cta": "Start Free Trial",
     "trialNotice": "Sin cargos durante 3 días. Cancela antes de que termine la prueba y no se te cobrará.",
     "manageSub": "Gestionar suscripción",
     "finePrint": "Todos los precios incluyen IVA. Pagos procesados por Stripe. Cancela en cualquier momento desde tu portal de facturación.",
@@ -78,7 +78,7 @@
     "lifetimeLabel": "De por vida",
     "lifetimeTagline": "Paga una vez, acceso para siempre",
     "lifetimeBadge": "Oferta por tiempo limitado",
-    "lifetimeCta": "Obtener acceso de por vida",
+    "lifetimeCta": "Buy Lifetime Access",
     "lifetimeNotice": "Pago único. Sin suscripción, sin renovaciones, nunca."
   },
   "homeFaq": {

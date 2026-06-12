@@ -29,6 +29,8 @@ import FarmCard from '@/app/FarmCard'
 import type { FarmPreview } from '@/app/page'
 import SiteNav from './SiteNav'
 import SiteFooter from './SiteFooter'
+import SignInModal from './SignInModal'
+import { supabase } from '@/lib/supabase'
 
 const PhoneMap = dynamic(() => import('./PhoneMap'), { ssr: false })
 
@@ -586,109 +588,178 @@ function Features() {
 function Pricing() {
   const t = useTranslations('pricing')
   const features = [t('feature1'), t('feature2'), t('feature3'), t('feature4')]
+  const [loading, setLoading] = useState<'trial' | 'yearly' | 'lifetime' | null>(null)
+  const [showSignIn, setShowSignIn] = useState(false)
+
+  async function handleCheckout(plan: 'yearly' | 'lifetime', key: 'trial' | 'yearly' | 'lifetime' = plan) {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) { setShowSignIn(true); return }
+    setLoading(key)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan, userId: session.user.id }),
+      })
+      const { url, error } = await res.json()
+      if (error) throw new Error(error)
+      sessionStorage.setItem('stripe_redirect', '1')
+      window.location.href = url
+    } catch {
+      alert('Something went wrong. Please try again.')
+      setLoading(null)
+    }
+  }
 
   return (
-    <section className="border-t border-border/60 px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
-          variants={fadeUp}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary">
-            {t('eyebrow')}
-          </p>
-          <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.025em] text-foreground sm:text-5xl">
-            {t('headline1')}{' '}
-            <span className="serif-italic">{t('headlineEmphasis')}</span>
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-            {t('subheading')}
-          </p>
-        </motion.div>
-
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:max-w-3xl md:mx-auto items-stretch">
-
-          {/* Yearly */}
+    <>
+      {showSignIn && (
+        <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />
+      )}
+      <section className="border-t border-border/60 px-6 py-24 sm:py-32">
+        <div className="mx-auto max-w-6xl">
           <motion.div
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: '-50px' }}
+            viewport={{ once: true, margin: '-100px' }}
             variants={fadeUp}
-            transition={{ delay: 0.05 }}
-            className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
+            className="mx-auto max-w-2xl text-center"
           >
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
-              <div className="flex items-baseline gap-1">
-                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
-                <span className="text-sm text-muted-foreground">{t('perYear')}</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">{t('yearlyTagline')}</p>
-            </div>
-            <ul className="space-y-3 flex-1">
-              {features.map(f => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/pricing"
-              className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80"
-            >
-              {t('cta')}
-            </Link>
+            <p className="mb-4 text-xs font-medium uppercase tracking-[0.2em] text-primary">
+              {t('eyebrow')}
+            </p>
+            <h2 className="font-display text-4xl font-medium leading-[1.05] tracking-[-0.025em] text-foreground sm:text-5xl">
+              {t('headline1')}{' '}
+              <span className="serif-italic">{t('headlineEmphasis')}</span>
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+              {t('subheading')}
+            </p>
           </motion.div>
 
-          {/* Lifetime — highlighted */}
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-50px' }}
-            variants={fadeUp}
-            transition={{ delay: 0.12 }}
-            className="relative rounded-2xl p-8 flex flex-col gap-6 overflow-hidden"
-            style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
-          >
-            <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-              <Zap className="h-3 w-3" />
-              {t('lifetimeBadge')}
-            </div>
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('lifetimeLabel')}</p>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-5xl font-medium tracking-tight text-foreground">€49.99</span>
-                <span className="text-lg line-through text-muted-foreground">€59.99</span>
-              </div>
-              <p className="mt-2 text-sm font-medium" style={{ color: 'var(--primary)' }}>{t('lifetimeTagline')}</p>
-            </div>
-            <ul className="space-y-3 flex-1">
-              {features.map(f => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                  <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/pricing"
-              className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90"
-              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-            >
-              {t('lifetimeCta')}
-            </Link>
-          </motion.div>
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3 items-stretch">
 
+            {/* Free trial */}
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: '-50px' }}
+              variants={fadeUp}
+              transition={{ delay: 0.05 }}
+              className="relative rounded-2xl p-8 flex flex-col gap-6 overflow-hidden"
+              style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
+            >
+              <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                <Zap className="h-3 w-3" />
+                Start free
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Free trial</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display text-5xl font-medium tracking-tight text-foreground">€0</span>
+                  <span className="text-sm text-muted-foreground">today</span>
+                </div>
+                <p className="mt-2 text-sm font-medium" style={{ color: 'var(--primary)' }}>Then €29.99/year after 3 days</p>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {features.map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => handleCheckout('yearly', 'trial')}
+                disabled={loading !== null}
+                className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90 disabled:opacity-60"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+              >
+                {loading === 'trial' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : t('cta')}
+              </button>
+            </motion.div>
+
+            {/* Yearly */}
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: '-50px' }}
+              variants={fadeUp}
+              transition={{ delay: 0.12 }}
+              className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
+            >
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
+                  <span className="text-sm text-muted-foreground">{t('perYear')}</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{t('yearlyTagline')}</p>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {features.map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => handleCheckout('yearly')}
+                disabled={loading !== null}
+                className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80 disabled:opacity-60"
+              >
+                {loading === 'yearly' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'Subscribe Yearly'}
+              </button>
+            </motion.div>
+
+            {/* Lifetime — highlighted */}
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: '-50px' }}
+              variants={fadeUp}
+              transition={{ delay: 0.19 }}
+              className="relative rounded-2xl p-8 flex flex-col gap-6 overflow-hidden"
+              style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
+            >
+              <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                <Zap className="h-3 w-3" />
+                {t('lifetimeBadge')}
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('lifetimeLabel')}</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-display text-5xl font-medium tracking-tight text-foreground">€49.99</span>
+                  <span className="text-lg line-through text-muted-foreground">€59.99</span>
+                </div>
+                <p className="mt-2 text-sm font-medium" style={{ color: 'var(--primary)' }}>{t('lifetimeTagline')}</p>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {features.map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => handleCheckout('lifetime')}
+                disabled={loading !== null}
+                className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90 disabled:opacity-60"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+              >
+                {loading === 'lifetime' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : t('lifetimeCta')}
+              </button>
+            </motion.div>
+
+          </div>
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            {t('finePrint')}
+          </p>
         </div>
-        <p className="mt-8 text-center text-xs text-muted-foreground">
-          {t('finePrint')}
-        </p>
-      </div>
-    </section>
+      </section>
+    </>
   )
 }
 

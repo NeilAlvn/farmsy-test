@@ -64,8 +64,8 @@
     "yearly": "Jaarlijks",
     "perYear": "/jaar",
     "yearlyTagline": "3 dagen gratis proberen, daarna €29,99/jaar",
-    "yearlyRenew": "Wordt jaarlijks automatisch verlengd. Op elk moment opzegbaar.",
-    "cta": "Start je 3-daagse gratis proefperiode",
+    "yearlyRenew": "Wordt jaarlijks verlengd voor €29,99. Annuleer op elk moment via je facturatieportaal vóór de volgende verlengingsdatum.",
+    "cta": "Start Free Trial",
     "trialNotice": "Geen kosten voor 3 dagen. Annuleer voor het einde van de proefperiode en je wordt niet gefactureerd.",
     "manageSub": "Abonnement beheren",
     "finePrint": "Alle prijzen zijn inclusief btw. Betalingen verwerkt door Stripe. Annuleer op elk moment via je facturatieportaal.",
@@ -78,7 +78,7 @@
     "lifetimeLabel": "Levenslang",
     "lifetimeTagline": "Eén keer betalen, voor altijd toegang",
     "lifetimeBadge": "Tijdelijke aanbieding",
-    "lifetimeCta": "Levenslange toegang krijgen",
+    "lifetimeCta": "Buy Lifetime Access",
     "lifetimeNotice": "Eénmalige betaling. Geen abonnement, geen verlengingen, ooit."
   },
   "homeFaq": {
