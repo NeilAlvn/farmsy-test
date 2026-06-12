@@ -24,7 +24,7 @@ interface Props {
 function Modal({ reason, onSubscribed, onClose }: Props) {
   const { toast } = useToast()
   const [visible, setVisible]         = useState(false)
-  const [loading, setLoading]         = useState<'yearly' | 'lifetime' | 'portal' | 'auto' | null>(null)
+  const [loading, setLoading]         = useState<'trial' | 'yearly' | 'lifetime' | 'portal' | 'auto' | null>(null)
   const [autoTried, setAutoTried]     = useState(false)
   const [hasCard, setHasCard]         = useState<boolean | null>(null)
 
@@ -119,11 +119,11 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
     }
   }
 
-  async function handleCheckout(plan: 'yearly' | 'lifetime') {
+  async function handleCheckout(plan: 'yearly' | 'lifetime', loadingKey: 'trial' | 'yearly' | 'lifetime' = plan) {
     const userId = await getUserId()
     if (!userId) return
 
-    setLoading(plan)
+    setLoading(loadingKey)
     try {
       const res = await fetch('/api/stripe/checkout', {
         method:  'POST',
@@ -189,7 +189,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
       />
 
       <div
-        className="relative w-full max-w-2xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
+        className="relative w-full max-w-3xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
         style={{
           transition: 'opacity 220ms ease, transform 220ms cubic-bezier(0.34,1.26,0.64,1)',
           opacity:    visible ? 1 : 0,
@@ -259,25 +259,68 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
 
         {/* Standard pricing cards (no-sub, or canceled with no card / different card) */}
         {(reason === 'no-sub' || (reason === 'canceled' && (!hasCard || autoTried))) && (
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* Free trial */}
+            {reason === 'no-sub' && (
+              <div className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
+                style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
+                <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                  <Zap className="w-2.5 h-2.5" />
+                  Start free
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Free trial</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€0</span>
+                    <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>today</span>
+                  </div>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>Then €29.99/year after 3 days</p>
+                </div>
+                <ul className="space-y-2 flex-1">
+                  {FEATURES.map(f => (
+                    <li key={f} className="flex items-start gap-2 text-xs" style={{ color: 'var(--foreground)' }}>
+                      <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleCheckout('yearly', 'trial')}
+                  disabled={isLoading}
+                  className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                >
+                  {loading === 'trial'
+                    ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
+                    : 'Start free — no charge today'}
+                </button>
+                <p className="text-[10px] text-center -mt-2" style={{ color: 'var(--muted-foreground)' }}>
+                  Card required · auto-renews after trial
+                </p>
+              </div>
+            )}
 
             {/* Yearly */}
-            <div className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
-              style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
-              <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-                <Zap className="w-2.5 h-2.5" />
-                Best value
-              </div>
+            <div className={`rounded-2xl p-5 flex flex-col gap-4 ${reason === 'canceled' ? 'relative overflow-hidden' : ''}`}
+              style={reason === 'canceled'
+                ? { background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }
+                : { borderColor: 'var(--border)', border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}>
+              {reason === 'canceled' && (
+                <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                  <Zap className="w-2.5 h-2.5" />
+                  Best value
+                </div>
+              )}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Yearly</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
                   <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>/year</span>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>
-                  {reason === 'no-sub' ? '3-day free trial included' : 'Save vs lifetime'}
-                </p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Billed annually</p>
               </div>
               <ul className="space-y-2 flex-1">
                 {FEATURES.map(f => (
@@ -291,11 +334,13 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
                 onClick={() => handleCheckout('yearly')}
                 disabled={isLoading}
                 className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                style={reason === 'canceled'
+                  ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }
+                  : { border: '1px solid var(--border)', color: 'var(--foreground)' }}
               >
                 {loading === 'yearly'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : reason === 'canceled' ? 'Subscribe yearly' : 'Start free trial'}
+                  : reason === 'canceled' ? 'Subscribe yearly' : 'Subscribe — €29.99/yr'}
               </button>
             </div>
 
