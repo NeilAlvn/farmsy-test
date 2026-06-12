@@ -66,12 +66,19 @@ scraped_descriptions*.json
 *_backup.json
 *_backup.sql
 
+# Google OAuth credentials
+client_secret_*.json
+temp_oauth_token.json
+
 # Temp files
 temp_loc.json
 temp_*
+/temp_emails.csv
 
 # SQL files anywhere in the tree
 *.sql
 
 # Claude Code local settings
 .claude/
+
+.vercel

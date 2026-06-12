@@ -588,10 +588,11 @@ function Features() {
 function Pricing() {
   const t = useTranslations('pricing')
   const features = [t('feature1'), t('feature2'), t('feature3'), t('feature4')]
-  const [loading, setLoading] = useState<'trial' | 'yearly' | 'lifetime' | null>(null)
+  const [loading, setLoading] = useState<'yearly' | 'lifetime' | null>(null)
   const [showSignIn, setShowSignIn] = useState(false)
 
-  async function handleCheckout(plan: 'yearly' | 'lifetime', key: 'trial' | 'yearly' | 'lifetime' = plan) {
+  async function handleCheckout(plan: 'yearly' | 'lifetime') {
+    const key = plan
     const { data: { session } } = await supabase.auth.getSession()
     if (!session?.user) { setShowSignIn(true); return }
     setLoading(key)
@@ -637,47 +638,7 @@ function Pricing() {
             </p>
           </motion.div>
 
-          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3 items-stretch">
-
-            {/* Free trial */}
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: '-50px' }}
-              variants={fadeUp}
-              transition={{ delay: 0.05 }}
-              className="relative rounded-2xl p-8 flex flex-col gap-6 overflow-hidden"
-              style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}
-            >
-              <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-                <Zap className="h-3 w-3" />
-                Start free
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">Free trial</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-5xl font-medium tracking-tight text-foreground">€0</span>
-                  <span className="text-sm text-muted-foreground">today</span>
-                </div>
-                <p className="mt-2 text-sm font-medium" style={{ color: 'var(--primary)' }}>Then €29.99/year after 3 days</p>
-              </div>
-              <ul className="space-y-3 flex-1">
-                {features.map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => handleCheckout('yearly', 'trial')}
-                disabled={loading !== null}
-                className="block w-full rounded-xl py-3 text-center text-sm font-bold transition hover:opacity-90 disabled:opacity-60"
-                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
-              >
-                {loading === 'trial' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : t('cta')}
-              </button>
-            </motion.div>
+          <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 items-stretch max-w-2xl mx-auto w-full">
 
             {/* Yearly */}
             <motion.div
