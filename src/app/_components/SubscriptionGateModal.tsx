@@ -189,7 +189,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
       />
 
       <div
-        className="relative w-full max-w-3xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
+        className="relative w-full max-w-4xl rounded-3xl border border-border/60 bg-background shadow-2xl overflow-hidden"
         style={{
           transition: 'opacity 220ms ease, transform 220ms cubic-bezier(0.34,1.26,0.64,1)',
           opacity:    visible ? 1 : 0,
@@ -203,7 +203,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               Farmsy
             </span>
             <h2 className="text-xl font-bold mt-1" style={{ color: 'var(--foreground)' }}>{heading}</h2>
-            <p className="text-sm mt-1 max-w-md" style={{ color: 'var(--muted-foreground)' }}>{sub}</p>
+            <p className="text-sm mt-1" style={{ color: 'var(--muted-foreground)' }}>{sub}</p>
           </div>
           {onClose && (
             <button onClick={close} className="rounded-full p-1.5 hover:bg-border/40 transition-colors ml-4 shrink-0" style={{ color: 'var(--muted-foreground)' }}>
