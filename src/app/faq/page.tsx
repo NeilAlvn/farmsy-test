@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
-import { ArrowRight, ImageIcon, Map, CreditCard, Leaf, Mail } from 'lucide-react'
+import { ArrowRight, ImageIcon } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
+import FaqQuickCards from './FaqQuickCards'
 
 export const metadata: Metadata = {
   title: 'FAQ – Farmsy',
@@ -14,13 +15,6 @@ export default async function FaqPage() {
 
   const linkClass = 'font-medium underline underline-offset-4'
   const linkStyle = { color: 'var(--primary)' }
-
-  const QUICK = [
-    { Icon: Map,        label: 'Find farms', text: 'Use the map and tap "Locate me" to discover farms near you instantly.' },
-    { Icon: CreditCard, label: 'Free trial',  text: '3-day free trial on every new account. Cancel before day 3 — no charge.' },
-    { Icon: Leaf,       label: 'Claim free',  text: 'Listing your farm is always free. Claim it from the map detail panel.' },
-    { Icon: Mail,       label: 'Need help?',  text: 'Can\'t find what you need? Reach out and we\'ll get back to you quickly.' },
-  ]
 
   const FAQS = [
     {
@@ -86,7 +80,7 @@ export default async function FaqPage() {
               <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
             </h1>
             <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              {t('subheading')}
+              Everything you need to know about finding local farms, exploring the map, managing your subscription, and getting your farm listed on Farmsy — all in one place.
             </p>
           </div>
           <div className="relative aspect-[4/3] hidden lg:flex items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
@@ -101,19 +95,7 @@ export default async function FaqPage() {
       {/* Quick answers */}
       <section className="px-6 py-12" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)', backgroundColor: 'oklch(0.36 0.07 145 / 0.03)' }}>
         <div className="mx-auto max-w-5xl">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {QUICK.map(({ Icon, label, text }) => (
-              <div key={label} className="flex gap-3 rounded-2xl border p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}>
-                  <Icon className="h-4 w-4" style={{ color: 'var(--primary)' }} strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="mb-1 text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{label}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          <FaqQuickCards />
         </div>
       </section>
 
