@@ -68,7 +68,7 @@ export default async function AboutPage() {
 
       {/* Mission */}
       <section className="px-6 py-20" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
-        <div className="mx-auto max-w-3xl space-y-6 text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+        <div className="mx-auto max-w-5xl space-y-6 text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
           <p className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('missionEyebrow')}</p>
           <h2 className="font-display text-4xl font-medium tracking-[-0.02em] leading-[1.1]" style={{ color: 'var(--foreground)' }}>
             {t('missionTitle')} <span className="serif-italic">{t('missionTitleEmphasis')}</span>
