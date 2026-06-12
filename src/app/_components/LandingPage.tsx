@@ -451,14 +451,22 @@ function Stats() {
   ]
 
   return (
-    <section className="border-t border-border/60 px-6 py-24 sm:py-32">
-      <div className="mx-auto max-w-6xl">
+    <section className="relative overflow-hidden border-t border-border/60 px-6 py-24 sm:py-32">
+      <Image
+        src="/images/produce-closeup.webp"
+        alt=""
+        fill
+        className="object-cover object-center"
+        aria-hidden
+      />
+      <div className="absolute inset-0 bg-black/60" />
+      <div className="relative mx-auto max-w-6xl">
         <motion.p
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: '-100px' }}
           variants={fadeUp}
-          className="mb-12 text-center text-xs font-medium uppercase tracking-[0.2em] text-primary sm:mb-16"
+          className="mb-12 text-center text-xs font-medium uppercase tracking-[0.2em] text-white/60 sm:mb-16"
         >
           {t('eyebrow')}
         </motion.p>
@@ -473,17 +481,17 @@ function Stats() {
               transition={{ delay: i * 0.1 }}
               className="text-center"
             >
-              <div className="font-display text-5xl font-medium tracking-[-0.03em] text-foreground sm:text-6xl md:text-7xl">
+              <div className="font-display text-5xl font-medium tracking-[-0.03em] text-white sm:text-6xl md:text-7xl">
                 {s.value !== null ? (
                   <>
                     <CountUp to={s.value} />
-                    <span className="serif-italic text-primary">{s.suffix}</span>
+                    <span className="serif-italic" style={{ color: 'oklch(0.75 0.12 145)' }}>{s.suffix}</span>
                   </>
                 ) : (
                   s.text
                 )}
               </div>
-              <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-white/50">
                 {s.label}
               </p>
             </motion.div>
