@@ -80,7 +80,7 @@ export default async function FaqPage() {
               <span className="serif-italic" style={{ color: 'var(--primary)' }}>{t('headlineEmphasis')}</span>
             </h1>
             <p className="mt-5 text-lg leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              Everything you need to know about finding local farms, exploring the map, managing your subscription, and getting your farm listed on Farmsy — all in one place.
+              Everything you need to know about finding local farms, exploring the map, managing your subscription, and getting your farm listed on Farmsy. Can't find your answer here? Our team is always happy to help — just reach out via the contact page.
             </p>
           </div>
           <div className="relative aspect-[4/3] hidden lg:flex items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
@@ -96,6 +96,34 @@ export default async function FaqPage() {
       <section className="px-6 py-12" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)', backgroundColor: 'oklch(0.36 0.07 145 / 0.03)' }}>
         <div className="mx-auto max-w-5xl">
           <FaqQuickCards />
+        </div>
+      </section>
+
+      {/* Mid-page visual break */}
+      <section className="px-6 py-16" style={{ borderBottom: '1px solid oklch(0.9 0.008 80 / 0.6)' }}>
+        <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 items-start">
+          <div className="relative aspect-[4/3] flex items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
+            <div className="flex flex-col items-center gap-2" style={{ color: 'var(--muted-foreground)' }}>
+              <ImageIcon className="h-8 w-8 opacity-30" />
+              <span className="text-xs opacity-40">Image placeholder</span>
+            </div>
+          </div>
+          <div className="flex flex-col justify-center gap-4 py-4">
+            <p className="text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>Still have questions?</p>
+            <h2 className="font-display text-3xl font-medium leading-[1.1] tracking-[-0.02em]" style={{ color: 'var(--foreground)' }}>
+              Can't find what you're <span className="serif-italic">looking for?</span>
+            </h2>
+            <p className="text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              Our team reads every message and we typically get back to you within one business day. Whether it's a technical question, a data issue, or just feedback — we want to hear it.
+            </p>
+            <Link
+              href="/contact"
+              className="mt-2 inline-flex w-fit items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+            >
+              Contact us <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 

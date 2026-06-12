@@ -167,8 +167,8 @@ export default function ContactPage() {
             </div>
 
             {/* Contact cards */}
-            <div className="lg:col-span-2 space-y-4">
-              <h2 className="font-display text-2xl font-medium tracking-tight mb-8" style={{ color: 'var(--foreground)' }}>
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <h2 className="font-display text-2xl font-medium tracking-tight mb-4" style={{ color: 'var(--foreground)' }}>
                 {t('directTitle')}
               </h2>
               {CONTACT_CARDS.map(({ Icon, title, desc, email: addr, subject }) => (
@@ -193,6 +193,12 @@ export default function ContactPage() {
                   </div>
                 </a>
               ))}
+              <div className="flex-1 min-h-[160px] flex items-center justify-center rounded-2xl border-2 border-dashed" style={{ borderColor: 'var(--border)' }}>
+                <div className="flex flex-col items-center gap-2" style={{ color: 'var(--muted-foreground)' }}>
+                  <ImageIcon className="h-7 w-7 opacity-30" />
+                  <span className="text-xs opacity-40">Image placeholder</span>
+                </div>
+              </div>
             </div>
 
           </div>
