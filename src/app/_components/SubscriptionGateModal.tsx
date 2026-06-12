@@ -24,7 +24,7 @@ interface Props {
 function Modal({ reason, onSubscribed, onClose }: Props) {
   const { toast } = useToast()
   const [visible, setVisible]         = useState(false)
-  const [loading, setLoading]         = useState<'yearly' | 'lifetime' | 'portal' | 'auto' | null>(null)
+  const [loading, setLoading]         = useState<'trial' | 'yearly' | 'lifetime' | 'portal' | 'auto' | null>(null)
   const [autoTried, setAutoTried]     = useState(false)
   const [hasCard, setHasCard]         = useState<boolean | null>(null)
 
@@ -119,7 +119,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
     }
   }
 
-  async function handleCheckout(plan: 'yearly' | 'lifetime', loadingKey: 'yearly' | 'lifetime' = plan) {
+  async function handleCheckout(plan: 'yearly' | 'lifetime', loadingKey: 'trial' | 'yearly' | 'lifetime' = plan) {
     const userId = await getUserId()
     if (!userId) return
 
@@ -132,7 +132,6 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
       })
       const { url, error } = await res.json()
       if (error) throw new Error(error)
-      sessionStorage.setItem('stripe_redirect', '1')
       window.location.href = url
     } catch {
       toast({ type: 'error', title: 'Could not start checkout', message: 'Please try again.' })
@@ -260,7 +259,48 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
 
         {/* Standard pricing cards (no-sub, or canceled with no card / different card) */}
         {(reason === 'no-sub' || (reason === 'canceled' && (!hasCard || autoTried))) && (
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* Free trial */}
+            {reason === 'no-sub' && (
+              <div className="rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden"
+                style={{ background: 'oklch(0.36 0.07 145 / 0.08)', border: '2px solid var(--primary)' }}>
+                <div className="absolute top-3.5 right-3.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                  <Zap className="w-2.5 h-2.5" />
+                  Start free
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Free trial</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-extrabold" style={{ color: 'var(--foreground)' }}>€0</span>
+                    <span className="text-xs" style={{ color: 'var(--muted-foreground)' }}>today</span>
+                  </div>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--primary)' }}>Then €29.99/year after 3 days</p>
+                </div>
+                <ul className="space-y-2 flex-1">
+                  {FEATURES.map(f => (
+                    <li key={f} className="flex items-start gap-2 text-xs" style={{ color: 'var(--foreground)' }}>
+                      <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: 'var(--primary)' }} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleCheckout('yearly', 'trial')}
+                  disabled={isLoading}
+                  className="w-full py-2.5 rounded-xl font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+                >
+                  {loading === 'trial'
+                    ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
+                    : 'Start free — no charge today'}
+                </button>
+                <p className="text-[10px] text-center -mt-2" style={{ color: 'var(--muted-foreground)' }}>
+                  Card required · auto-renews after trial
+                </p>
+              </div>
+            )}
 
             {/* Yearly */}
             <div className={`rounded-2xl p-5 flex flex-col gap-4 ${reason === 'canceled' ? 'relative overflow-hidden' : ''}`}
@@ -300,7 +340,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               >
                 {loading === 'yearly'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : 'Subscribe Yearly'}
+                  : reason === 'canceled' ? 'Subscribe yearly' : 'Subscribe — €29.99/yr'}
               </button>
             </div>
 
@@ -330,7 +370,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               >
                 {loading === 'lifetime'
                   ? <><Loader2 size={13} className="animate-spin" /> Loading…</>
-                  : 'Buy Lifetime Access'}
+                  : 'Buy lifetime access'}
               </button>
             </div>
           </div>
