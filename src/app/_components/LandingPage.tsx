@@ -453,7 +453,7 @@ function Stats() {
   return (
     <section className="relative overflow-hidden border-t border-border/60 px-6 py-24 sm:py-32">
       <Image
-        src="/images/produce-closeup.webp"
+        src="/images/bg.avif"
         alt=""
         fill
         className="object-cover object-center"
