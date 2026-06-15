@@ -115,7 +115,8 @@ export async function POST(request: Request) {
       await updateProfile(userId, {
         subscription_status:   dbStatus,
         subscription_plan:     plan ?? null,
-        subscription_end_date: sub.trial_end
+        // Use trial_end only while still trialing; once active use billing period end
+        subscription_end_date: (sub.trial_end && sub.status === 'trialing')
           ? new Date(sub.trial_end * 1000).toISOString()
           : new Date(sub.current_period_end * 1000).toISOString(),
       })
