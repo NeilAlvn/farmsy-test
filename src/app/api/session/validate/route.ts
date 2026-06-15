@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,17 @@ export async function POST(request: Request) {
     .eq('user_id', user_id)
     .single()
 
-  if (error || !data) return Response.json({ valid: false })
+  if (error || !data) {
+    // Token is gone — another device logged in and wiped this session.
+    // Create a notification so the user sees it in their inbox.
+    createNotification(
+      user_id,
+      'session_kicked',
+      'Signed out remotely',
+      'Your account was signed in from another device, so this session was ended.',
+    ).catch(() => {})
+    return Response.json({ valid: false })
+  }
 
   // Update last_active (fire and forget — don't block the response)
   sb.from('active_sessions')

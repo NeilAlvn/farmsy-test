@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
+import { createNotification } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +51,14 @@ export async function POST(request: Request) {
   })
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
+
+  const device = parseDeviceInfo(ua)
+  createNotification(
+    user_id,
+    'account_login',
+    'New sign-in detected',
+    `Signed in from ${device}${ip ? ` (${ip})` : ''}.`,
+  ).catch(() => {})
 
   return Response.json({ session_token })
 }
