@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { Globe, ChevronDown, Check } from 'lucide-react'
 import HeaderAuth from './HeaderAuth'
 import MapGateLink from './MapGateLink'
+import NotificationBell from './NotificationBell'
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -87,7 +88,7 @@ export default function SiteNav() {
 
   return (
     <header className="sticky top-0 z-[10000] border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-6 px-6 py-4">
         {/* Logo */}
         <Link
           href="/"
@@ -96,8 +97,8 @@ export default function SiteNav() {
           Farmsy
         </Link>
 
-        {/* Page links */}
-        <nav className="hidden items-center gap-6 lg:flex">
+        {/* Page links — centered */}
+        <nav className="hidden items-center justify-center gap-6 lg:flex">
           {NAV_LINKS.map(({ label, href }) => (
             href === '/map' ? (
               <MapGateLink
@@ -126,9 +127,10 @@ export default function SiteNav() {
           </Link>
         </nav>
 
-        {/* Right — shrink-0 + whitespace-nowrap prevents layout shift on language switch */}
-        <div className="flex shrink-0 items-center gap-3">
+        {/* Right */}
+        <div className="flex shrink-0 items-center justify-end gap-3">
           <LanguageSwitcher />
+          <NotificationBell />
           <HeaderAuth />
           <span className="hidden shrink-0 items-center gap-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground sm:inline-flex">
             <span className="relative flex h-1.5 w-1.5">
