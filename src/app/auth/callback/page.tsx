@@ -11,7 +11,16 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     // Supabase picks up the OAuth tokens from the URL hash automatically.
     // Wait for the session to settle then redirect.
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        await fetch('/api/session/create', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ user_id: session.user.id }),
+        }).then(r => r.json()).then(d => {
+          if (d.session_token) localStorage.setItem('farmsy_session_token', d.session_token)
+        }).catch(() => {})
+      }
       router.replace(session ? '/profile' : '/auth/signin')
     })
   }, [router])

@@ -69,11 +69,20 @@ function Modal({ onClose, onSuccess }: Props) {
     setLoading(true)
 
     if (mode === 'signin') {
-      const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+      const { data: signInData, error: err } = await supabase.auth.signInWithPassword({ email, password })
       if (err) {
         setError('Sign in failed. Please check your email and password.')
         setLoading(false)
       } else {
+        if (signInData.user) {
+          await fetch('/api/session/create', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ user_id: signInData.user.id }),
+          }).then(r => r.json()).then(d => {
+            if (d.session_token) localStorage.setItem('farmsy_session_token', d.session_token)
+          }).catch(() => {})
+        }
         close()
         if (onSuccess) onSuccess()
         else router.refresh()

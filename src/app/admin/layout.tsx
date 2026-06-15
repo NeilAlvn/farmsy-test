@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { destroySession } from '@/lib/session'
 import { Wheat, Shield, MapPin, LogOut, Loader2, Menu, X } from 'lucide-react'
 
 const NAV = [
@@ -76,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
         <div className="p-2 border-t border-gray-100">
           <button
-            onClick={async () => { await supabase.auth.signOut(); router.replace('/') }}
+            onClick={async () => { await destroySession(); router.replace('/') }}
             className="flex items-center gap-2.5 px-3 py-2 w-full rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
           >
             <LogOut size={15} />

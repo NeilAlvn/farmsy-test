@@ -6,6 +6,7 @@ import {
   AlertCircle, CheckCircle2, Wheat, LogOut,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { destroySession } from '@/lib/session'
 
 interface User {
   id: string
@@ -73,7 +74,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
   }
 
   async function handleSignOut() {
-    await supabase.auth.signOut()
+    await destroySession()
     onSignOut()
   }
 

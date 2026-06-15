@@ -8,6 +8,7 @@ import {
   Loader2, CheckCircle2, AlertCircle, Pencil, X,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { destroySession } from '@/lib/session'
 import ContentLayout from '@/app/_components/ContentLayout'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
@@ -95,7 +96,7 @@ export default function ProfilePage() {
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    await destroySession()
     router.push('/')
   }
 

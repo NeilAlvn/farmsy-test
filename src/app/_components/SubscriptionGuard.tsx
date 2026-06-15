@@ -85,6 +85,31 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     const userId = session.user.id
     const token  = session.access_token
 
+    // Session sharing check — if another device logged in, this token is gone
+    const storedToken = localStorage.getItem('farmsy_session_token')
+    if (storedToken) {
+      try {
+        const sv = await fetch('/api/session/validate', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ session_token: storedToken, user_id: userId }),
+        })
+        const { valid } = await sv.json()
+        if (!valid) {
+          localStorage.removeItem('farmsy_session_token')
+          await supabase.auth.signOut()
+          toast({
+            type:    'error',
+            title:   'Signed out',
+            message: 'Your account was accessed from another device.',
+            duration: 0,
+          })
+          router.replace('/')
+          return
+        }
+      } catch { /* network error — allow access and retry next load */ }
+    }
+
     // Try cache first
     const cached = readCache(userId)
     const profile = cached ?? await fetchProfile(token)
