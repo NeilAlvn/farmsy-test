@@ -7,6 +7,7 @@ import { FavoritesProvider } from "./_components/FavoritesProvider";
 import { TripProvider } from "./_components/TripProvider";
 import { ToastProvider } from "./_components/ToastProvider";
 import BfcacheReload from "./_components/BfcacheReload";
+import SessionGuard from "./_components/SessionGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default async function RootLayout({
         <BfcacheReload />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>
+            <SessionGuard />
             <TripProvider>
               <FavoritesProvider>{children}</FavoritesProvider>
             </TripProvider>
