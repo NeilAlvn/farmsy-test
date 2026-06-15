@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogOut, ChevronDown, LayoutDashboard, CreditCard } from 'lucide-react'
+import { LogOut, ChevronDown, CreditCard } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
 import { useTrip } from './TripProvider'
@@ -109,9 +109,6 @@ export default function HeaderAuth() {
               <p className="truncate text-sm font-semibold text-foreground">{user.email}</p>
             </div>
             <nav className="p-1.5 space-y-0.5">
-              <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <LayoutDashboard size={14} /> My farm
-              </Link>
               <Link href="/account/subscription" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <CreditCard size={14} /> Subscription
               </Link>
