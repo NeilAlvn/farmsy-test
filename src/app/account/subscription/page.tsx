@@ -36,9 +36,10 @@ export default function SubscriptionPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [userId, setUserId]   = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [action, setAction]   = useState<Action | null>(null)
-  const [error, setError]     = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [action, setAction]       = useState<Action | null>(null)
+  const [error, setError]         = useState<string | null>(null)
+  const [success, setSuccess]     = useState<string | null>(null)
+  const [cancelsAt, setCancelsAt] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -62,15 +63,18 @@ export default function SubscriptionPage() {
         const res  = await fetch('/api/stripe/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) })
         const data = await res.json()
         if (data.error) throw new Error(data.error)
-        setSuccess('Your subscription will be cancelled at the end of the current billing period. You keep full access until then.')
-        setProfile(p => p ? { ...p, subscription_status: 'canceled' } : p)
+        setCancelsAt(data.cancels_at ?? null)
+        setSuccess('Cancellation scheduled. You keep full access until the end of your billing period — no action needed.')
+        // Don't change local profile status — DB stays 'active' until webhook fires at period end
       }
       if (type === 'resubscribe') {
         const res  = await fetch('/api/stripe/resubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) })
         const data = await res.json()
         if (data.error) throw new Error(data.error)
         if (data.url) { window.location.href = data.url; return }
-        setSuccess('Your subscription has been reactivated! Welcome back.')
+        // Clear SubscriptionGuard cache so the map reflects the new active status immediately
+        try { sessionStorage.removeItem('farmsy:sub') } catch { /* ignore */ }
+        setSuccess('Subscription reactivated! Welcome back.')
         setProfile(p => p ? { ...p, subscription_status: 'active' } : p)
       }
       if (type === 'portal') {
@@ -194,14 +198,20 @@ export default function SubscriptionPage() {
               {isActive && !isLifetime && endDate && (
                 <>
                   <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Next billing</p>
-                    <p className="text-sm font-semibold flex items-center gap-1.5" style={{ color: 'var(--foreground)' }}>
-                      <CalendarDays size={13} style={{ color: 'var(--primary)' }} />{formatDate(endDate)}
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>
+                      {cancelsAt ? 'Access until' : 'Next billing'}
+                    </p>
+                    <p className="text-sm font-semibold flex items-center gap-1.5" style={{ color: cancelsAt ? 'var(--muted-foreground)' : 'var(--foreground)' }}>
+                      <CalendarDays size={13} style={{ color: 'var(--primary)' }} />{formatDate(cancelsAt ?? endDate)}
                     </p>
                   </div>
                   <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)' }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Amount</p>
-                    <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>€29.99</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>
+                      {cancelsAt ? 'Status' : 'Amount'}
+                    </p>
+                    <p className="text-sm font-semibold" style={{ color: cancelsAt ? '#d97706' : 'var(--foreground)' }}>
+                      {cancelsAt ? 'Cancels at period end' : '€29.99'}
+                    </p>
                   </div>
                 </>
               )}
@@ -278,16 +288,19 @@ export default function SubscriptionPage() {
               <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Pay once, never renew again.</p>
             </div>
 
-            <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
-
-            <div className="flex flex-col gap-1.5">
-              <button onClick={() => handleAction('cancel')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
-                style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
-                {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Subscription'}
-              </button>
-              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>You keep access until the end of your billing period.</p>
-            </div>
+            {!cancelsAt && (
+              <>
+                <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
+                <div className="flex flex-col gap-1.5">
+                  <button onClick={() => handleAction('cancel')} disabled={action !== null}
+                    className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                    style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
+                    {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Subscription'}
+                  </button>
+                  <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>You keep access until the end of your billing period.</p>
+                </div>
+              </>
+            )}
           </div>
         )}
 

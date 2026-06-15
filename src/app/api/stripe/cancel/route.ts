@@ -31,7 +31,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    // cancel_at_period_end keeps access until the billing period ends
+    // cancel_at_period_end: user keeps access until billing period ends.
+    // We do NOT update the DB here — the webhook fires customer.subscription.deleted
+    // when the period ends and sets status to 'canceled' then.
     await stripe.subscriptions.update(profile.stripe_subscription_id, {
       cancel_at_period_end: true,
     })
@@ -40,11 +42,6 @@ export async function POST(request: Request) {
     return Response.json({ error: msg }, { status: 500 })
   }
 
-  // Reflect immediately in DB so the UI updates without waiting for webhook
-  await sb.from('profiles')
-    .update({ subscription_status: 'canceled' })
-    .eq('id', userId)
-
   const endDate = profile.subscription_end_date
     ? new Date(profile.subscription_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     : 'the end of your billing period'
@@ -52,9 +49,9 @@ export async function POST(request: Request) {
   await createNotification(
     userId,
     'subscription_cancelled',
-    'Subscription cancelled',
-    `Your subscription has been cancelled. You keep full access until ${endDate}.`,
+    'Subscription cancellation scheduled',
+    `Your subscription will not renew. You keep full access until ${endDate}.`,
   )
 
-  return Response.json({ success: true })
+  return Response.json({ success: true, cancels_at: profile.subscription_end_date })
 }
