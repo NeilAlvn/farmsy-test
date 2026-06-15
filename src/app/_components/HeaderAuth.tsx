@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { User, LogOut, ChevronDown, Heart, LayoutDashboard, Route, CreditCard } from 'lucide-react'
+import { LogOut, ChevronDown, LayoutDashboard, CreditCard } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
 import { useTrip } from './TripProvider'
@@ -109,20 +109,6 @@ export default function HeaderAuth() {
               <p className="truncate text-sm font-semibold text-foreground">{user.email}</p>
             </div>
             <nav className="p-1.5 space-y-0.5">
-              <Link href="/profile" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <User size={14} /> My profile
-              </Link>
-              <Link href="/favorites" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <Heart size={14} /> My favorites
-              </Link>
-              <Link href="/trips" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <Route size={14} /> My trips
-                {pendingFarms.length > 0 && (
-                  <span className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[9px] font-bold text-primary-foreground" style={{ backgroundColor: 'var(--primary)' }}>
-                    {pendingFarms.length}
-                  </span>
-                )}
-              </Link>
               <Link href="/dashboard" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <LayoutDashboard size={14} /> My farm
               </Link>
