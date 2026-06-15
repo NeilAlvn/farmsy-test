@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function GET(request: Request) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '')
@@ -22,5 +25,15 @@ export async function GET(request: Request) {
 
   if (error || !data) return Response.json({ error: 'Profile not found' }, { status: 404 })
 
-  return Response.json(data)
+  // For active yearly subs, check Stripe for cancel_at_period_end so the
+  // subscription page can show the correct state even after a page reload.
+  let cancel_at_period_end = false
+  if (data.stripe_subscription_id && data.subscription_status === 'active') {
+    try {
+      const sub = await stripe.subscriptions.retrieve(data.stripe_subscription_id) as Stripe.Subscription & { cancel_at_period_end: boolean }
+      cancel_at_period_end = sub.cancel_at_period_end ?? false
+    } catch { /* ignore — Stripe unreachable, default to false */ }
+  }
+
+  return Response.json({ ...data, cancel_at_period_end })
 }

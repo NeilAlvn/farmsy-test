@@ -17,6 +17,7 @@ interface Profile {
   subscription_end_date:  string | null
   stripe_subscription_id: string | null
   stripe_customer_id:     string | null
+  cancel_at_period_end:   boolean
 }
 
 function formatDate(iso: string | null): string {
@@ -50,7 +51,14 @@ export default function SubscriptionPage() {
       const res = await fetch('/api/profile/subscription', {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
-      if (res.ok) setProfile(await res.json())
+      if (res.ok) {
+        const data = await res.json()
+        setProfile(data)
+        // Restore cancellation banner across page reloads
+        if (data.cancel_at_period_end && data.subscription_end_date) {
+          setCancelsAt(data.subscription_end_date)
+        }
+      }
       setLoading(false)
     }
     load()
