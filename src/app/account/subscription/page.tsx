@@ -351,14 +351,23 @@ export default function SubscriptionPage() {
           </div>
         )}
 
-        {/* Pending cancel — still has access, offer to resubscribe */}
+        {/* Pending cancel — still has access, offer to resubscribe or upgrade */}
         {isPendingCancel && (
-          <div className="rounded-3xl border p-6 flex flex-col gap-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+          <div className="rounded-3xl border p-6 flex flex-col gap-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
-              <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
+              <button onClick={() => handleAction('upgrade')} disabled={action !== null}
                 className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Upgrade to Lifetime — €49.99</>}
+              </button>
+              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Pay once, never renew again.</p>
+            </div>
+            <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
+            <div className="flex flex-col gap-1.5">
+              <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}>
                 {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Resubscribe — €29.99/year'}
               </button>
               <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Renews your subscription so it continues after {formatDate(endDate)}.</p>
@@ -366,17 +375,26 @@ export default function SubscriptionPage() {
           </div>
         )}
 
-        {/* Truly cancelled — no access remaining */}
+        {/* Truly cancelled / trial ended — no access remaining */}
         {isCanceled && !isPendingCancel && (
-          <div className="rounded-3xl border p-6 flex flex-col gap-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+          <div className="rounded-3xl border p-6 flex flex-col gap-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
-              <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
+              <button onClick={() => handleAction('upgrade')} disabled={action !== null}
                 className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
-                {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Resubscribe — €29.99/year'}
+                {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Get Lifetime — €49.99</>}
               </button>
-              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Restores full access immediately.</p>
+              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Pay once, access forever.</p>
+            </div>
+            <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
+            <div className="flex flex-col gap-1.5">
+              <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}>
+                {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Subscribe Yearly — €29.99/year'}
+              </button>
+              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Includes a 3-day free trial. Cancel anytime.</p>
             </div>
           </div>
         )}
