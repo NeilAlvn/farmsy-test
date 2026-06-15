@@ -71,6 +71,43 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
   // Track whether sign-in succeeded so onClose doesn't redirect away
   const didSignInRef = useRef(false)
 
+  // Lightweight session-token check — runs on mount and every 60s.
+  // Does NOT touch setState/loading so it's invisible to the UI.
+  const checkSessionToken = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user) return  // auth state change handles the sign-out case
+
+    const storedToken = localStorage.getItem('farmsy_session_token')
+    if (!storedToken) return  // user logged in before this feature; skip
+
+    try {
+      const res = await fetch('/api/session/validate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ session_token: storedToken, user_id: session.user.id }),
+      })
+      const { valid } = await res.json()
+      if (!valid) {
+        localStorage.removeItem('farmsy_session_token')
+        await supabase.auth.signOut()
+        toast({
+          type:    'error',
+          title:   'Signed out',
+          message: 'Your account was accessed from another device.',
+          duration: 0,
+        })
+        router.replace('/')
+      }
+    } catch { /* network error — retry next poll */ }
+  }, [toast, router])
+
+  // Poll every 60 seconds to detect logins on other devices
+  useEffect(() => {
+    checkSessionToken()
+    const id = setInterval(checkSessionToken, 60_000)
+    return () => clearInterval(id)
+  }, [checkSessionToken])
+
   const check = useCallback(async () => {
     setState('loading')
     toastFiredRef.current = false
@@ -84,31 +121,6 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
 
     const userId = session.user.id
     const token  = session.access_token
-
-    // Session sharing check — if another device logged in, this token is gone
-    const storedToken = localStorage.getItem('farmsy_session_token')
-    if (storedToken) {
-      try {
-        const sv = await fetch('/api/session/validate', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ session_token: storedToken, user_id: userId }),
-        })
-        const { valid } = await sv.json()
-        if (!valid) {
-          localStorage.removeItem('farmsy_session_token')
-          await supabase.auth.signOut()
-          toast({
-            type:    'error',
-            title:   'Signed out',
-            message: 'Your account was accessed from another device.',
-            duration: 0,
-          })
-          router.replace('/')
-          return
-        }
-      } catch { /* network error — allow access and retry next load */ }
-    }
 
     // Try cache first
     const cached = readCache(userId)
