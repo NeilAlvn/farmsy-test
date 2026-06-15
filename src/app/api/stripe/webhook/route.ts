@@ -131,16 +131,6 @@ export async function POST(request: Request) {
         )
       }
 
-      // Subscription renewed
-      if (prev?.status === 'active' && sub.status === 'active' && prev?.current_period_end !== (sub as unknown as { current_period_end: number }).current_period_end) {
-        await createNotification(
-          userId,
-          'payment_succeeded',
-          'Subscription renewed',
-          `Your yearly subscription has been renewed. Next billing on ${formatDate(sub.current_period_end)}.`,
-        )
-      }
-
       // Went past due
       if (sub.status === 'past_due' && prev?.status !== 'past_due') {
         await createNotification(
