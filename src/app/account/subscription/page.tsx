@@ -45,12 +45,11 @@ export default function SubscriptionPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user) { router.replace('/'); return }
       setUserId(session.user.id)
-      const { data } = await supabase
-        .from('profiles')
-        .select('subscription_status, subscription_plan, subscription_end_date, stripe_subscription_id, stripe_customer_id')
-        .eq('id', session.user.id)
-        .single()
-      setProfile(data)
+
+      const res = await fetch('/api/profile/subscription', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) setProfile(await res.json())
       setLoading(false)
     }
     load()
