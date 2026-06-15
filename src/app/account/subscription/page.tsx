@@ -26,7 +26,7 @@ function formatDate(iso: string | null): string {
 
 function daysUntil(iso: string | null): number {
   if (!iso) return 0
-  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000))
+  return Math.max(0, Math.floor((new Date(iso).getTime() - Date.now()) / 86_400_000))
 }
 
 type Action = 'cancel' | 'resubscribe' | 'portal' | 'upgrade'
@@ -119,9 +119,9 @@ export default function SubscriptionPage() {
   // Canceled but end_date is still in the future — user has paid access until then
   const isPendingCancel = isCanceled && !!endDate && new Date(endDate) > new Date()
 
-  const planLabel  = isLifetime ? 'Lifetime' : isTrialing ? 'Free Trial' : plan === 'yearly' ? 'Yearly' : 'No Plan'
+  const planLabel  = isLifetime ? 'Lifetime' : isTrialing ? '3-Day Free Trial' : plan === 'yearly' ? 'Yearly' : 'No Plan'
   const planAmount = isLifetime ? '€49.99' : isTrialing ? 'Free' : plan === 'yearly' ? '€29.99' : '—'
-  const planSub    = isLifetime ? 'One-time payment' : isTrialing ? '→ €29.99/year after trial' : plan === 'yearly' ? 'per year' : ''
+  const planSub    = isLifetime ? 'One-time payment' : isTrialing ? 'No charge until trial ends' : plan === 'yearly' ? 'per year' : ''
 
   return (
     <ContentLayout>
