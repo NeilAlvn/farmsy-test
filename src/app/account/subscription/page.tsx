@@ -116,6 +116,8 @@ export default function SubscriptionPage() {
   const isCanceled  = status === 'canceled'
   const isPastDue   = status === 'past_due'
   const isFree      = status === 'free' || (!isActive && !isTrialing && !isCanceled && !isPastDue && !isLifetime)
+  // Canceled but end_date is still in the future — user has paid access until then
+  const isPendingCancel = isCanceled && !!endDate && new Date(endDate) > new Date()
 
   const planLabel  = isLifetime ? 'Lifetime' : isTrialing ? 'Free Trial' : plan === 'yearly' ? 'Yearly' : 'No Plan'
   const planAmount = isLifetime ? '€49.99' : isTrialing ? 'Free' : plan === 'yearly' ? '€29.99' : '—'
@@ -219,8 +221,33 @@ export default function SubscriptionPage() {
           </div>
         )}
 
-        {/* Cancelled card */}
-        {isCanceled && (
+        {/* Pending cancel card — canceled but still has time left */}
+        {isPendingCancel && (
+          <div className="rounded-3xl p-8 mb-4 relative overflow-hidden"
+            style={{ background: 'oklch(0.36 0.07 145 / 0.07)', border: '2px solid var(--primary)' }}>
+            <div className="absolute top-6 right-6">
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                style={{ backgroundColor: '#d97706', color: '#fff' }}>
+                <Clock size={11} /> Cancels {formatDate(endDate)}
+              </span>
+            </div>
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>Current plan</p>
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-5xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
+              <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>per year</span>
+            </div>
+            <p className="text-lg font-semibold mb-6" style={{ color: 'var(--foreground)' }}>Yearly Plan</p>
+            <div className="rounded-2xl px-4 py-3 inline-block" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)' }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Access until</p>
+              <p className="text-sm font-semibold flex items-center gap-1.5" style={{ color: 'var(--foreground)' }}>
+                <CalendarDays size={13} style={{ color: 'var(--primary)' }} />{formatDate(endDate)}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Cancelled card — no remaining access */}
+        {isCanceled && !isPendingCancel && (
           <div className="rounded-3xl border p-8 mb-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Current plan</p>
@@ -230,11 +257,7 @@ export default function SubscriptionPage() {
               </span>
             </div>
             <p className="text-2xl font-extrabold mb-1" style={{ color: 'var(--foreground)' }}>Yearly Plan</p>
-            {endDate && (
-              <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                Access until <span className="font-semibold" style={{ color: 'var(--foreground)' }}>{formatDate(endDate)}</span>
-              </p>
-            )}
+            <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>Your subscription has ended.</p>
           </div>
         )}
 
@@ -328,8 +351,23 @@ export default function SubscriptionPage() {
           </div>
         )}
 
-        {/* Cancelled */}
-        {isCanceled && (
+        {/* Pending cancel — still has access, offer to resubscribe */}
+        {isPendingCancel && (
+          <div className="rounded-3xl border p-6 flex flex-col gap-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
+            <div className="flex flex-col gap-1.5">
+              <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Resubscribe — €29.99/year'}
+              </button>
+              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Renews your subscription so it continues after {formatDate(endDate)}.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Truly cancelled — no access remaining */}
+        {isCanceled && !isPendingCancel && (
           <div className="rounded-3xl border p-6 flex flex-col gap-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">

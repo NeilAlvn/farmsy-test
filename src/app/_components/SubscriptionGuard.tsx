@@ -140,6 +140,21 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     }
 
     if (status === 'canceled') {
+      // If end_date is still in the future, user paid until then — keep access
+      if (profile.subscription_end_date && new Date(profile.subscription_end_date) > new Date()) {
+        setState('allowed')
+        if (!toastFiredRef.current) {
+          toastFiredRef.current = true
+          toast({
+            type:    'info',
+            title:   'Subscription cancelled',
+            message: `You have access until ${new Date(profile.subscription_end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}. Resubscribe anytime.`,
+            action:  { label: 'Resubscribe', onClick: () => window.location.href = '/account/subscription' },
+            duration: 8000,
+          })
+        }
+        return
+      }
       setState('canceled')
       return
     }
