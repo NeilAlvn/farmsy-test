@@ -156,7 +156,7 @@ export default function PricingPage() {
                   className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
                   style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
                 >
-                  {loading === 'yearly' ? 'Loading…' : 'Subscribe Yearly'}
+                  {loading === 'yearly' ? 'Loading…' : 'Try Free for 3 Days'}
                 </button>
               )}
               <p className={`text-xs text-center ${!isPaid && !isLifetime ? '' : 'invisible'}`} style={{ color: 'var(--muted-foreground)' }}>

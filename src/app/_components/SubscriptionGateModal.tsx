@@ -269,7 +269,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
                   <span className="text-4xl font-extrabold" style={{ color: 'var(--foreground)' }}>€29.99</span>
                   <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>/year</span>
                 </div>
-                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>Billed annually</p>
+                <p className="text-xs mt-1" style={{ color: 'var(--muted-foreground)' }}>3 days free · then €29.99/year</p>
               </div>
               <ul className="space-y-2 flex-1">
                 {FEATURES.map(f => (
@@ -287,7 +287,7 @@ function Modal({ reason, onSubscribed, onClose }: Props) {
               >
                 {loading === 'yearly'
                   ? <><Loader2 size={13} className="animate-spin inline mr-1" /> Loading…</>
-                  : 'Subscribe Yearly'}
+                  : 'Try Free for 3 Days'}
               </button>
             </div>
 

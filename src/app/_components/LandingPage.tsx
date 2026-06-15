@@ -670,7 +670,7 @@ function Pricing() {
                 disabled={loading !== null}
                 className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80 disabled:opacity-60"
               >
-                {loading === 'yearly' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'Subscribe Yearly'}
+                {loading === 'yearly' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'Try Free for 3 Days'}
               </button>
             </motion.div>
 
