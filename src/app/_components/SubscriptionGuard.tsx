@@ -68,17 +68,22 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
   const router = useRouter()
   const [state, setState] = useState<GuardState>('loading')
   const toastFiredRef = useRef(false)
+  const isInitialCheckRef = useRef(true)
   // Track whether sign-in succeeded so onClose doesn't redirect away
   const didSignInRef = useRef(false)
 
   const check = useCallback(async () => {
-    setState('loading')
-    toastFiredRef.current = false
+    // Only show the loading spinner on the very first check — prevents map from
+    // unmounting and re-initialising on every background token refresh.
+    if (isInitialCheckRef.current) {
+      setState('loading')
+    }
 
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session?.user) {
       setState('no-auth')
+      isInitialCheckRef.current = false
       return
     }
 
@@ -91,6 +96,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
 
     if (!profile) {
       setState('no-sub')
+      isInitialCheckRef.current = false
       return
     }
 
@@ -100,6 +106,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
       fetchProfile(token).then(p => { if (p) writeCache(userId, p) })
     }
 
+    isInitialCheckRef.current = false
     const status = profile.subscription_status
 
     if (status === 'active' || status === 'trialing') {
@@ -168,10 +175,22 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
 
   // Re-check when auth state changes (user signs in / out)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
         clearSubCache()
+        toastFiredRef.current = false
+        isInitialCheckRef.current = true
         check()
+      }
+      if (event === 'TOKEN_REFRESHED') {
+        // Silently refresh the cache — don't re-run the full check.
+        // Calling check() here would reset toastFiredRef and setState('loading'),
+        // which unmounts the map and re-fires toasts on every token refresh.
+        if (session) {
+          fetchProfile(session.access_token).then(p => {
+            if (p) writeCache(session.user.id, p)
+          })
+        }
       }
       if (event === 'SIGNED_OUT') {
         clearSubCache()
