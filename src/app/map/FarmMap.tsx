@@ -81,22 +81,22 @@ type CategoryId = (typeof CATEGORIES)[number]['id']
 const CAT_COLOR = Object.fromEntries(CATEGORIES.map(c => [c.id, c.color])) as Record<CategoryId, string>
 void CAT_COLOR // kept for future use
 
-// ─── MapLibre layer paint expressions ────────────────────────────────────────
+// ─── Pin marker SVG ───────────────────────────────────────────────────────────
 
-const DOT_COLOR = [
+function makePinSVG(color: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+    <path d="M14 0C6.268 0 0 6.268 0 14c0 9.625 14 22 14 22S28 23.625 28 14C28 6.268 21.732 0 14 0z"
+      fill="${color}" stroke="white" stroke-width="2"/>
+    <circle cx="14" cy="14" r="5.5" fill="white"/>
+  </svg>`
+}
+
+// MapLibre icon-image expression: maps category → pin-<category>
+const ICON_IMAGE_EXPR = [
   'match', ['get', 'category'],
-  'eggs',    '#eab308',
-  'dairy',   '#38bdf8',
-  'meat',    '#ef4444',
-  'fish',    '#2563eb',
-  'produce', '#10b981',
-  'cheese',  '#f97316',
-  'wine',    '#7c3aed',
-  'markets', '#92400e',
-  'honey',   '#d97706',
-  'organic', '#059669',
-  '#94a3b8',
-] as const
+  ...CATEGORIES.flatMap(c => [c.id, `pin-${c.id}`]),
+  'pin-default',
+]
 
 // ─── List view ────────────────────────────────────────────────────────────────
 
@@ -239,7 +239,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   const [showAuth, setShowAuth]         = useState(false)
   const [authUser, setAuthUser]         = useState<AuthUser | null>(null)
   const [cursor, setCursor]             = useState('grab')
-  const [mapReady, setMapReady]         = useState(false)
+  const [iconsReady, setIconsReady]     = useState(false)
 
   const mapRef      = useRef<MapRef | null>(null)
   const searchParams = useSearchParams()
@@ -347,7 +347,25 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   // ── Map load: globe + sky ──────────────────────────────────────────────────
 
   const handleMapLoad = useCallback(() => {
-    setTimeout(() => setMapReady(true), 120)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ml = mapRef.current?.getMap() as any
+    if (!ml) return
+
+    const icons = [
+      ...CATEGORIES.map(c => ({ id: `pin-${c.id}`, color: c.color })),
+      { id: 'pin-default', color: '#94a3b8' },
+    ]
+    let remaining = icons.length
+
+    icons.forEach(({ id, color }) => {
+      const img = new Image(28, 36)
+      img.onload = () => {
+        if (!ml.hasImage(id)) ml.addImage(id, img, { pixelRatio: 1.5 })
+        if (--remaining === 0) setIconsReady(true)
+      }
+      img.onerror = () => { if (--remaining === 0) setIconsReady(true) }
+      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(makePinSVG(color))}`
+    })
   }, [])
 
   // ── Map click: cluster zoom or farm open ───────────────────────────────────
@@ -460,12 +478,11 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                 type="circle"
                 filter={['has', 'point_count']}
                 paint={{
-                  'circle-color':   'rgba(22, 104, 52, 0.18)',
-                  'circle-radius':  ['step', ['get', 'point_count'], 24, 20, 28, 100, 34],
-                  'circle-blur':    0.4,
-                  'circle-opacity': mapReady ? 1 : 0,
-                  'circle-opacity-transition': { duration: 600, delay: 0 },
-                  'circle-radius-transition':  { duration: 400, delay: 0 },
+                  'circle-color':  'rgba(22, 104, 52, 0.18)',
+                  'circle-radius': ['step', ['get', 'point_count'], 24, 20, 28, 100, 34],
+                  'circle-blur':   0.4,
+                  'circle-opacity': 1,
+                  'circle-radius-transition': { duration: 400, delay: 0 },
                 }}
               />
               {/* Cluster solid circle */}
@@ -478,9 +495,8 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                   'circle-radius':       ['step', ['get', 'point_count'], 16, 20, 20, 100, 25],
                   'circle-stroke-width': 2.5,
                   'circle-stroke-color': '#ffffff',
-                  'circle-opacity': mapReady ? 1 : 0,
-                  'circle-opacity-transition': { duration: 600, delay: 0 },
-                  'circle-radius-transition':  { duration: 400, delay: 0 },
+                  'circle-opacity': 1,
+                  'circle-radius-transition': { duration: 400, delay: 0 },
                 }}
               />
               {/* Cluster count label */}
@@ -496,26 +512,28 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                 }}
                 paint={{
                   'text-color':   '#ffffff',
-                  'text-opacity': mapReady ? 1 : 0,
-                  'text-opacity-transition': { duration: 600, delay: 0 },
+                  'text-opacity': 1,
                 }}
               />
-              {/* Individual farm dots */}
-              <Layer
-                id="unclustered-point"
-                type="circle"
-                filter={['!', ['has', 'point_count']]}
-                paint={{
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  'circle-color':        DOT_COLOR as any,
-                  'circle-radius':       ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 9],
-                  'circle-stroke-width': 2,
-                  'circle-stroke-color': '#ffffff',
-                  'circle-opacity': mapReady ? 1 : 0,
-                  'circle-opacity-transition': { duration: 600, delay: 0 },
-                  'circle-radius-transition':  { duration: 400, delay: 0 },
-                }}
-              />
+              {/* Individual farm pin markers — rendered once icons are loaded */}
+              {iconsReady && (
+                <Layer
+                  id="unclustered-point"
+                  type="symbol"
+                  filter={['!', ['has', 'point_count']]}
+                  layout={{
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    'icon-image':             ICON_IMAGE_EXPR as any,
+                    'icon-size':              1,
+                    'icon-anchor':            'bottom',
+                    'icon-allow-overlap':     true,
+                    'icon-ignore-placement':  true,
+                  }}
+                  paint={{
+                    'icon-opacity': 1,
+                  }}
+                />
+              )}
             </Source>
 
             {/* User position marker */}
