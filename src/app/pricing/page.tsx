@@ -18,6 +18,7 @@ export default function PricingPage() {
   const t = useTranslations('pricing')
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [loading, setLoading] = useState<'yearly' | 'lifetime' | null>(null)
   const [showSignIn, setShowSignIn] = useState(false)
 
@@ -30,13 +31,15 @@ export default function PricingPage() {
       else setProfile(null)
     } catch {
       setProfile(null)
+    } finally {
+      setProfileLoading(false)
     }
   }
 
   useEffect(() => {
     async function init() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) { setUser(null); setProfile(null); return }
+      if (!session?.user) { setUser(null); setProfile(null); setProfileLoading(false); return }
       setUser(session.user)
       await fetchProfile(session.access_token)
     }
@@ -48,7 +51,7 @@ export default function PricingPage() {
         setUser(session.user)
         await fetchProfile(session.access_token)
       }
-      if (event === 'SIGNED_OUT') { setUser(null); setProfile(null) }
+      if (event === 'SIGNED_OUT') { setUser(null); setProfile(null); setProfileLoading(false) }
     })
 
     return () => subscription.unsubscribe()
@@ -57,6 +60,7 @@ export default function PricingPage() {
   const status     = profile?.subscription_status
   const isPaid     = status === 'active' || status === 'trialing'
   const isLifetime = profile?.subscription_plan === 'lifetime'
+  const isCanceled = status === 'canceled'
 
   const FEATURES = [t('feature1'), t('feature2'), t('feature3'), t('feature4')]
 
@@ -101,8 +105,15 @@ export default function PricingPage() {
         </p>
       </section>
 
+      {/* ── Loading (logged-in user, profile not yet fetched) ── */}
+      {user && profileLoading && (
+        <div className="flex justify-center py-24">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
+        </div>
+      )}
+
       {/* ── Lifetime members ── */}
-      {isLifetime && (
+      {!profileLoading && isLifetime && (
         <section className="pb-24 px-4">
           <div className="max-w-2xl mx-auto">
             <div
@@ -151,7 +162,7 @@ export default function PricingPage() {
       )}
 
       {/* ── Active / trialing — manage + upgrade to lifetime ── */}
-      {isPaid && !isLifetime && (
+      {!profileLoading && isPaid && !isLifetime && (
         <section className="pb-24 px-4">
           <div className="max-w-2xl mx-auto flex flex-col gap-6">
             <div
@@ -221,7 +232,7 @@ export default function PricingPage() {
       )}
 
       {/* ── Free / canceled — show both cards ── */}
-      {!isPaid && !isLifetime && (
+      {!profileLoading && !isPaid && !isLifetime && (
         <section className="pb-24 px-4">
           <div className="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
 
@@ -250,7 +261,7 @@ export default function PricingPage() {
                   className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
                   style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
                 >
-                  {loading === 'yearly' ? 'Loading…' : 'Try Free for 3 Days'}
+                  {loading === 'yearly' ? 'Loading…' : isCanceled ? 'Subscribe Yearly' : 'Try Free for 3 Days'}
                 </button>
                 <p className="text-xs text-center" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyRenew')}</p>
               </div>
