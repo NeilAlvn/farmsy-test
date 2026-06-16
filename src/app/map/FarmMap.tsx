@@ -346,12 +346,11 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   // ── Map load: globe + sky ──────────────────────────────────────────────────
 
   const handleMapLoad = useCallback(() => {
-    const map = mapRef.current
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const map = mapRef.current?.getMap() as any
     if (!map) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(map as any).setProjection({ type: 'globe' })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(map as any).setSky({
+    map.setProjection({ type: 'globe' })
+    map.setSky({
       'sky-color':        '#0d1a2e',
       'horizon-color':    '#1a4a8a',
       'fog-color':        '#5a9fd4',
@@ -382,7 +381,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
         if (!source) return
         const zoom = await source.getClusterExpansionZoom(clusterId)
         const [lng, lat] = (feature.geometry as GeoJSON.Point).coordinates
-        mapRef.current?.easeTo({ center: [lng, lat], zoom, duration: 500 })
+        mapRef.current?.flyTo({ center: [lng, lat], zoom, duration: 800, essential: true })
       } catch { /* ignore */ }
       return
     }
