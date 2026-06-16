@@ -177,15 +177,16 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
+        // Supabase fires SIGNED_IN on tab-focus/session-restore too, not only
+        // on genuine first sign-in. Do NOT reset toastFiredRef or
+        // isInitialCheckRef here — that would re-show the loading spinner and
+        // re-fire toasts every time the user switches browser tabs.
+        // Just clear the cache and re-run check; the refs stay as-is.
         clearSubCache()
-        toastFiredRef.current = false
-        isInitialCheckRef.current = true
         check()
       }
       if (event === 'TOKEN_REFRESHED') {
-        // Silently refresh the cache — don't re-run the full check.
-        // Calling check() here would reset toastFiredRef and setState('loading'),
-        // which unmounts the map and re-fires toasts on every token refresh.
+        // Silently refresh cache only — no state or toast changes.
         if (session) {
           fetchProfile(session.access_token).then(p => {
             if (p) writeCache(session.user.id, p)
@@ -194,6 +195,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
       }
       if (event === 'SIGNED_OUT') {
         clearSubCache()
+        toastFiredRef.current = false  // reset so next genuine sign-in shows toast
         setState('no-auth')
       }
     })

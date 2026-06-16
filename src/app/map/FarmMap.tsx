@@ -437,6 +437,8 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
               margin: 0 8px 8px 0 !important;
             }
             .maplibregl-canvas { cursor: inherit; }
+            .maplibregl-canvas-container { animation: mapFadeIn 0.6s ease; }
+            @keyframes mapFadeIn { from { opacity: 0; } to { opacity: 1; } }
           `}</style>
 
           <Map
@@ -469,9 +471,12 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                 type="circle"
                 filter={['has', 'point_count']}
                 paint={{
-                  'circle-color': 'rgba(22, 104, 52, 0.18)',
+                  'circle-color':  'rgba(22, 104, 52, 0.18)',
                   'circle-radius': ['step', ['get', 'point_count'], 24, 20, 28, 100, 34],
-                  'circle-blur': 0.4,
+                  'circle-blur':   0.4,
+                  'circle-opacity': 1,
+                  'circle-opacity-transition': { duration: 400, delay: 0 },
+                  'circle-radius-transition':  { duration: 400, delay: 0 },
                 }}
               />
               {/* Cluster solid circle */}
@@ -480,10 +485,13 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                 type="circle"
                 filter={['has', 'point_count']}
                 paint={{
-                  'circle-color': '#166834',
-                  'circle-radius': ['step', ['get', 'point_count'], 16, 20, 20, 100, 25],
+                  'circle-color':        '#166834',
+                  'circle-radius':       ['step', ['get', 'point_count'], 16, 20, 20, 100, 25],
                   'circle-stroke-width': 2.5,
                   'circle-stroke-color': '#ffffff',
+                  'circle-opacity': 1,
+                  'circle-opacity-transition': { duration: 400, delay: 0 },
+                  'circle-radius-transition':  { duration: 400, delay: 0 },
                 }}
               />
               {/* Cluster count label */}
@@ -497,7 +505,11 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                   'text-size':  13,
                   'text-allow-overlap': true,
                 }}
-                paint={{ 'text-color': '#ffffff' }}
+                paint={{
+                  'text-color': '#ffffff',
+                  'text-opacity': 1,
+                  'text-opacity-transition': { duration: 400, delay: 0 },
+                }}
               />
               {/* Individual farm dots */}
               <Layer
@@ -510,6 +522,9 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
                   'circle-radius':       ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 9],
                   'circle-stroke-width': 2,
                   'circle-stroke-color': '#ffffff',
+                  'circle-opacity': 1,
+                  'circle-opacity-transition': { duration: 300, delay: 0 },
+                  'circle-radius-transition':  { duration: 300, delay: 0 },
                 }}
               />
             </Source>
