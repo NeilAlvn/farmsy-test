@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents, ZoomControl } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import L from 'leaflet'
 import {
@@ -153,26 +153,26 @@ function svgStr(nodes: SvgNode[], size: number): string {
 }
 
 function markerHtml(color: string, nodes: SvgNode[], small: boolean): string {
-  const circle = small ? 18 : 34
-  const stemW  = small ?  6 : 12
+  const circle = small ? 20 : 38
+  const stemW  = small ?  7 : 13
   const stemH  = small ?  5 : 10
-  const border = small ? '2px' : '2.5px'
   const shadow = small
-    ? '0 1px 4px rgba(0,0,0,0.3)'
-    : '0 3px 12px rgba(0,0,0,0.3)'
+    ? `0 2px 8px ${color}55, 0 1px 3px rgba(0,0,0,0.18)`
+    : `0 4px 18px ${color}66, 0 2px 6px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.25)`
   const icon = small ? '' : svgStr(nodes, 18)
   const head = (
     `<div style="width:${circle}px;height:${circle}px;background:${color};border-radius:50%;` +
-    `border:${border} solid white;box-shadow:${shadow};` +
+    `border:2.5px solid white;box-shadow:${shadow};` +
     `display:flex;align-items:center;justify-content:center;">${icon}</div>`
   )
   const stem = (
     `<div style="width:0;height:0;margin:0 auto;` +
     `border-left:${stemW / 2}px solid transparent;` +
     `border-right:${stemW / 2}px solid transparent;` +
-    `border-top:${stemH}px solid ${color};"></div>`
+    `border-top:${stemH}px solid ${color};` +
+    `filter:drop-shadow(0 2px 2px rgba(0,0,0,0.12));"></div>`
   )
-  return `<div style="line-height:0;">${head}${stem}</div>`
+  return `<div style="line-height:0;cursor:pointer;">${head}${stem}</div>`
 }
 
 const ICON_CACHE = new Map<string, L.DivIcon>()
@@ -183,7 +183,7 @@ function farmIcon(farmType: string | null | undefined, small: boolean): L.DivIco
     const color = (farmType != null ? CAT_COLOR[farmType as CategoryId] : null) ?? '#94a3b8'
     const nodes = (farmType != null ? ICON_NODES[farmType] as SvgNode[] | undefined : undefined)
                   ?? ICON_NODES['__']
-    const circle = small ? 18 : 34
+    const circle = small ? 20 : 38
     const stemH  = small ?  5 : 10
     const totalH = circle + stemH
     ICON_CACHE.set(key, L.divIcon({
@@ -390,6 +390,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   const [authUser, setAuthUser]         = useState<AuthUser | null>(null)
 
   const boundsTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const mapRef      = useRef<L.Map | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -525,7 +526,25 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
         <FarmListView farms={filtered} onSelect={farm => { openFarm(farm); setView('map') }} />
       ) : (
         <div className="flex-1 relative min-h-0">
+          {/* Premium tile / marker CSS overrides */}
+          <style>{`
+            .leaflet-tile { transition: opacity 0.25s ease; }
+            .leaflet-control-attribution {
+              background: rgba(255,255,255,0.82) !important;
+              backdrop-filter: blur(8px) !important;
+              border-radius: 10px !important;
+              border: 1px solid rgba(0,0,0,0.07) !important;
+              padding: 2px 8px !important;
+              font-size: 10px !important;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+              margin: 0 8px 8px 0 !important;
+            }
+            .leaflet-marker-icon { transition: transform 0.15s ease, filter 0.15s ease; }
+            .leaflet-marker-icon:hover { transform: scale(1.12) !important; filter: brightness(1.05); }
+          `}</style>
+
           <MapContainer
+            ref={mapRef}
             center={[52.1326, 5.2913]}
             zoom={7.5}
             minZoom={2}
@@ -542,16 +561,26 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
               onMapClick={() => { setSelectedFarm(null); setShowClaim(false) }}
             />
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
               noWrap
             />
-            <ZoomControl position="bottomright" />
 
             <MarkerClusterGroup
               chunkedLoading
               maxClusterRadius={60}
               showCoverageOnHover={false}
+              iconCreateFunction={(cluster) => {
+                const count = cluster.getChildCount()
+                const size  = count > 100 ? 52 : count > 20 ? 46 : 40
+                const fs    = count > 99 ? 11 : 13
+                return L.divIcon({
+                  className: '',
+                  html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#3d9e58 0%,#276d3c 100%);border-radius:50%;border:3px solid white;box-shadow:0 4px 16px rgba(39,109,60,0.45),0 2px 6px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:${fs}px;font-family:-apple-system,sans-serif;letter-spacing:-0.5px;">${count}</div>`,
+                  iconSize:   [size, size],
+                  iconAnchor: [size / 2, size / 2],
+                })
+              }}
             >
               {markerElements}
             </MarkerClusterGroup>
@@ -559,25 +588,42 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
             {userPos && <Marker position={userPos} icon={USER_ICON} />}
           </MapContainer>
 
-          {/* Geolocate + view toggle floating buttons */}
-          <div className="absolute bottom-24 right-4 z-[9000] flex flex-col gap-2">
+          {/* Premium floating controls — bottom right */}
+          <div className="absolute bottom-6 right-4 z-[9000] flex flex-col gap-2 items-center">
+            {/* Zoom pill */}
+            <div className="flex flex-col rounded-2xl overflow-hidden border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] bg-white/95 backdrop-blur-sm">
+              <button
+                onClick={() => mapRef.current?.zoomIn()}
+                className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors border-b border-gray-100 font-bold text-xl leading-none"
+                title="Zoom in"
+              >+</button>
+              <button
+                onClick={() => mapRef.current?.zoomOut()}
+                className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold text-xl leading-none"
+                title="Zoom out"
+              >−</button>
+            </div>
+
+            {/* Geolocate */}
             <button
               onClick={handleGeolocate}
               disabled={geoLoading}
-              className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-60"
+              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-sm border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors disabled:opacity-50"
               title="Find my location"
             >
               {geoLoading
-                ? <Loader2 size={18} className="animate-spin text-emerald-600" />
-                : <Locate size={18} className="text-gray-600" />
+                ? <Loader2 size={17} className="animate-spin text-emerald-600" />
+                : <Locate size={17} className="text-gray-500" />
               }
             </button>
+
+            {/* List view toggle (mobile only) */}
             <button
               onClick={() => setView('list')}
-              className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors sm:hidden"
+              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-sm border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors sm:hidden"
               title="List view"
             >
-              <List size={18} className="text-gray-600" />
+              <List size={17} className="text-gray-500" />
             </button>
           </div>
         </div>
