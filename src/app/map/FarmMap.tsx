@@ -528,10 +528,8 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
           <MapContainer
             center={[52.1326, 5.2913]}
             zoom={7.5}
-            minZoom={6.5}
+            minZoom={3}
             maxZoom={16}
-            maxBounds={[[49.4, 2.5], [53.6, 7.3]]}
-            maxBoundsViscosity={1.0}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
             scrollWheelZoom
@@ -547,6 +545,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              noWrap
             />
             <ZoomControl position="bottomright" />
 
