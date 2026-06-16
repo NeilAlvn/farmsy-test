@@ -82,7 +82,10 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session?.user) {
-      setState('no-auth')
+      // On background re-checks a missing session is likely transient;
+      // Supabase fires SIGNED_OUT for real sign-outs, so only gate here
+      // on the initial mount.
+      if (isInitialCheckRef.current) setState('no-auth')
       isInitialCheckRef.current = false
       return
     }
@@ -90,22 +93,22 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     const userId = session.user.id
     const token  = session.access_token
 
-    // Try cache first
-    const cached = readCache(userId)
+    // Initial mount: always fetch fresh so a just-completed checkout is
+    // reflected immediately (avoids stale cache showing no-sub post-payment).
+    // Background re-checks (tab-focus etc.): use cache to avoid a network
+    // round-trip that can transiently show the gate modal on slow/failed API.
+    const cached = isInitialCheckRef.current ? null : readCache(userId)
     const profile = cached ?? await fetchProfile(token)
 
     if (!profile) {
-      setState('no-sub')
+      // Only gate on the very first check. On background re-checks a null
+      // profile means a transient API failure — preserve the current state.
+      if (isInitialCheckRef.current) setState('no-sub')
       isInitialCheckRef.current = false
       return
     }
 
-    if (!cached) writeCache(userId, profile)
-    else {
-      // Refresh cache in background
-      fetchProfile(token).then(p => { if (p) writeCache(userId, p) })
-    }
-
+    writeCache(userId, profile)
     isInitialCheckRef.current = false
     const status = profile.subscription_status
 
@@ -181,8 +184,10 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         // on genuine first sign-in. Do NOT reset toastFiredRef or
         // isInitialCheckRef here — that would re-show the loading spinner and
         // re-fire toasts every time the user switches browser tabs.
-        // Just clear the cache and re-run check; the refs stay as-is.
-        clearSubCache()
+        // Do NOT clearSubCache() here either — the cache's uid/TTL checks
+        // already reject stale or foreign-user entries. Clearing on every
+        // tab-focus forces a network round-trip that can briefly show the
+        // gate modal when the API is slow or fails.
         check()
       }
       if (event === 'TOKEN_REFRESHED') {
