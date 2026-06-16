@@ -261,7 +261,13 @@ export default function PricingPage() {
                   className="w-full py-3 rounded-2xl font-semibold text-sm transition-opacity disabled:opacity-60"
                   style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}
                 >
-                  {loading === 'yearly' ? 'Loading…' : isCanceled ? 'Subscribe Yearly' : 'Try Free for 3 Days'}
+                  {loading === 'yearly'
+                    ? 'Loading…'
+                    : isCanceled
+                      ? 'Subscribe Yearly'
+                      : user
+                        ? 'Get Yearly Plan'
+                        : 'Try Free for 3 Days'}
                 </button>
                 <p className="text-xs text-center" style={{ color: 'var(--muted-foreground)' }}>{t('yearlyRenew')}</p>
               </div>
