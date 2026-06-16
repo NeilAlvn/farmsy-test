@@ -27,9 +27,14 @@ export async function POST(request: Request) {
 
   const { data: profile } = await sb
     .from('profiles')
-    .select('email, stripe_customer_id')
+    .select('email, stripe_customer_id, subscription_status')
     .eq('id', userId)
     .single()
+
+  // Only offer the free trial to users who have never had a subscription.
+  // Any non-null subscription_status means they've previously subscribed
+  // (active, trialing, canceled, past_due, etc.) — no second trial.
+  const hadPriorSubscription = !!profile?.subscription_status
 
   // Reuse existing Stripe customer or create a new one
   let customerId = profile?.stripe_customer_id as string | undefined
@@ -62,7 +67,7 @@ export async function POST(request: Request) {
     return Response.json({ url: session.url })
   }
 
-  // Yearly subscription — 3-day free trial, card required upfront
+  // Yearly subscription — trial only for first-time subscribers
   const session = await stripe.checkout.sessions.create({
     customer:   customerId,
     mode:       'subscription',
@@ -71,7 +76,7 @@ export async function POST(request: Request) {
     cancel_url:  `${origin}/subscription/cancelled`,
     metadata:    { supabase_user_id: userId, plan: 'yearly' },
     subscription_data: {
-      trial_period_days: 3,
+      ...(hadPriorSubscription ? {} : { trial_period_days: 3 }),
       metadata: { supabase_user_id: userId, plan: 'yearly' },
     },
     payment_method_collection: 'always',
