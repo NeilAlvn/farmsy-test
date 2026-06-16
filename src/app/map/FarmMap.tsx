@@ -345,20 +345,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
   // ── Map load: globe + sky ──────────────────────────────────────────────────
 
-  const handleMapLoad = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const map = mapRef.current?.getMap() as any
-    if (!map) return
-    map.setProjection({ type: 'globe' })
-    map.setSky({
-      'sky-color':        '#0d1a2e',
-      'horizon-color':    '#1a4a8a',
-      'fog-color':        '#5a9fd4',
-      'fog-ground-blend': 0.3,
-      'horizon-fog-blend': 0.6,
-      'sky-horizon-blend': 0.9,
-    })
-  }, [])
+  const handleMapLoad = useCallback(() => {}, [])
 
   // ── Map click: cluster zoom or farm open ───────────────────────────────────
 
@@ -418,7 +405,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden bg-[#0d1a2e] text-gray-900">
+    <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden text-gray-900">
 
       {view === 'list' ? (
         <FarmListView farms={filtered} onSelect={farm => { openFarm(farm); setView('map') }} />
