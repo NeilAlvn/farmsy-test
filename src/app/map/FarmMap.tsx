@@ -2,19 +2,18 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet'
-import MarkerClusterGroup from 'react-leaflet-cluster'
-import L from 'leaflet'
+import Map, {
+  Source, Layer, Marker,
+  type MapRef,
+  type MapLayerMouseEvent,
+} from 'react-map-gl/maplibre'
+import type { GeoJSONSource } from 'maplibre-gl'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import {
-  Wheat,
-  Egg, Milk, Beef, Fish, Carrot, Circle, Wine, Store, Leaf,
-  Locate, Map as MapIcon, List, Loader2,
-  MapPin, Droplets, Clock, Phone, Globe,
+  Wheat, Locate, List, Loader2,
+  MapPin, Clock, Phone, Globe,
 } from 'lucide-react'
 import { isOpenToday } from '@/lib/opening-hours'
-import 'leaflet/dist/leaflet.css'
-import 'react-leaflet-cluster/dist/assets/MarkerCluster.css'
-import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css'
 import { supabase } from '@/lib/supabase'
 import FarmModal from './FarmModal'
 import ClaimModal from './ClaimModal'
@@ -63,7 +62,7 @@ interface AuthUser {
   email: string
 }
 
-// ─── Categories (for marker icons) ───────────────────────────────────────────
+// ─── Categories ───────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
   { id: 'eggs',    color: '#eab308' },
@@ -80,171 +79,24 @@ const CATEGORIES = [
 
 type CategoryId = (typeof CATEGORIES)[number]['id']
 const CAT_COLOR = Object.fromEntries(CATEGORIES.map(c => [c.id, c.color])) as Record<CategoryId, string>
+void CAT_COLOR // kept for future use
 
-// ─── Markers ──────────────────────────────────────────────────────────────────
+// ─── MapLibre layer paint expressions ────────────────────────────────────────
 
-type SvgNode = [string, Record<string, string>]
-
-const ICON_NODES: Record<string, SvgNode[]> = {
-  eggs: [
-    ['path', { d: 'M12 2C8 2 4 8 4 14a8 8 0 0 0 16 0c0-6-4-12-8-12' }],
-  ],
-  __: [
-    ['path', { d: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z' }],
-    ['polyline', { points: '9 22 9 12 15 12 15 22' }],
-  ],
-  dairy: [
-    ['path', { d: 'M8 2h8' }],
-    ['path', { d: 'M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2' }],
-    ['path', { d: 'M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0' }],
-  ],
-  meat: [
-    ['path', { d: 'M16.4 13.7A6.5 6.5 0 1 0 6.28 6.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3' }],
-    ['path', { d: 'm18.5 6 2.19 4.5a6.48 6.48 0 0 1-2.29 7.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5' }],
-    ['circle', { cx: '12.5', cy: '8.5', r: '2.5' }],
-  ],
-  fish: [
-    ['path', { d: 'M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z' }],
-    ['path', { d: 'M18 12v.5' }],
-    ['path', { d: 'M16 17.93a9.77 9.77 0 0 1 0-11.86' }],
-    ['path', { d: 'M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33' }],
-    ['path', { d: 'M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4' }],
-    ['path', { d: 'm16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98' }],
-  ],
-  produce: [
-    ['path', { d: 'M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7z' }],
-    ['path', { d: 'M8.64 14l-2.05-2.04' }],
-    ['path', { d: 'M15.34 15l-2.46-2.46' }],
-    ['path', { d: 'M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z' }],
-    ['path', { d: 'M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z' }],
-  ],
-  cheese: [
-    ['circle', { cx: '12', cy: '12', r: '10' }],
-  ],
-  wine: [
-    ['path', { d: 'M8 22h8' }],
-    ['path', { d: 'M7 10h10' }],
-    ['path', { d: 'M12 15v7' }],
-    ['path', { d: 'M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z' }],
-  ],
-  markets: [
-    ['path', { d: 'M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5' }],
-    ['path', { d: 'M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244' }],
-    ['path', { d: 'M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05' }],
-  ],
-  honey: [
-    ['path', { d: 'M12 2c0 0-7 7.5-7 13a7 7 0 0 0 14 0c0-5.5-7-13-7-13z' }],
-  ],
-}
-
-function svgStr(nodes: SvgNode[], size: number): string {
-  const children = nodes
-    .map(([tag, attrs]) =>
-      `<${tag} ${Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ')}/>`
-    )
-    .join('')
-  return (
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" ` +
-    `viewBox="0 0 24 24" fill="none" stroke="white" ` +
-    `stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">` +
-    children +
-    `</svg>`
-  )
-}
-
-function markerHtml(color: string, nodes: SvgNode[], small: boolean): string {
-  const circle = small ? 20 : 38
-  const stemW  = small ?  7 : 13
-  const stemH  = small ?  5 : 10
-  const shadow = small
-    ? `0 2px 8px ${color}55, 0 1px 3px rgba(0,0,0,0.18)`
-    : `0 4px 18px ${color}66, 0 2px 6px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.25)`
-  const icon = small ? '' : svgStr(nodes, 18)
-  const head = (
-    `<div style="width:${circle}px;height:${circle}px;background:${color};border-radius:50%;` +
-    `border:2.5px solid white;box-shadow:${shadow};` +
-    `display:flex;align-items:center;justify-content:center;">${icon}</div>`
-  )
-  const stem = (
-    `<div style="width:0;height:0;margin:0 auto;` +
-    `border-left:${stemW / 2}px solid transparent;` +
-    `border-right:${stemW / 2}px solid transparent;` +
-    `border-top:${stemH}px solid ${color};` +
-    `filter:drop-shadow(0 2px 2px rgba(0,0,0,0.12));"></div>`
-  )
-  return `<div style="line-height:0;cursor:pointer;">${head}${stem}</div>`
-}
-
-const ICON_CACHE = new Map<string, L.DivIcon>()
-
-function farmIcon(farmType: string | null | undefined, small: boolean): L.DivIcon {
-  const key = `${farmType ?? '__'}:${small ? 's' : 'l'}`
-  if (!ICON_CACHE.has(key)) {
-    const color = (farmType != null ? CAT_COLOR[farmType as CategoryId] : null) ?? '#94a3b8'
-    const nodes = (farmType != null ? ICON_NODES[farmType] as SvgNode[] | undefined : undefined)
-                  ?? ICON_NODES['__']
-    const circle = small ? 20 : 38
-    const stemH  = small ?  5 : 10
-    const totalH = circle + stemH
-    ICON_CACHE.set(key, L.divIcon({
-      className: '',
-      html: markerHtml(color, nodes, small),
-      iconSize:   [circle, totalH],
-      iconAnchor: [circle / 2, totalH],
-    }))
-  }
-  return ICON_CACHE.get(key)!
-}
-
-const USER_ICON = L.divIcon({
-  className: '',
-  html: `<div style="width:16px;height:16px;border-radius:50%;background:#3b82f6;border:3px solid white;box-shadow:0 2px 8px rgba(59,130,246,0.5)"></div>`,
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-})
-
-// ─── Map event handler ────────────────────────────────────────────────────────
-
-function MapEventHandler({
-  flyTarget,
-  userPos,
-  onBoundsInit,
-  onBoundsChange,
-  onZoomChange,
-  onMapClick,
-}: {
-  flyTarget: { pos: [number, number]; key: number } | null
-  userPos: [number, number] | null
-  onBoundsInit: (b: L.LatLngBounds) => void
-  onBoundsChange: (b: L.LatLngBounds) => void
-  onZoomChange: (z: number) => void
-  onMapClick: () => void
-}) {
-  const map = useMap()
-
-  useEffect(() => {
-    onBoundsInit(map.getBounds())
-  }, [])
-
-  useMapEvents({
-    moveend: () => onBoundsChange(map.getBounds()),
-    zoomend: () => {
-      onZoomChange(map.getZoom())
-      onBoundsChange(map.getBounds())
-    },
-    click: () => onMapClick(),
-  })
-
-  useEffect(() => {
-    if (flyTarget) map.flyTo(flyTarget.pos, 14, { duration: 0.8 })
-  }, [flyTarget?.key])
-
-  useEffect(() => {
-    if (userPos) map.flyTo(userPos, 12, { duration: 1.2 })
-  }, [userPos])
-
-  return null
-}
+const DOT_COLOR = [
+  'match', ['get', 'category'],
+  'eggs',    '#eab308',
+  'dairy',   '#38bdf8',
+  'meat',    '#ef4444',
+  'fish',    '#2563eb',
+  'produce', '#10b981',
+  'cheese',  '#f97316',
+  'wine',    '#7c3aed',
+  'markets', '#92400e',
+  'honey',   '#d97706',
+  'organic', '#059669',
+  '#94a3b8',
+] as const
 
 // ─── List view ────────────────────────────────────────────────────────────────
 
@@ -382,15 +234,13 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
   const [userPos, setUserPos]           = useState<[number, number] | null>(null)
   const [geoLoading, setGeoLoading]     = useState(false)
-  const [zoom, setZoom]                 = useState(7)
-  const [bounds, setBounds]             = useState<L.LatLngBounds | null>(null)
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null)
   const [showClaim, setShowClaim]       = useState(false)
   const [showAuth, setShowAuth]         = useState(false)
   const [authUser, setAuthUser]         = useState<AuthUser | null>(null)
+  const [cursor, setCursor]             = useState('grab')
 
-  const boundsTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const mapRef      = useRef<L.Map | null>(null)
+  const mapRef      = useRef<MapRef | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -406,7 +256,6 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   const openFarm = useCallback(async (slim: SlimFarm) => {
     setSelectedFarm({ ...slim, email: undefined, description: undefined, facebook: undefined, instagram: undefined, organic: undefined, produce: undefined, operator: undefined })
     setShowClaim(false)
-
     try {
       const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id!)}`)
       if (res.ok) {
@@ -416,12 +265,11 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     } catch { /* ignore */ }
   }, [])
 
-  // ── Handle URL search params ───────────────────────────────────────────────
+  // ── URL search params ──────────────────────────────────────────────────────
 
   useEffect(() => {
     const id       = searchParams.get('id')
     const category = searchParams.get('category')
-
     if (id) {
       const farm = farms.find(f => f.osm_id === id)
       if (farm) {
@@ -432,7 +280,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     if (category) setSelected(new Set([category as CategoryId]))
   }, [searchParams, farms, openFarm, setFlyTarget, setSelected])
 
-  // ── Derived farms ───────────────────────────────────────────────────────────
+  // ── Derived farms ──────────────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
     let result = farms
@@ -452,52 +300,102 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     return result
   }, [farms, selected, query, filterOpenToday, filterHasPhotos])
 
-  const visible = useMemo(() => {
-    if (!bounds) return []
-    const s = bounds.getSouth() - (bounds.getNorth() - bounds.getSouth()) * 0.2
-    const n = bounds.getNorth() + (bounds.getNorth() - bounds.getSouth()) * 0.2
-    const w = bounds.getWest()  - (bounds.getEast()  - bounds.getWest())  * 0.2
-    const e = bounds.getEast()  + (bounds.getEast()  - bounds.getWest())  * 0.2
-    return filtered.filter(f => f.lat >= s && f.lat <= n && f.lng >= w && f.lng <= e)
-  }, [filtered, bounds])
-
-  const smallMarkers = zoom < 10
-
-  const markersToRender = useMemo(() => {
-    if (zoom < 9 && visible.length > 1500) {
-      const step = Math.ceil(visible.length / 1500)
-      return visible.filter((_, i) => i % step === 0)
-    }
-    return visible
-  }, [visible, zoom])
-
-  const markerElements = useMemo(() => {
-    return markersToRender.map(farm => (
-      <Marker
-        key={farm.osm_id ?? farm.id}
-        position={[farm.lat, farm.lng]}
-        icon={farmIcon(farm.farm_type?.[0], smallMarkers)}
-        eventHandlers={{
-          click: e => {
-            e.originalEvent.stopPropagation()
-            openFarm(farm)
-          },
-        }}
-      />
-    ))
-  }, [markersToRender, smallMarkers, openFarm])
-
-  const handleBoundsInit   = useCallback((b: L.LatLngBounds) => { setBounds(b) }, [])
-  const handleBoundsChange = useCallback((b: L.LatLngBounds) => {
-    clearTimeout(boundsTimer.current)
-    boundsTimer.current = setTimeout(() => setBounds(b), 400)
-  }, [])
-
+  // Close modal if selected farm is filtered out
   useEffect(() => {
     if (selectedFarm && !filtered.some(f => f.osm_id === selectedFarm.osm_id)) {
       setSelectedFarm(null)
     }
   }, [filtered, selectedFarm])
+
+  // ── GeoJSON for MapLibre source ────────────────────────────────────────────
+
+  const farmsGeoJSON = useMemo((): GeoJSON.FeatureCollection => ({
+    type: 'FeatureCollection',
+    features: filtered.map(f => ({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [f.lng, f.lat] }, // MapLibre: [lng, lat]
+      properties: {
+        osm_id:   f.osm_id,
+        name:     f.name,
+        category: f.farm_type?.[0] ?? null,
+      },
+    })),
+  }), [filtered])
+
+  // ── Fly to targets ─────────────────────────────────────────────────────────
+
+  const flyTargetKey = flyTarget?.key
+  useEffect(() => {
+    if (!flyTarget || !mapRef.current) return
+    mapRef.current.flyTo({
+      center: [flyTarget.pos[1], flyTarget.pos[0]], // [lng, lat]
+      zoom: 14,
+      duration: 1200,
+    })
+  }, [flyTargetKey]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!userPos || !mapRef.current) return
+    mapRef.current.flyTo({
+      center: [userPos[1], userPos[0]], // [lng, lat]
+      zoom: 12,
+      duration: 1200,
+    })
+  }, [userPos])
+
+  // ── Map load: globe + sky ──────────────────────────────────────────────────
+
+  const handleMapLoad = useCallback(() => {
+    const map = mapRef.current
+    if (!map) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(map as any).setProjection({ type: 'globe' })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(map as any).setSky({
+      'sky-color':        '#0d1a2e',
+      'horizon-color':    '#1a4a8a',
+      'fog-color':        '#5a9fd4',
+      'fog-ground-blend': 0.3,
+      'horizon-fog-blend': 0.6,
+      'sky-horizon-blend': 0.9,
+    })
+  }, [])
+
+  // ── Map click: cluster zoom or farm open ───────────────────────────────────
+
+  const handleMapClick = useCallback(async (e: MapLayerMouseEvent) => {
+    const features = e.features ?? []
+
+    if (features.length === 0) {
+      setSelectedFarm(null)
+      setShowClaim(false)
+      return
+    }
+
+    const feature = features[0]
+
+    if (feature.layer.id === 'cluster-glow' || feature.layer.id === 'clusters') {
+      const clusterId = feature.properties?.cluster_id as number | undefined
+      if (clusterId == null) return
+      try {
+        const source = mapRef.current?.getSource('farms') as GeoJSONSource | undefined
+        if (!source) return
+        const zoom = await source.getClusterExpansionZoom(clusterId)
+        const [lng, lat] = (feature.geometry as GeoJSON.Point).coordinates
+        mapRef.current?.easeTo({ center: [lng, lat], zoom, duration: 500 })
+      } catch { /* ignore */ }
+      return
+    }
+
+    if (feature.layer.id === 'unclustered-point') {
+      const osmId = feature.properties?.osm_id as string | undefined
+      if (!osmId) return
+      const farm = filtered.find(f => f.osm_id === osmId)
+      if (farm) openFarm(farm)
+    }
+  }, [filtered, openFarm])
+
+  // ── Geolocate ──────────────────────────────────────────────────────────────
 
   const handleGeolocate = useCallback(() => {
     if (!navigator.geolocation) return
@@ -518,87 +416,129 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     setShowClaim(false)
   }
 
-  return (
-    <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden bg-white text-gray-900">
+  // ── Render ─────────────────────────────────────────────────────────────────
 
-      {/* ── Content ─────────────────────────────────────────────────────────── */}
+  return (
+    <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden bg-[#0d1a2e] text-gray-900">
+
       {view === 'list' ? (
         <FarmListView farms={filtered} onSelect={farm => { openFarm(farm); setView('map') }} />
       ) : (
         <div className="flex-1 relative min-h-0">
-          {/* Premium tile / attribution CSS overrides */}
           <style>{`
-            .leaflet-tile { transition: opacity 0.25s ease; }
-            .leaflet-control-attribution {
-              background: rgba(255,255,255,0.82) !important;
+            .maplibregl-ctrl-attrib {
+              background: rgba(255,255,255,0.78) !important;
               backdrop-filter: blur(8px) !important;
               border-radius: 10px !important;
               border: 1px solid rgba(0,0,0,0.07) !important;
               padding: 2px 8px !important;
               font-size: 10px !important;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
               margin: 0 8px 8px 0 !important;
             }
+            .maplibregl-canvas { cursor: inherit; }
           `}</style>
 
-          <MapContainer
+          <Map
             ref={mapRef}
-            center={[52.1326, 5.2913]}
-            zoom={7.5}
-            minZoom={2}
-            style={{ height: '100%', width: '100%' }}
-            zoomControl={false}
-            scrollWheelZoom
+            initialViewState={{
+              longitude: 5.2913,
+              latitude:  52.1326,
+              zoom:      7.5,
+            }}
+            style={{ width: '100%', height: '100%' }}
+            mapStyle="https://tiles.openfreemap.org/styles/liberty"
+            interactiveLayerIds={['cluster-glow', 'clusters', 'unclustered-point']}
+            cursor={cursor}
+            onLoad={handleMapLoad}
+            onClick={handleMapClick}
+            onMouseMove={(e) => setCursor(e.features && e.features.length > 0 ? 'pointer' : 'grab')}
+            onMouseLeave={() => setCursor('grab')}
           >
-            <MapEventHandler
-              flyTarget={flyTarget}
-              userPos={userPos}
-              onBoundsInit={handleBoundsInit}
-              onBoundsChange={handleBoundsChange}
-              onZoomChange={setZoom}
-              onMapClick={() => { setSelectedFarm(null); setShowClaim(false) }}
-            />
-            <TileLayer
-              attribution='&copy; <a href="https://carto.com/attributions">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              noWrap
-            />
-
-            <MarkerClusterGroup
-              chunkedLoading
-              maxClusterRadius={60}
-              showCoverageOnHover={false}
-              iconCreateFunction={(cluster) => {
-                const count = cluster.getChildCount()
-                const size  = count > 100 ? 48 : count > 20 ? 42 : 36
-                const fs    = count > 99 ? 11 : 13
-                // outer ring is painted via box-shadow so the iconSize stays exact
-                return L.divIcon({
-                  className: '',
-                  html: `<div style="width:${size}px;height:${size}px;background:#166534;border-radius:50%;border:2.5px solid white;box-shadow:0 0 0 5px rgba(22,101,52,0.18),0 4px 14px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:${fs}px;font-family:-apple-system,sans-serif;letter-spacing:-0.3px;">${count}</div>`,
-                  iconSize:   [size, size],
-                  iconAnchor: [size / 2, size / 2],
-                })
-              }}
+            <Source
+              id="farms"
+              type="geojson"
+              data={farmsGeoJSON}
+              cluster
+              clusterMaxZoom={13}
+              clusterRadius={50}
             >
-              {markerElements}
-            </MarkerClusterGroup>
+              {/* Cluster outer glow ring */}
+              <Layer
+                id="cluster-glow"
+                type="circle"
+                filter={['has', 'point_count']}
+                paint={{
+                  'circle-color': 'rgba(22, 104, 52, 0.18)',
+                  'circle-radius': ['step', ['get', 'point_count'], 24, 20, 28, 100, 34],
+                  'circle-blur': 0.4,
+                }}
+              />
+              {/* Cluster solid circle */}
+              <Layer
+                id="clusters"
+                type="circle"
+                filter={['has', 'point_count']}
+                paint={{
+                  'circle-color': '#166834',
+                  'circle-radius': ['step', ['get', 'point_count'], 16, 20, 20, 100, 25],
+                  'circle-stroke-width': 2.5,
+                  'circle-stroke-color': '#ffffff',
+                }}
+              />
+              {/* Cluster count label */}
+              <Layer
+                id="cluster-count"
+                type="symbol"
+                filter={['has', 'point_count']}
+                layout={{
+                  'text-field': '{point_count_abbreviated}',
+                  'text-font':  ['Open Sans Bold', 'Noto Sans Bold', 'Arial Unicode MS Bold'],
+                  'text-size':  13,
+                  'text-allow-overlap': true,
+                }}
+                paint={{ 'text-color': '#ffffff' }}
+              />
+              {/* Individual farm dots */}
+              <Layer
+                id="unclustered-point"
+                type="circle"
+                filter={['!', ['has', 'point_count']]}
+                paint={{
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  'circle-color':        DOT_COLOR as any,
+                  'circle-radius':       ['interpolate', ['linear'], ['zoom'], 8, 5, 14, 9],
+                  'circle-stroke-width': 2,
+                  'circle-stroke-color': '#ffffff',
+                }}
+              />
+            </Source>
 
-            {userPos && <Marker position={userPos} icon={USER_ICON} />}
-          </MapContainer>
+            {/* User position marker */}
+            {userPos && (
+              <Marker longitude={userPos[1]} latitude={userPos[0]}>
+                <div style={{
+                  width: 16, height: 16, borderRadius: '50%',
+                  background: '#3b82f6',
+                  border: '3px solid white',
+                  boxShadow: '0 2px 8px rgba(59,130,246,0.5)',
+                }} />
+              </Marker>
+            )}
+          </Map>
 
-          {/* Premium floating controls — bottom right */}
+          {/* Premium floating controls */}
           <div className="absolute bottom-6 right-4 z-[9000] flex flex-col gap-2 items-center">
             {/* Zoom pill */}
-            <div className="flex flex-col rounded-2xl overflow-hidden border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] bg-white/95 backdrop-blur-sm">
+            <div className="flex flex-col rounded-2xl overflow-hidden border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] bg-white/90 backdrop-blur-sm">
               <button
                 onClick={() => mapRef.current?.zoomIn()}
-                className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors border-b border-gray-100 font-bold text-xl leading-none"
+                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors border-b border-gray-100 font-bold text-xl leading-none"
                 title="Zoom in"
               >+</button>
               <button
                 onClick={() => mapRef.current?.zoomOut()}
-                className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold text-xl leading-none"
+                className="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold text-xl leading-none"
                 title="Zoom out"
               >−</button>
             </div>
@@ -607,22 +547,22 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
             <button
               onClick={handleGeolocate}
               disabled={geoLoading}
-              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-sm border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors disabled:opacity-50"
+              className="w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-sm border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors disabled:opacity-50"
               title="Find my location"
             >
               {geoLoading
                 ? <Loader2 size={17} className="animate-spin text-emerald-600" />
-                : <Locate size={17} className="text-gray-500" />
+                : <Locate size={17} className="text-gray-600" />
               }
             </button>
 
-            {/* List view toggle (mobile only) */}
+            {/* List view toggle (mobile) */}
             <button
               onClick={() => setView('list')}
-              className="w-10 h-10 rounded-2xl bg-white/95 backdrop-blur-sm border border-gray-100/80 shadow-[0_4px_20px_rgba(0,0,0,0.12)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors sm:hidden"
+              className="w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-sm border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-700 transition-colors sm:hidden"
               title="List view"
             >
-              <List size={17} className="text-gray-500" />
+              <List size={17} className="text-gray-600" />
             </button>
           </div>
         </div>
@@ -636,14 +576,12 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
           onClaim={() => setShowClaim(true)}
         />
       )}
-
       {selectedFarm && showClaim && (
         <ClaimModal
           farm={selectedFarm}
           onClose={() => setShowClaim(false)}
         />
       )}
-
       {showAuth && (
         <AuthModal
           user={authUser}
