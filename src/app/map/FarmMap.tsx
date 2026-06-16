@@ -351,21 +351,21 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     const ml = mapRef.current?.getMap() as any
     if (!ml) return
 
-    const icons = [
-      ...CATEGORIES.map(c => ({ id: `pin-${c.id}`, color: c.color })),
-      { id: 'pin-default', color: '#94a3b8' },
-    ]
-    let remaining = icons.length
-
-    icons.forEach(({ id, color }) => {
+    // Load pin images on demand: fires whenever a layer references an unknown image.
+    // This is more reliable than a preload countdown — the layer renders immediately
+    // and each icon fills in the first time it's needed.
+    ml.on('styleimagemissing', (e: { id: string }) => {
+      const id: string = e.id
+      if (!id.startsWith('pin-')) return
+      const catId = id.replace('pin-', '')
+      const cat = CATEGORIES.find(c => c.id === catId)
+      const color = cat?.color ?? '#94a3b8'
       const img = new Image(28, 36)
-      img.onload = () => {
-        if (!ml.hasImage(id)) ml.addImage(id, img, { pixelRatio: 1.5 })
-        if (--remaining === 0) setIconsReady(true)
-      }
-      img.onerror = () => { if (--remaining === 0) setIconsReady(true) }
+      img.onload = () => { if (!ml.hasImage(id)) ml.addImage(id, img, { pixelRatio: 1.5 }) }
       img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(makePinSVG(color))}`
     })
+
+    setIconsReady(true)
   }, [])
 
   // ── Map click: cluster zoom or farm open ───────────────────────────────────
