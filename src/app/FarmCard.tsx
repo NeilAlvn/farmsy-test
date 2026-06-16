@@ -57,6 +57,7 @@ export default function FarmCard({ farm, idx }: FarmCardProps) {
         <img
           src={farm.image}
           alt={farm.name}
+          referrerPolicy="no-referrer"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           onError={(e) => {
             const card = e.currentTarget.closest('a')

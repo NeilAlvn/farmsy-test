@@ -100,7 +100,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
         <div className="relative h-44 shrink-0 overflow-hidden flex items-center justify-center bg-gray-100">
           {farm.image ? (
             <>
-              <img src={farm.image} alt={farm.name} className="w-full h-full object-cover" />
+              <img src={farm.image} alt={farm.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               {allCats.length > 0 && (
                 <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
                   {allCats.map(c => (

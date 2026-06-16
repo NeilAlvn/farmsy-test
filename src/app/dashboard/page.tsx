@@ -108,7 +108,7 @@ export default function DashboardPage() {
             >
               <div className="w-14 h-14 rounded-xl bg-gray-100 shrink-0 overflow-hidden flex items-center justify-center">
                 {farm.image
-                  ? <img src={farm.image} alt="" className="w-full h-full object-cover" />
+                  ? <img src={farm.image} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                   : <Wheat size={24} className="text-gray-300" />
                 }
               </div>

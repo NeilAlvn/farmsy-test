@@ -282,6 +282,7 @@ function FarmListView({ farms, onSelect }: { farms: SlimFarm[]; onSelect: (farm:
                         <img
                           src={farm.image}
                           alt={farm.name}
+                          referrerPolicy="no-referrer"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           onError={(e) => {
                             const wrapper = e.currentTarget.parentElement
