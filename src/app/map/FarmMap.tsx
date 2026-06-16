@@ -528,6 +528,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
           <MapContainer
             center={[52.1326, 5.2913]}
             zoom={7.5}
+            minZoom={2}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
             scrollWheelZoom
