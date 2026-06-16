@@ -526,7 +526,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
         <FarmListView farms={filtered} onSelect={farm => { openFarm(farm); setView('map') }} />
       ) : (
         <div className="flex-1 relative min-h-0">
-          {/* Premium tile / marker CSS overrides */}
+          {/* Premium tile / attribution CSS overrides */}
           <style>{`
             .leaflet-tile { transition: opacity 0.25s ease; }
             .leaflet-control-attribution {
@@ -539,8 +539,6 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
               box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
               margin: 0 8px 8px 0 !important;
             }
-            .leaflet-marker-icon { transition: transform 0.15s ease, filter 0.15s ease; }
-            .leaflet-marker-icon:hover { transform: scale(1.12) !important; filter: brightness(1.05); }
           `}</style>
 
           <MapContainer
@@ -572,11 +570,12 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
               showCoverageOnHover={false}
               iconCreateFunction={(cluster) => {
                 const count = cluster.getChildCount()
-                const size  = count > 100 ? 52 : count > 20 ? 46 : 40
+                const size  = count > 100 ? 48 : count > 20 ? 42 : 36
                 const fs    = count > 99 ? 11 : 13
+                // outer ring is painted via box-shadow so the iconSize stays exact
                 return L.divIcon({
                   className: '',
-                  html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#3d9e58 0%,#276d3c 100%);border-radius:50%;border:3px solid white;box-shadow:0 4px 16px rgba(39,109,60,0.45),0 2px 6px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:${fs}px;font-family:-apple-system,sans-serif;letter-spacing:-0.5px;">${count}</div>`,
+                  html: `<div style="width:${size}px;height:${size}px;background:#166534;border-radius:50%;border:2.5px solid white;box-shadow:0 0 0 5px rgba(22,101,52,0.18),0 4px 14px rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:${fs}px;font-family:-apple-system,sans-serif;letter-spacing:-0.3px;">${count}</div>`,
                   iconSize:   [size, size],
                   iconAnchor: [size / 2, size / 2],
                 })
