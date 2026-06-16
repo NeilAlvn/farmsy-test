@@ -527,7 +527,11 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
         <div className="flex-1 relative min-h-0">
           <MapContainer
             center={[52.1326, 5.2913]}
-            zoom={7}
+            zoom={7.5}
+            minZoom={6.5}
+            maxZoom={16}
+            maxBounds={[[49.4, 2.5], [53.6, 7.3]]}
+            maxBoundsViscosity={1.0}
             style={{ height: '100%', width: '100%' }}
             zoomControl={false}
             scrollWheelZoom

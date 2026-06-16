@@ -84,10 +84,12 @@ async function fetchFarms(): Promise<{ farms: SlimFarm[]; error: string | null }
     if (error) return { farms: [], error: error.message }
     if (!data || data.length === 0) break
 
-    const normalized = (data as SlimFarm[]).map(f => ({
-      ...f,
-      farm_type: normalizeFarmType(f.farm_type, f.primary_tag),
-    }))
+    const normalized = (data as SlimFarm[])
+      .filter(f => f.lat >= 49.4 && f.lat <= 53.6 && f.lng >= 2.5 && f.lng <= 7.3)
+      .map(f => ({
+        ...f,
+        farm_type: normalizeFarmType(f.farm_type, f.primary_tag),
+      }))
     all.push(...normalized)
     if (data.length < PAGE_SIZE) break
     from += PAGE_SIZE
