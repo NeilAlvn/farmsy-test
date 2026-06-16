@@ -23,13 +23,15 @@ type GuardState =
   | 'past-due'
 
 // ─── Cache ────────────────────────────────────────────────────────────────────
+// localStorage so the entry survives Next.js client-side navigation and
+// browser-session restore (sessionStorage cleared each navigation in App Router).
 
-const CACHE_KEY = 'farmsy:sub'
-const CACHE_TTL = 5 * 60 * 1000
+const CACHE_KEY = 'farmsy:sub_v2'
+const CACHE_TTL = 30 * 60 * 1000  // 30 min active window
 
 function readCache(userId: string): Profile | null {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY)
+    const raw = localStorage.getItem(CACHE_KEY)
     if (!raw) return null
     const { uid, profile, ts } = JSON.parse(raw) as { uid: string; profile: Profile; ts: number }
     if (uid !== userId || Date.now() - ts > CACHE_TTL) return null
@@ -37,14 +39,25 @@ function readCache(userId: string): Profile | null {
   } catch { return null }
 }
 
+// Returns a stale entry (ignores TTL) — used as a safety net when the API
+// call fails so a legitimate subscriber isn't falsely gated.
+function readStaleCache(userId: string): Profile | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    if (!raw) return null
+    const { uid, profile } = JSON.parse(raw) as { uid: string; profile: Profile; ts: number }
+    return uid === userId ? profile : null
+  } catch { return null }
+}
+
 function writeCache(userId: string, profile: Profile) {
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ uid: userId, profile, ts: Date.now() }))
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ uid: userId, profile, ts: Date.now() }))
   } catch { /* ignore */ }
 }
 
 export function clearSubCache() {
-  try { sessionStorage.removeItem(CACHE_KEY) } catch { /* ignore */ }
+  try { localStorage.removeItem(CACHE_KEY) } catch { /* ignore */ }
 }
 
 async function fetchProfile(accessToken: string): Promise<Profile | null> {
@@ -93,22 +106,44 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     const userId = session.user.id
     const token  = session.access_token
 
-    // Initial mount: always fetch fresh so a just-completed checkout is
-    // reflected immediately (avoids stale cache showing no-sub post-payment).
-    // Background re-checks (tab-focus etc.): use cache to avoid a network
-    // round-trip that can transiently show the gate modal on slow/failed API.
-    const cached = isInitialCheckRef.current ? null : readCache(userId)
+    // Post-checkout: the stripe_redirect flag means the user just completed a
+    // Stripe checkout and we must bypass cache to see the newly-created subscription.
+    const isPostCheckout = isInitialCheckRef.current
+      && typeof sessionStorage !== 'undefined'
+      && !!sessionStorage.getItem('stripe_redirect')
+    if (isPostCheckout) {
+      clearSubCache()
+      sessionStorage.removeItem('stripe_redirect')
+    }
+
+    // Use cache for all checks (initial and background). The 30-min localStorage
+    // TTL survives App Router navigation. TOKEN_REFRESHED silently refreshes it.
+    const cached = readCache(userId)
     const profile = cached ?? await fetchProfile(token)
 
     if (!profile) {
-      // Only gate on the very first check. On background re-checks a null
-      // profile means a transient API failure — preserve the current state.
-      if (isInitialCheckRef.current) setState('no-sub')
+      if (isInitialCheckRef.current) {
+        // API failed on first mount. Before gating, check for a stale cache entry:
+        // if the user was known to be active recently, show the map rather than
+        // falsely blocking them due to a transient token expiry or network error.
+        const stale = readStaleCache(userId)
+        const staleStatus = stale?.subscription_status
+        if (staleStatus === 'active' || staleStatus === 'trialing') {
+          // Allow optimistically — the TOKEN_REFRESHED handler will update the
+          // cache when Supabase refreshes the session in the background.
+          setState('allowed')
+        } else {
+          setState('no-sub')
+        }
+      }
+      // Background check failure: never downgrade — preserve current state.
       isInitialCheckRef.current = false
       return
     }
 
-    writeCache(userId, profile)
+    // Only update the cache when we fetched fresh data — don't reset the TTL
+    // clock by re-writing data that came from cache.
+    if (!cached) writeCache(userId, profile)
     isInitialCheckRef.current = false
     const status = profile.subscription_status
 

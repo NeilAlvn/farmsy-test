@@ -83,12 +83,29 @@ void CAT_COLOR // kept for future use
 
 // ─── Pin marker SVG ───────────────────────────────────────────────────────────
 
-function makePinSVG(color: string) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
-    <path d="M14 0C6.268 0 0 6.268 0 14c0 9.625 14 22 14 22S28 23.625 28 14C28 6.268 21.732 0 14 0z"
-      fill="${color}" stroke="white" stroke-width="2"/>
-    <circle cx="14" cy="14" r="5.5" fill="white"/>
-  </svg>`
+// Lucide icon path data (24×24 viewBox) for each category
+const ICON_PATHS: Record<string, string> = {
+  eggs:    `<path d="M12 2C8 2 4 8 4 14a8 8 0 0 0 16 0c0-6-4-12-8-12"/>`,
+  dairy:   `<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>`,
+  meat:    `<path d="M16.4 13.7A6.5 6.5 0 1 0 6.28 6.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1-2.29 7.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/><circle cx="12.5" cy="8.5" r="2.5"/>`,
+  fish:    `<path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/>`,
+  produce: `<path d="M2.27 21.7s9.87-3.5 12.73-6.36a4.5 4.5 0 0 0-6.36-6.37C5.77 11.84 2.27 21.7 2.27 21.7zM8.64 14l-2.05-2.04M15.34 15l-2.46-2.46"/><path d="M22 9s-1.33-2-3.5-2C16.86 7 15 9 15 9s1.33 2 3.5 2S22 9 22 9z"/><path d="M15 2s-2 1.33-2 3.5S15 9 15 9s2-1.84 2-3.5C17 3.33 15 2 15 2z"/>`,
+  cheese:  `<circle cx="12" cy="12" r="10"/>`,
+  wine:    `<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>`,
+  markets: `<path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/>`,
+  honey:   `<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/>`,
+  organic: `<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>`,
+}
+
+// Renders a teardrop pin with a Lucide icon inside the white circle.
+// SVG is 48×62 px rendered at pixelRatio:1.5 → 32 CSS px wide on screen.
+// White circle r=9, icon nested SVG 18×18 centred at (14,14).
+function makePinSVG(color: string, catId?: string) {
+  const iconPaths = catId ? (ICON_PATHS[catId] ?? '') : ''
+  const iconSvg = iconPaths
+    ? `<svg x="5" y="5" width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">${iconPaths}</svg>`
+    : ''
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="62" viewBox="0 0 28 36"><path d="M14 0C6.268 0 0 6.268 0 14c0 9.625 14 22 14 22S28 23.625 28 14C28 6.268 21.732 0 14 0z" fill="${color}" stroke="white" stroke-width="2"/><circle cx="14" cy="14" r="9" fill="white"/>${iconSvg}</svg>`
 }
 
 // MapLibre icon-image expression: maps category → pin-<category>
@@ -351,21 +368,37 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     const ml = mapRef.current?.getMap() as any
     if (!ml) return
 
-    // Load pin images on demand: fires whenever a layer references an unknown image.
-    // This is more reliable than a preload countdown — the layer renders immediately
-    // and each icon fills in the first time it's needed.
-    ml.on('styleimagemissing', (e: { id: string }) => {
-      const id: string = e.id
-      if (!id.startsWith('pin-')) return
-      const catId = id.replace('pin-', '')
-      const cat = CATEGORIES.find(c => c.id === catId)
-      const color = cat?.color ?? '#94a3b8'
-      const img = new Image(28, 36)
-      img.onload = () => { if (!ml.hasImage(id)) ml.addImage(id, img, { pixelRatio: 1.5 }) }
-      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(makePinSVG(color))}`
+    // Pre-load every category pin image immediately so the symbol layer has all
+    // images ready before it first tries to render. styleimagemissing is kept as
+    // a fallback for any image the preload misses (e.g. 'pin-default').
+    const entries: Array<{ id: string; color: string; catId: string }> = [
+      ...CATEGORIES.map(c => ({ id: `pin-${c.id}`, color: c.color, catId: c.id })),
+      { id: 'pin-default', color: '#94a3b8', catId: 'default' },
+    ]
+
+    let remaining = entries.length
+    const done = () => { if (--remaining === 0) setIconsReady(true) }
+
+    entries.forEach(({ id, color, catId }) => {
+      // Always replace: ensures fresh icons after hot-reload in development.
+      if (ml.hasImage(id)) ml.removeImage(id)
+      const img = new Image(48, 62)
+      img.onload = () => { try { ml.addImage(id, img, { pixelRatio: 1.5 }) } catch { /* already added */ } done() }
+      img.onerror = done
+      img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(makePinSVG(color, catId))}`
     })
 
-    setIconsReady(true)
+    // Fallback for any image not in the preload list.
+    ml.on('styleimagemissing', (e: { id: string }) => {
+      const id: string = e.id
+      if (!id.startsWith('pin-') || ml.hasImage(id)) return
+      const catId = id.replace('pin-', '')
+      const cat   = CATEGORIES.find(c => c.id === catId)
+      const color = cat?.color ?? '#94a3b8'
+      const img   = new Image(48, 62)
+      img.onload  = () => { try { ml.addImage(id, img, { pixelRatio: 1.5 }) } catch { /* ignore */ } }
+      img.src     = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(makePinSVG(color, catId))}`
+    })
   }, [])
 
   // ── Map click: cluster zoom or farm open ───────────────────────────────────

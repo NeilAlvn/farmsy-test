@@ -86,6 +86,8 @@ async function fetchFarms(): Promise<{ farms: SlimFarm[]; error: string | null }
 
     const normalized = (data as SlimFarm[])
       .filter(f => f.lat >= 49.4 && f.lat <= 53.6 && f.lng >= 2.5 && f.lng <= 7.3)
+      .filter(f => f.name !== 'Barneveldse Kip - Van Beek - Van Staal')
+      .filter(f => f.name !== 'De Langenbrinck Eerlijk Heerlijk')
       .map(f => ({
         ...f,
         farm_type: normalizeFarmType(f.farm_type, f.primary_tag),
