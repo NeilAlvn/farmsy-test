@@ -292,13 +292,12 @@ function SignalIcon() {
 }
 
 function WifiIcon() {
-  // iOS 17 WiFi: 3 concentric arcs + dot
   return (
-    <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-      <path d="M1.2 5C3.7 2.5 8 1.8 11.5 3.6" stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M3.5 7.3C5.1 5.7 8 5.2 10.5 6.8"  stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
-      <path d="M5.8 9.4C6.7 8.6 9.3 8.6 10.2 9.4" stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="8" cy="11.3" r="1" fill="#0F0F0F" />
+    <svg width="16" height="11" viewBox="0 3.8 14 8.2" fill="none" stroke="#0F0F0F" strokeLinecap="round">
+      <path d="M5.23 9.23 A2.5 2.5 0 0 1 8.77 9.23"  strokeWidth="1.4" />
+      <path d="M3.82 7.82 A4.5 4.5 0 0 1 10.18 7.82" strokeWidth="1.4" />
+      <path d="M2.40 6.40 A6.5 6.5 0 0 1 11.60 6.40" strokeWidth="1.4" />
+      <circle cx="7" cy="11" r="0.9" fill="#0F0F0F" stroke="none" />
     </svg>
   )
 }

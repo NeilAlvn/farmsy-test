@@ -24,19 +24,16 @@ function getStoredUser(): SupabaseUser | null {
 
 export default function HeaderAuth() {
   const router = useRouter()
-  // 'loading' on the server (window undefined) → renders empty placeholder.
-  // On the client the lazy initializer reads localStorage immediately so the
-  // correct state is ready on the first paint — sign-in button never flashes.
-  const [user, setUser]             = useState<SupabaseUser | null | 'loading'>(() => {
-    if (typeof window === 'undefined') return 'loading'
-    return getStoredUser()
-  })
+  const [user, setUser]             = useState<SupabaseUser | null | 'loading'>('loading')
   const [open, setOpen]             = useState(false)
   const [showSignIn, setShowSignIn] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const { pendingFarms } = useTrip()
 
   useEffect(() => {
+    // Read localStorage on client before the async session check, to avoid flash
+    const stored = getStoredUser()
+    if (stored) setUser(stored)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
