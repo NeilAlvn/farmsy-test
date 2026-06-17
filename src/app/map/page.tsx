@@ -1,12 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
-import { unstable_cache } from 'next/cache'
 import MapLoader from './MapLoader'
 import SubscriptionGuard from '@/app/_components/SubscriptionGuard'
 import MapNav from './MapNav'
 import { MapSearchProvider } from './MapSearchContext'
 import type { SlimFarm } from './FarmMap'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 1800
 
 const PAGE_SIZE = 1000
 
@@ -100,14 +99,8 @@ async function fetchFarms(): Promise<{ farms: SlimFarm[]; error: string | null }
   return { farms: all, error: null }
 }
 
-const getCachedFarms = unstable_cache(
-  fetchFarms,
-  ['farms-slim'],
-  { revalidate: 1800 }, // re-fetch from Supabase every 30 min; instant for all other requests
-)
-
 export default async function MapPage() {
-  const { farms, error } = await getCachedFarms()
+  const { farms, error } = await fetchFarms()
 
   if (error) {
     return (
