@@ -84,7 +84,10 @@ function timeUntilLabel(isoDate: string): { title: string; withinThreeDays: bool
 
   let label: string
   if (days >= 1) {
-    label = `${days} day${days === 1 ? '' : 's'}${hours > 0 ? `, ${hours} hr${hours === 1 ? '' : 's'}` : ''}`
+    let extra = ''
+    if (hours > 0)        extra = `, ${hours} hr${hours === 1 ? '' : 's'}`
+    else if (minutes > 0) extra = `, ${minutes} min`
+    label = `${days} day${days === 1 ? '' : 's'}${extra}`
   } else if (totalHours >= 1) {
     label = `${totalHours} hr${totalHours === 1 ? '' : 's'}${minutes > 0 ? `, ${minutes} min` : ''}`
   } else {
