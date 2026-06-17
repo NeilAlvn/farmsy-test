@@ -45,13 +45,13 @@ const FLOAT_CARDS: Array<{
 // ─── Component ────────────────────────────────────────────────────────────────
 
 function useLiveClock() {
-  const fmt = () => {
-    const n = new Date()
-    return `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`
-  }
-  const [time, setTime] = useState(fmt)
+  const [time, setTime] = useState('')  // empty on server — avoids SSR/client mismatch
   useEffect(() => {
-    // sync to next minute boundary
+    const fmt = () => {
+      const n = new Date()
+      return `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`
+    }
+    setTime(fmt())
     const msToNext = (60 - new Date().getSeconds()) * 1000
     const t = setTimeout(() => {
       setTime(fmt())
@@ -165,7 +165,7 @@ export default function PhoneWrapper() {
                 borderRadius: 20,
               }}
             />
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#0F0F0F', letterSpacing: '-0.02em' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#0F0F0F', letterSpacing: '-0.02em', minWidth: 28 }} suppressHydrationWarning>
               {time}
             </span>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5 }}>
