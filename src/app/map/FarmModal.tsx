@@ -11,8 +11,6 @@ import HeartButton from '@/app/_components/HeartButton'
 import StarRating from '@/app/_components/StarRating'
 import ShareButton from '@/app/_components/ShareButton'
 import ReviewsSection from './ReviewsSection'
-import { useTrip } from '@/app/_components/TripProvider'
-import { Route, Check } from 'lucide-react'
 
 const CATS = [
   { id: 'eggs',    label: 'Eggs',    color: '#eab308', Icon: Egg      },
@@ -40,10 +38,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
   const [tab, setTab]           = useState<Tab>('info')
   const [tabFade, setTabFade]   = useState(true)
   const fadeTimer               = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  const { addFarm, removeFarm, hasFarm } = useTrip()
-  const inTrip = hasFarm(farm.osm_id!)
-
-  useEffect(() => {
+useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10)
     return () => clearTimeout(t)
   }, [])
@@ -302,32 +297,7 @@ export default function FarmModal({ farm, onClose, onClaim }: Props) {
             Get directions
           </a>
 
-          <button
-            onClick={() => {
-              if (inTrip) {
-                removeFarm(farm.osm_id!)
-              } else {
-                addFarm({
-                  osmId: farm.osm_id!,
-                  name: farm.name,
-                  lat: farm.lat,
-                  lng: farm.lng,
-                  city: farm.city,
-                  image: farm.image,
-                  farmType: farm.farm_type,
-                })
-              }
-            }}
-            className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-bold transition-colors ${
-              inTrip
-                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-red-50 hover:border-red-200 hover:text-red-600'
-                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-            }`}
-          >
-            {inTrip ? <><Check size={16} /> In your trip</> : <><Route size={16} /> Add to trip</>}
-          </button>
-
-          {!farm.is_claimed && (
+{!farm.is_claimed && (
             <button
               onClick={onClaim}
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors"
