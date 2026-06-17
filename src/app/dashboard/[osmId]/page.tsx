@@ -346,7 +346,7 @@ export default function FarmEditorPage() {
           </Link>
           <div className="flex items-center gap-3">
             {currentImage ? (
-              <img src={currentImage} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+              <img src={currentImage} alt="" referrerPolicy="no-referrer" className="w-10 h-10 rounded-xl object-cover shrink-0" />
             ) : (
               <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
                 <Wheat size={18} className="text-gray-300" />
@@ -480,7 +480,7 @@ export default function FarmEditorPage() {
                 <h2 className="text-base font-bold text-gray-900 mb-4">Current photo</h2>
                 {currentImage ? (
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100">
-                    <img src={currentImage} alt="" className="w-full h-full object-cover" />
+                    <img src={currentImage} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="w-full aspect-video rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2">
@@ -557,7 +557,7 @@ export default function FarmEditorPage() {
                     />
                     {imageUrl && (
                       <div className="mt-3 w-full aspect-video rounded-xl overflow-hidden bg-gray-100">
-                        <img src={imageUrl} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+                        <img src={imageUrl} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
                       </div>
                     )}
                   </div>
