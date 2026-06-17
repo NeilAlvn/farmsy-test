@@ -60,6 +60,7 @@ async function fetchFeaturedFarms(): Promise<FarmPreview[]> {
     try {
       const res = await fetch(farm.image as string, {
         method: 'HEAD',
+        headers: { Referer: '' },
         signal: AbortSignal.timeout(2000),
         next: { revalidate: 3600 },
       })

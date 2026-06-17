@@ -240,6 +240,7 @@ export default function TripViewPage() {
                           <img
                             src={farm.farm_image}
                             alt=""
+                            referrerPolicy="no-referrer"
                             className="w-full h-full object-cover"
                             onError={e => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none' }}
                           />
