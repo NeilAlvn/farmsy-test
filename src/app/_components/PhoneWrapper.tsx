@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { Search } from 'lucide-react'
-import type { CSSProperties } from 'react'
+import { useState, useEffect, type CSSProperties } from 'react'
 
 // ─── Dimensions ───────────────────────────────────────────────────────────────
 
@@ -44,7 +44,27 @@ const FLOAT_CARDS: Array<{
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+function useLiveClock() {
+  const fmt = () => {
+    const n = new Date()
+    return `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`
+  }
+  const [time, setTime] = useState(fmt)
+  useEffect(() => {
+    // sync to next minute boundary
+    const msToNext = (60 - new Date().getSeconds()) * 1000
+    const t = setTimeout(() => {
+      setTime(fmt())
+      const iv = setInterval(() => setTime(fmt()), 60000)
+      return () => clearInterval(iv)
+    }, msToNext)
+    return () => clearTimeout(t)
+  }, [])
+  return time
+}
+
 export default function PhoneWrapper() {
+  const time = useLiveClock()
   return (
     <div style={{ position: 'relative', width: PHONE_W, height: PHONE_H + 40 }}>
 
@@ -146,7 +166,7 @@ export default function PhoneWrapper() {
               }}
             />
             <span style={{ fontSize: 11, fontWeight: 700, color: '#0F0F0F', letterSpacing: '-0.02em' }}>
-              15:40
+              {time}
             </span>
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5 }}>
               <SignalIcon />
@@ -257,42 +277,39 @@ export default function PhoneWrapper() {
   )
 }
 
-// ─── Status bar icons ─────────────────────────────────────────────────────────
+// ─── iOS-style status bar icons ───────────────────────────────────────────────
 
 function SignalIcon() {
+  // iOS 17 cellular signal: 4 rounded bars, 3 full + 1 faded
   return (
-    <svg width="15" height="11" viewBox="0 0 15 11" fill="#0F0F0F">
-      <rect x="0" y="7" width="3" height="4" rx="0.5" />
-      <rect x="4" y="5" width="3" height="6" rx="0.5" />
-      <rect x="8" y="3" width="3" height="8" rx="0.5" />
-      <rect x="12" y="0" width="3" height="11" rx="0.5" opacity="0.3" />
+    <svg width="17" height="12" viewBox="0 0 17 12" fill="#0F0F0F">
+      <rect x="0"  y="8"  width="3" height="4"  rx="1" />
+      <rect x="4.5" y="5.5" width="3" height="6.5" rx="1" />
+      <rect x="9"  y="3"  width="3" height="9"  rx="1" />
+      <rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.28" />
     </svg>
   )
 }
 
 function WifiIcon() {
+  // iOS 17 WiFi: 3 concentric arcs + dot
   return (
-    <svg
-      width="16"
-      height="12"
-      viewBox="0 0 16 12"
-      fill="none"
-      stroke="#0F0F0F"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    >
-      <path d="M1 4.5C3.9 1.8 8 1.5 11.5 3M3.5 7C5.5 5.2 8 5 10 6.5M6.5 9.5C7.2 9 8 9 8.5 9.5" />
-      <circle cx="8" cy="11" r="0.7" fill="#0F0F0F" stroke="none" />
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+      <path d="M1.2 5C3.7 2.5 8 1.8 11.5 3.6" stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M3.5 7.3C5.1 5.7 8 5.2 10.5 6.8"  stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M5.8 9.4C6.7 8.6 9.3 8.6 10.2 9.4" stroke="#0F0F0F" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="8" cy="11.3" r="1" fill="#0F0F0F" />
     </svg>
   )
 }
 
 function BatteryIcon() {
+  // iOS 17 battery: outline + nub + green fill ~80%
   return (
-    <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
-      <rect x="0.5" y="0.5" width="20" height="11" rx="3" stroke="#0F0F0F" strokeOpacity="0.5" />
-      <rect x="21.5" y="3.5" width="2" height="5" rx="1" fill="#0F0F0F" fillOpacity="0.4" />
-      <rect x="2" y="2" width="14" height="8" rx="2" fill="#3F5E3A" />
+    <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+      <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#0F0F0F" strokeOpacity="0.35" strokeWidth="1" />
+      <rect x="22.5" y="3.8" width="2" height="4.4" rx="1" fill="#0F0F0F" fillOpacity="0.4" />
+      <rect x="2" y="2" width="15" height="8" rx="2.5" fill="#3F5E3A" />
     </svg>
   )
 }
