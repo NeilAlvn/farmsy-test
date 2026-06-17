@@ -227,42 +227,47 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
   // Initial check
   useEffect(() => { check() }, [check])
 
-  // Re-check when auth state changes (user signs in / out)
+  // React to auth state changes
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        // Supabase fires SIGNED_IN on tab-focus/session-restore too, not only
-        // on genuine first sign-in. Do NOT reset toastFiredRef or
-        // isInitialCheckRef here — that would re-show the loading spinner and
-        // re-fire toasts every time the user switches browser tabs.
-        // Do NOT clearSubCache() here either — the cache's uid/TTL checks
-        // already reject stale or foreign-user entries. Clearing on every
-        // tab-focus forces a network round-trip that can briefly show the
-        // gate modal when the API is slow or fails.
-        check()
-      }
+      // SIGNED_IN is intentionally NOT handled here.
+      //
+      // Supabase fires SIGNED_IN the instant onAuthStateChange is registered when
+      // a session already exists. That creates a race: both the mount useEffect's
+      // check() and this SIGNED_IN handler call check() concurrently while
+      // isInitialCheckRef is still true. Whichever finishes last wins — so a slow
+      // mount check (expired token → refresh retry) can overwrite 'allowed' with
+      // 'no-sub' after the SIGNED_IN cache-hit check already set 'allowed'.
+      //
+      // Genuine new sign-ins are handled by SignInModal.onSuccess → check().
+      // Tab-focus / session-restore recovery is handled by TOKEN_REFRESHED below.
+
       if (event === 'TOKEN_REFRESHED') {
-        // Refresh cache. If the user was falsely gated (no-sub/canceled) due to
-        // an expired token on mount, a fresh active profile here unblocks them.
+        // Silently refresh cache. Unblocks any falsely-gated state (no-sub /
+        // canceled / no-auth) that arose from an expired token on mount.
         if (session) {
           fetchProfile(session.access_token).then(p => {
             if (!p) return
             writeCache(session.user.id, p)
             const s = p.subscription_status
             if (s === 'active' || s === 'trialing') {
-              setState(cur => (cur === 'no-sub' || cur === 'canceled' || cur === 'loading') ? 'allowed' : cur)
+              setState(cur =>
+                (cur === 'no-sub' || cur === 'canceled' || cur === 'loading' || cur === 'no-auth')
+                  ? 'allowed'
+                  : cur
+              )
             }
           })
         }
       }
       if (event === 'SIGNED_OUT') {
         clearSubCache()
-        toastFiredRef.current = false  // reset so next genuine sign-in shows toast
+        toastFiredRef.current = false
         setState('no-auth')
       }
     })
     return () => subscription.unsubscribe()
-  }, [check])
+  }, []) // empty deps: SIGNED_IN removed, no reference to `check`
 
   // ── Render ────────────────────────────────────────────────────────────────
 
