@@ -5,13 +5,15 @@ import { useTranslations } from 'next-intl'
 import ContentLayout from '@/app/_components/ContentLayout'
 import { supabase } from '@/lib/supabase'
 import { Check, Zap, Sparkles, ArrowRight } from 'lucide-react'
+import { timeUntilLabel } from '@/lib/time'
 import SignInModal from '@/app/_components/SignInModal'
 import type { User } from '@supabase/supabase-js'
 import Link from 'next/link'
 
 type Profile = {
-  subscription_status?: string
-  subscription_plan?: string
+  subscription_status?:    string
+  subscription_plan?:      string
+  subscription_end_date?:  string | null
 }
 
 export default function PricingPage() {
@@ -174,7 +176,9 @@ export default function PricingPage() {
                   {status === 'trialing' ? 'Free Trial Active' : 'Yearly Plan Active'}
                 </p>
                 <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                  {status === 'trialing'
+                  {status === 'trialing' && profile?.subscription_end_date
+                    ? `Trial ends in ${timeUntilLabel(profile.subscription_end_date).label} — full access is unlocked.`
+                    : status === 'trialing'
                     ? 'You\'re in your 3-day trial — full access is unlocked.'
                     : 'You have full access to all Farmsy features.'}
                 </p>

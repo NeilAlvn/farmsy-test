@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import SignInModal from './SignInModal'
 import SubscriptionGateModal from './SubscriptionGateModal'
 import { useToast } from './ToastProvider'
+import { timeUntilLabel } from '@/lib/time'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,32 +71,6 @@ async function fetchProfile(accessToken: string): Promise<Profile | null> {
   } catch { return null }
 }
 
-function timeUntilLabel(isoDate: string): { title: string; withinThreeDays: boolean } {
-  const ms = new Date(isoDate).getTime() - Date.now()
-  if (ms <= 0) return { title: 'Your free trial has ended', withinThreeDays: true }
-
-  const totalMinutes = Math.floor(ms / 60000)
-  const totalHours   = Math.floor(ms / 3600000)
-  const days         = Math.floor(ms / 86400000)
-  const hours        = totalHours % 24
-  const minutes      = totalMinutes % 60
-
-  const withinThreeDays = days < 3 || (days === 3 && (hours > 0 || minutes > 0))
-
-  let label: string
-  if (days >= 1) {
-    let extra = ''
-    if (hours > 0)        extra = `, ${hours} hr${hours === 1 ? '' : 's'}`
-    else if (minutes > 0) extra = `, ${minutes} min`
-    label = `${days} day${days === 1 ? '' : 's'}${extra}`
-  } else if (totalHours >= 1) {
-    label = `${totalHours} hr${totalHours === 1 ? '' : 's'}${minutes > 0 ? `, ${minutes} min` : ''}`
-  } else {
-    label = `${totalMinutes} min`
-  }
-
-  return { title: `Your free trial ends in ${label}`, withinThreeDays }
-}
 
 // ─── Guard ─────────────────────────────────────────────────────────────────────
 
@@ -185,12 +160,12 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
 
       // Notify about trial ending soon
       if (status === 'trialing' && profile.subscription_end_date && !toastFiredRef.current) {
-        const { title, withinThreeDays } = timeUntilLabel(profile.subscription_end_date)
+        const { label, withinThreeDays } = timeUntilLabel(profile.subscription_end_date)
         if (withinThreeDays) {
           toastFiredRef.current = true
           toast({
             type:    'info',
-            title,
+            title:   `Your free trial ends in ${label}`,
             message: 'You will be charged automatically when the trial ends. Cancel anytime in billing.',
             action:  { label: 'Manage billing', onClick: () => window.location.href = '/pricing' },
             duration: 0, // sticky

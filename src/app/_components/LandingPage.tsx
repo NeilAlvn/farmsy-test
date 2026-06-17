@@ -30,6 +30,7 @@ import type { FarmPreview } from '@/app/page'
 import SiteNav from './SiteNav'
 import SiteFooter from './SiteFooter'
 import SignInModal from './SignInModal'
+import TrialCountdownBanner from './TrialCountdownBanner'
 import { supabase } from '@/lib/supabase'
 
 const PhoneMap = dynamic(() => import('./PhoneMap'), { ssr: false })
@@ -60,6 +61,7 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
         `,
       }}
     >
+      <TrialCountdownBanner />
       <SiteNav />
       <main>
         <Hero />

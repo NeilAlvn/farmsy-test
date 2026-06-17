@@ -25,10 +25,7 @@ function formatDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function daysUntil(iso: string | null): number {
-  if (!iso) return 0
-  return Math.max(0, Math.floor((new Date(iso).getTime() - Date.now()) / 86_400_000))
-}
+import { timeUntilLabel } from '@/lib/time'
 
 type Action = 'cancel' | 'resubscribe' | 'portal' | 'upgrade'
 
@@ -117,7 +114,7 @@ export default function SubscriptionPage() {
   const status      = profile?.subscription_status ?? 'free'
   const plan        = profile?.subscription_plan ?? null
   const endDate     = profile?.subscription_end_date ?? null
-  const days        = daysUntil(endDate)
+  const trialCountdown = endDate ? timeUntilLabel(endDate) : null
   const isLifetime  = plan === 'lifetime'
   const isTrialing  = status === 'trialing'
   const isActive    = status === 'active'
@@ -199,10 +196,10 @@ export default function SubscriptionPage() {
                   <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>{formatDate(endDate)}</p>
                 </div>
               )}
-              {isTrialing && (
+              {isTrialing && trialCountdown && (
                 <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.08)' }}>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Days left</p>
-                  <p className="text-sm font-semibold" style={{ color: '#3b82f6' }}>{days} day{days !== 1 ? 's' : ''}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: 'var(--muted-foreground)' }}>Time left</p>
+                  <p className="text-sm font-semibold" style={{ color: '#3b82f6' }}>{trialCountdown.label}</p>
                 </div>
               )}
               {isActive && !isLifetime && endDate && (
