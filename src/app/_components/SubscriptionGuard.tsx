@@ -128,14 +128,22 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         token   = fresh.access_token
         profile = await fetchProfile(token)
         if (profile) writeCache(fresh.user.id, profile)
+      } else {
+        // Refresh token is dead — the session was revoked (e.g. signed in on a
+        // different device with single-session mode, or refresh token expired).
+        // This is an AUTH failure, not a subscription failure — show sign-in
+        // modal so the user can re-authenticate and get a fresh session.
+        clearSubCache()
+        isInitialCheckRef.current = false
+        setState('no-auth')
+        return
       }
     }
 
     if (!profile) {
       if (isInitialCheckRef.current) {
-        // Still failed after refresh. Before gating, check for a stale cache entry:
-        // if the user was known to be active recently, show the map rather than
-        // falsely blocking them due to a network error.
+        // Refresh succeeded but profile API still failed (e.g. API is down).
+        // Check stale cache as a safety net before gating.
         const stale = readStaleCache(userId)
         const staleStatus = stale?.subscription_status
         if (staleStatus === 'active' || staleStatus === 'trialing') {
