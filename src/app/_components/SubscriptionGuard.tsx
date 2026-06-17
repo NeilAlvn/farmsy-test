@@ -104,7 +104,7 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     }
 
     const userId = session.user.id
-    const token  = session.access_token
+    let token    = session.access_token
 
     // Post-checkout: the stripe_redirect flag means the user just completed a
     // Stripe checkout and we must bypass cache to see the newly-created subscription.
@@ -119,18 +119,28 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
     // Use cache for all checks (initial and background). The 30-min localStorage
     // TTL survives App Router navigation. TOKEN_REFRESHED silently refreshes it.
     const cached = readCache(userId)
-    const profile = cached ?? await fetchProfile(token)
+    let profile = cached ?? await fetchProfile(token)
+
+    // If the fetch failed on initial mount, the access_token from getSession() may
+    // be expired (tokens last 1 h; auto-refresh fires in background but may not have
+    // run yet). Force-refresh the session and retry once before giving up.
+    if (!profile && !cached && isInitialCheckRef.current) {
+      const { data: { session: fresh } } = await supabase.auth.refreshSession()
+      if (fresh) {
+        token   = fresh.access_token
+        profile = await fetchProfile(token)
+        if (profile) writeCache(fresh.user.id, profile)
+      }
+    }
 
     if (!profile) {
       if (isInitialCheckRef.current) {
-        // API failed on first mount. Before gating, check for a stale cache entry:
+        // Still failed after refresh. Before gating, check for a stale cache entry:
         // if the user was known to be active recently, show the map rather than
-        // falsely blocking them due to a transient token expiry or network error.
+        // falsely blocking them due to a network error.
         const stale = readStaleCache(userId)
         const staleStatus = stale?.subscription_status
         if (staleStatus === 'active' || staleStatus === 'trialing') {
-          // Allow optimistically — the TOKEN_REFRESHED handler will update the
-          // cache when Supabase refreshes the session in the background.
           setState('allowed')
         } else {
           setState('no-sub')
@@ -226,10 +236,16 @@ export default function SubscriptionGuard({ children }: { children: ReactNode })
         check()
       }
       if (event === 'TOKEN_REFRESHED') {
-        // Silently refresh cache only — no state or toast changes.
+        // Refresh cache. If the user was falsely gated (no-sub/canceled) due to
+        // an expired token on mount, a fresh active profile here unblocks them.
         if (session) {
           fetchProfile(session.access_token).then(p => {
-            if (p) writeCache(session.user.id, p)
+            if (!p) return
+            writeCache(session.user.id, p)
+            const s = p.subscription_status
+            if (s === 'active' || s === 'trialing') {
+              setState(cur => (cur === 'no-sub' || cur === 'canceled' || cur === 'loading') ? 'allowed' : cur)
+            }
           })
         }
       }
