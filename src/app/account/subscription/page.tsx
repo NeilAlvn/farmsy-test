@@ -399,7 +399,7 @@ export default function SubscriptionPage() {
                 style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}>
                 {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Subscribe Yearly — €29.99/year'}
               </button>
-              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Includes a 3-day free trial. Cancel anytime.</p>
+              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Billed immediately — no trial (already used). Cancel anytime.</p>
             </div>
           </div>
         )}
