@@ -209,13 +209,18 @@ function SubscribeForm({ id, dark = false }: { id: string; dark?: boolean }) {
     }
     setState('loading')
     try {
-      await fetch('/api/subscribe', {
+      const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      }).catch(() => null)
-      await new Promise(r => setTimeout(r, 600))
-      setState('success')
+        body: JSON.stringify({ email, consent, source: 'landing' }),
+      })
+      if (res.status === 201 || res.status === 409) {
+        setState('success')
+      } else {
+        const data: { error?: string } = await res.json().catch(() => ({}))
+        setState('error')
+        setError(data.error ?? t('errorGeneric'))
+      }
     } catch {
       setState('error')
       setError(t('errorGeneric'))
