@@ -72,8 +72,9 @@ export async function POST(request: Request) {
 
       // Yearly subscription with trial
       if (session.subscription) {
-        const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Stripe.Subscription & { current_period_end: number; trial_end: number | null }
+        const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Stripe.Subscription & { trial_end: number | null }
         const dbStatus = stripeStatusToDb(sub.status)
+        const periodEnd = (sub.items?.data?.[0] as unknown as { current_period_end?: number })?.current_period_end
 
         await updateProfile(userId, {
           stripe_subscription_id: sub.id,
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
           subscription_plan:      plan ?? null,
           subscription_end_date:  sub.trial_end
             ? new Date(sub.trial_end * 1000).toISOString()
-            : new Date(sub.current_period_end * 1000).toISOString(),
+            : periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
         })
 
         if (dbStatus === 'trialing' && sub.trial_end) {
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
             userId,
             'subscription_activated',
             'Subscription activated',
-            `Payment successful. You now have full yearly access to Farmsy. Next billing on ${formatDate(sub.current_period_end)}.`,
+            `Payment successful. You now have full yearly access to Farmsy.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
           )
         }
       }
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
     }
 
     case 'customer.subscription.updated': {
-      const sub      = event.data.object as Stripe.Subscription & { current_period_end: number; trial_end: number | null }
+      const sub      = event.data.object as Stripe.Subscription & { trial_end: number | null }
       const prev     = event.data.previous_attributes as Record<string, unknown> | undefined
       const userId   = sub.metadata?.supabase_user_id
       const plan     = sub.metadata?.plan
@@ -112,13 +113,15 @@ export async function POST(request: Request) {
 
       if (!userId) break
 
+      // current_period_end lives on subscription items in newer Stripe API versions
+      const periodEnd = (sub.items?.data?.[0] as unknown as { current_period_end?: number })?.current_period_end
+
       await updateProfile(userId, {
         subscription_status:   dbStatus,
         subscription_plan:     plan ?? null,
-        // Use trial_end only while still trialing; once active use billing period end
         subscription_end_date: (sub.trial_end && sub.status === 'trialing')
           ? new Date(sub.trial_end * 1000).toISOString()
-          : new Date(sub.current_period_end * 1000).toISOString(),
+          : periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       })
 
       // Trial converted to active (trial ended, card charged)
@@ -127,7 +130,7 @@ export async function POST(request: Request) {
           userId,
           'subscription_activated',
           'Trial ended — subscription active',
-          `Your free trial has ended. Payment of €29.99 was successful. Next billing on ${formatDate(sub.current_period_end)}.`,
+          `Your free trial has ended. Payment of €29.99 was successful.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
         )
       }
 
@@ -187,14 +190,15 @@ export async function POST(request: Request) {
       // Skip the first invoice (covered by checkout.session.completed)
       if (invoice.billing_reason === 'subscription_create') break
       if (invoice.subscription) {
-        const sub    = await stripe.subscriptions.retrieve(invoice.subscription) as unknown as Stripe.Subscription & { current_period_end: number }
-        const userId = sub.metadata?.supabase_user_id
+        const sub      = await stripe.subscriptions.retrieve(invoice.subscription) as unknown as Stripe.Subscription
+        const userId   = sub.metadata?.supabase_user_id
+        const periodEnd = (sub.items?.data?.[0] as unknown as { current_period_end?: number })?.current_period_end
         if (userId) {
           await createNotification(
             userId,
             'payment_succeeded',
             'Payment successful',
-            `€29.99 was charged successfully. Next billing on ${formatDate(sub.current_period_end)}.`,
+            `€29.99 was charged successfully.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
           )
         }
       }
