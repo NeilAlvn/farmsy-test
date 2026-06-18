@@ -27,8 +27,29 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Farmsy – Find Local Farms in Netherlands & Belgium",
-  description: "Discover 13,000+ local farms, farm shops, and direct-to-consumer food producers in the Netherlands and Belgium.",
+  title: "Farmsy – Discover Local Farms",
+  description: "Find verified farms across the Netherlands and Belgium. Discover 13,000+ local farm shops and direct-to-consumer food producers.",
+  icons: {
+    icon: [
+      { url: '/icon', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/apple-icon', type: 'image/png', sizes: '180x180' },
+    ],
+  },
+  openGraph: {
+    title: "Farmsy – Discover Local Farms",
+    description: "Find verified farms across the Netherlands and Belgium.",
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+    siteName: 'Farmsy',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Farmsy – Discover Local Farms",
+    description: "Find verified farms across the Netherlands and Belgium.",
+    images: ['/opengraph-image'],
+  },
 };
 
 export default async function RootLayout({
