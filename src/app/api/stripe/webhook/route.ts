@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       break
     }
 
-    case 'invoice.payment_succeeded': {
+    case 'invoice.paid': {
       const invoice = event.data.object as Stripe.Invoice & { subscription?: string; billing_reason?: string }
       // Skip the first invoice (covered by checkout.session.completed)
       if (invoice.billing_reason === 'subscription_create') break
