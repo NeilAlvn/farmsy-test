@@ -32,9 +32,8 @@ export async function POST(request: Request) {
     .single()
 
   // Only offer the free trial to users who have never had a subscription.
-  // Any non-null subscription_status means they've previously subscribed
-  // (active, trialing, canceled, past_due, etc.) — no second trial.
-  const hadPriorSubscription = !!profile?.subscription_status
+  // 'free' is the default for new users — anything else means they've previously subscribed.
+  const hadPriorSubscription = !!profile?.subscription_status && profile.subscription_status !== 'free'
 
   // Reuse existing Stripe customer or create a new one
   let customerId = profile?.stripe_customer_id as string | undefined
