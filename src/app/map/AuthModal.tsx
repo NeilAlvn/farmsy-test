@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import {
   X, Mail, Lock, Eye, EyeOff, Loader2,
-  AlertCircle, CheckCircle2, Wheat, LogOut,
+  AlertCircle, Wheat, LogOut,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
@@ -28,20 +28,11 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [successMsg, setSuccessMsg] = useState<string | null>(null)
-
-  async function handleGoogle() {
-    setError(null)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
-  }
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
-    setSuccessMsg(null)
 
     if (mode === 'signup' && password !== confirmPassword) {
       setError('Passwords do not match.')
@@ -56,18 +47,31 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
         setError('Sign in failed. Please check your email and password.')
         setLoading(false)
       } else if (data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email_verified')
+          .eq('id', data.user.id)
+          .single()
+        if (!profile?.email_verified) {
+          await supabase.auth.signOut()
+          setError('Please verify your email first. Check your inbox for the confirmation link.')
+          setLoading(false)
+          return
+        }
         onAuth({ id: data.user.id, email: data.user.email ?? email })
       }
     } else {
-      const { error: authError } = await supabase.auth.signUp({ email, password })
-      if (authError) {
-        setError(authError.message)
+      const res = await fetch('/api/auth/signup', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? 'Something went wrong. Please try again.')
         setLoading(false)
       } else {
-        setSuccessMsg('Account created! Check your email to confirm, then sign in.')
-        setMode('signin')
-        setPassword('')
-        setConfirmPassword('')
+        setVerifyEmail(email)
         setLoading(false)
       }
     }
@@ -97,7 +101,30 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
           </button>
         </div>
 
-        {user ? (
+        {verifyEmail ? (
+          <div className="px-5 pb-8 pt-6 flex flex-col items-center text-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center">
+              <Mail size={26} className="text-emerald-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Check your inbox</p>
+              <p className="mt-1 text-sm text-gray-500">
+                We sent a verification link to<br />
+                <strong className="text-gray-800">{verifyEmail}</strong>
+              </p>
+            </div>
+            <p className="text-xs text-gray-400 leading-relaxed max-w-[220px]">
+              Click the link to activate your account, then come back to sign in.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setVerifyEmail(null); setMode('signin'); setPassword(''); setConfirmPassword('') }}
+              className="text-sm font-semibold text-emerald-600 underline underline-offset-2 hover:opacity-70 transition-opacity"
+            >
+              Back to sign in
+            </button>
+          </div>
+        ) : user ? (
           /* Logged-in state */
           <div className="px-5 pb-8 pt-4">
             <div className="bg-gray-50 rounded-2xl p-4 mb-4 flex items-center gap-3">
@@ -128,7 +155,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
                 <button
                   key={m}
                   type="button"
-                  onClick={() => { setMode(m); setError(null); setSuccessMsg(null) }}
+                  onClick={() => { setMode(m); setError(null) }}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
                     mode === m ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'
                   }`}
@@ -138,43 +165,12 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
               ))}
             </div>
 
-            {successMsg && (
-              <div className="flex items-start gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 mb-4">
-                <CheckCircle2 size={15} className="text-emerald-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-emerald-700">{successMsg}</p>
-              </div>
-            )}
-
             {error && (
               <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
                 <AlertCircle size={15} className="text-red-500 shrink-0 mt-0.5" />
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
-
-            {/* Google OAuth */}
-            <button
-              type="button"
-              onClick={handleGoogle}
-              className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border border-gray-200 hover:bg-gray-50 text-sm font-semibold text-gray-700 transition-colors mb-4"
-            >
-              <svg width="16" height="16" viewBox="0 0 48 48" fill="none">
-                <path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/>
-                <path d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" fill="#FF3D00"/>
-                <path d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" fill="#4CAF50"/>
-                <path d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.021 35.596 44 30.138 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
-              </svg>
-              Continue with Google
-            </button>
-
-            <div className="relative mb-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-100" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-gray-400 font-medium">or</span>
-              </div>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="relative">

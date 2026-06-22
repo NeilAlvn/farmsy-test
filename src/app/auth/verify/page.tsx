@@ -29,14 +29,11 @@ export default async function VerifyPage({
     redirect('/auth/signin?error=token-expired')
   }
 
-  await Promise.all([
-    sb.from('profiles').update({
-      email_verified:          true,
-      verification_token:      null,
-      verification_expires_at: null,
-    }).eq('id', profile.id),
-    sb.auth.admin.updateUserById(profile.id, { email_confirm: true }),
-  ])
+  await sb.from('profiles').update({
+    email_verified:          true,
+    verification_token:      null,
+    verification_expires_at: null,
+  }).eq('id', profile.id)
 
   redirect('/auth/signin?verified=true')
 }
