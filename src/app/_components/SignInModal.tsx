@@ -70,7 +70,7 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
             .select('email_verified')
             .eq('id', signInData.user.id)
             .single()
-          if (profile?.email_verified === false) {
+          if (!profile?.email_verified) {
             await supabase.auth.signOut()
             setError('Please verify your email first. Check your inbox for the confirmation link.')
             setLoading(false)

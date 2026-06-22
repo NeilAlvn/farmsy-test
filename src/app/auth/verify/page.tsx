@@ -29,11 +29,13 @@ export default async function VerifyPage({
     redirect('/auth/signin?error=token-expired')
   }
 
-  await sb.from('profiles').update({
+  const { error: updateError } = await sb.from('profiles').update({
     email_verified:          true,
     verification_token:      null,
     verification_expires_at: null,
   }).eq('id', profile.id)
+
+  if (updateError) redirect('/auth/signin?error=invalid-token')
 
   redirect('/auth/signin?verified=true')
 }

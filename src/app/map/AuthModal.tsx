@@ -52,7 +52,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
           .select('email_verified')
           .eq('id', data.user.id)
           .single()
-        if (profile?.email_verified === false) {
+        if (!profile?.email_verified) {
           await supabase.auth.signOut()
           setError('Please verify your email first. Check your inbox for the confirmation link.')
           setLoading(false)
