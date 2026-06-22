@@ -1,17 +1,31 @@
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { createNotification } from '@/lib/notifications'
+import {
+  sendWelcomeEmail,
+  sendPaymentConfirmationEmail,
+  sendTrialEndingEmail,
+} from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-async function updateProfile(userId: string, fields: Record<string, unknown>) {
-  const sb = createClient(
+function sb() {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
-  await sb.from('profiles').update(fields).eq('id', userId)
+}
+
+async function updateProfile(userId: string, fields: Record<string, unknown>) {
+  await sb().from('profiles').update(fields).eq('id', userId)
+}
+
+async function getEmail(userId: string, fallback?: string | null): Promise<string | null> {
+  if (fallback) return fallback
+  const { data } = await sb().from('profiles').select('email').eq('id', userId).single()
+  return data?.email ?? null
 }
 
 function stripeStatusToDb(status: Stripe.Subscription.Status): string {
@@ -53,6 +67,8 @@ export async function POST(request: Request) {
       const plan    = session.metadata?.plan
       if (!userId) break
 
+      const email = await getEmail(userId, session.customer_details?.email ?? session.customer_email)
+
       // Lifetime — one-time payment
       if (session.mode === 'payment') {
         await updateProfile(userId, {
@@ -67,10 +83,13 @@ export async function POST(request: Request) {
           'Welcome to Farmsy Lifetime! 🌱',
           'You now have permanent access to Farmsy. No renewals, ever.',
         )
+        if (email) {
+          await sendPaymentConfirmationEmail(email, { plan: 'lifetime', amount: '€49.99' })
+        }
         break
       }
 
-      // Yearly subscription with trial
+      // Yearly subscription with (or without) trial
       if (session.subscription) {
         const sub = await stripe.subscriptions.retrieve(session.subscription as string) as unknown as Stripe.Subscription & { trial_end: number | null }
         const dbStatus = stripeStatusToDb(sub.status)
@@ -92,6 +111,9 @@ export async function POST(request: Request) {
             'Your 3-day free trial has started',
             `Enjoy full access to Farmsy! You won't be charged until ${formatDate(sub.trial_end)}. Cancel anytime before then.`,
           )
+          if (email) {
+            await sendWelcomeEmail(email)
+          }
         } else if (dbStatus === 'active') {
           await createNotification(
             userId,
@@ -99,6 +121,13 @@ export async function POST(request: Request) {
             'Subscription activated',
             `Payment successful. You now have full yearly access to Farmsy.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
           )
+          if (email) {
+            await sendPaymentConfirmationEmail(email, {
+              plan: 'yearly',
+              amount: '€29.99',
+              nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
+            })
+          }
         }
       }
       break
@@ -113,7 +142,6 @@ export async function POST(request: Request) {
 
       if (!userId) break
 
-      // current_period_end lives on subscription items in newer Stripe API versions
       const periodEnd = (sub.items?.data?.[0] as unknown as { current_period_end?: number })?.current_period_end
 
       await updateProfile(userId, {
@@ -132,6 +160,14 @@ export async function POST(request: Request) {
           'Trial ended — subscription active',
           `Your free trial has ended. Payment of €29.99 was successful.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
         )
+        const email = await getEmail(userId)
+        if (email) {
+          await sendPaymentConfirmationEmail(email, {
+            plan: 'yearly',
+            amount: '€29.99',
+            nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
+          })
+        }
       }
 
       // Went past due
@@ -147,16 +183,21 @@ export async function POST(request: Request) {
     }
 
     case 'customer.subscription.deleted': {
-      const sub    = event.data.object as Stripe.Subscription & { current_period_end: number }
+      const sub    = event.data.object as Stripe.Subscription & { current_period_end: number; trial_end: number | null }
       const userId = sub.metadata?.supabase_user_id
+      const plan   = sub.metadata?.plan
 
       if (!userId) break
+
+      // Track cancellation for win-back cron (only yearly, not lifetime)
+      const isYearly = plan === 'yearly'
 
       await updateProfile(userId, {
         subscription_status:    'canceled',
         subscription_plan:      null,
         subscription_end_date:  null,
         stripe_subscription_id: null,
+        ...(isYearly ? { cancelled_at: new Date().toISOString(), win_back_sent: false } : {}),
       })
       await createNotification(
         userId,
@@ -190,8 +231,8 @@ export async function POST(request: Request) {
       // Skip the first invoice (covered by checkout.session.completed)
       if (invoice.billing_reason === 'subscription_create') break
       if (invoice.subscription) {
-        const sub      = await stripe.subscriptions.retrieve(invoice.subscription) as unknown as Stripe.Subscription
-        const userId   = sub.metadata?.supabase_user_id
+        const sub       = await stripe.subscriptions.retrieve(invoice.subscription) as unknown as Stripe.Subscription
+        const userId    = sub.metadata?.supabase_user_id
         const periodEnd = (sub.items?.data?.[0] as unknown as { current_period_end?: number })?.current_period_end
         if (userId) {
           await createNotification(
@@ -200,14 +241,19 @@ export async function POST(request: Request) {
             'Payment successful',
             `€29.99 was charged successfully.${periodEnd ? ` Next billing on ${formatDate(periodEnd)}.` : ''}`,
           )
+          const email = await getEmail(userId)
+          if (email) {
+            await sendPaymentConfirmationEmail(email, {
+              plan: 'yearly',
+              amount: '€29.99',
+              nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
+            })
+          }
         }
       }
       break
     }
 
-    // Stripe fires this 3 days before trial ends — since our trial IS 3 days,
-    // this fires the moment the trial starts. Use it to send a day-2 reminder instead
-    // via a separate scheduled check (or just let the trial_started notification carry it).
     case 'customer.subscription.trial_will_end': {
       const sub    = event.data.object as Stripe.Subscription & { trial_end: number | null }
       const userId = sub.metadata?.supabase_user_id
@@ -218,6 +264,10 @@ export async function POST(request: Request) {
           'Trial ending soon',
           `Your free trial ends on ${formatDate(sub.trial_end)}. You'll be charged €29.99 unless you cancel before then.`,
         )
+        const email = await getEmail(userId)
+        if (email) {
+          await sendTrialEndingEmail(email, { endDate: formatDate(sub.trial_end) })
+        }
       }
       break
     }

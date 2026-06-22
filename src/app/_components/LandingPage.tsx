@@ -281,7 +281,7 @@ function SubscribeForm({ id, dark = false }: { id: string; dark?: boolean }) {
         <button
           type="submit"
           disabled={state === 'loading'}
-          className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-sm font-semibold transition disabled:opacity-70"
+          className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3.5 text-sm font-semibold transition hover:opacity-85 disabled:opacity-70"
           style={{
             backgroundColor: dark ? 'var(--primary-foreground)' : 'var(--primary)',
             color: dark ? 'var(--primary)' : 'var(--primary-foreground)',
@@ -312,7 +312,7 @@ function SubscribeForm({ id, dark = false }: { id: string; dark?: boolean }) {
         />
         <span>
           {t('consent')}{' '}
-          <a href="#privacy" className="underline underline-offset-2" style={{ color: 'inherit' }}>
+          <a href="#privacy" className="underline underline-offset-2 hover:opacity-70 transition-opacity" style={{ color: 'inherit' }}>
             {t('privacyPolicy')}
           </a>
         </span>
@@ -598,10 +598,20 @@ function Pricing() {
   const [loading, setLoading] = useState<'yearly' | 'lifetime' | null>(null)
   const [showSignIn, setShowSignIn] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [subStatus, setSubStatus] = useState<string | null>(null)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsLoggedIn(!!session?.user)
+      if (session?.access_token) {
+        const res = await fetch('/api/profile/subscription', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSubStatus(data.subscription_status ?? null)
+        }
+      }
     })
   }, [])
 
@@ -654,39 +664,64 @@ function Pricing() {
 
           <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 items-stretch max-w-2xl mx-auto w-full">
 
-            {/* Yearly */}
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: '-50px' }}
-              variants={fadeUp}
-              transition={{ delay: 0.12 }}
-              className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
-            >
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
-                  <span className="text-sm text-muted-foreground">{t('perYear')}</span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{t('yearlyTagline')}</p>
-              </div>
-              <ul className="space-y-3 flex-1">
-                {features.map(f => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
-                    <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={() => handleCheckout('yearly')}
-                disabled={loading !== null}
-                className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80 disabled:opacity-60"
+            {/* Yearly — hidden when already subscribed */}
+            {(subStatus === 'active' || subStatus === 'trialing') ? (
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: '-50px' }}
+                variants={fadeUp}
+                transition={{ delay: 0.12 }}
+                className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6 items-center justify-center text-center"
               >
-                {loading === 'yearly' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : isLoggedIn ? 'Get Yearly Plan' : 'Try Free for 3 Days'}
-              </button>
-            </motion.div>
+                <Check className="h-10 w-10 text-primary" strokeWidth={2} />
+                <div>
+                  <p className="font-semibold text-foreground text-lg">You&apos;re already subscribed</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {subStatus === 'trialing' ? 'Your free trial is active.' : 'Your yearly plan is active.'}
+                  </p>
+                </div>
+                <a
+                  href="/account/subscription"
+                  className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80"
+                >
+                  Manage subscription
+                </a>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: '-50px' }}
+                variants={fadeUp}
+                transition={{ delay: 0.12 }}
+                className="rounded-2xl border border-border bg-card p-8 flex flex-col gap-6"
+              >
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground mb-2">{t('yearly')}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-display text-5xl font-medium tracking-tight text-foreground">€29.99</span>
+                    <span className="text-sm text-muted-foreground">{t('perYear')}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{t('yearlyTagline')}</p>
+                </div>
+                <ul className="space-y-3 flex-1">
+                  {features.map(f => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <Check className="h-4 w-4 shrink-0 mt-0.5 text-primary" strokeWidth={2.5} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => handleCheckout('yearly')}
+                  disabled={loading !== null}
+                  className="block w-full rounded-xl border border-border py-3 text-center text-sm font-semibold text-foreground transition hover:opacity-80 disabled:opacity-60"
+                >
+                  {loading === 'yearly' ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : isLoggedIn ? 'Get Yearly Plan' : 'Try Free for 3 Days'}
+                </button>
+              </motion.div>
+            )}
 
             {/* Lifetime — highlighted */}
             <motion.div

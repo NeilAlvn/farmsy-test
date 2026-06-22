@@ -309,7 +309,7 @@ export default function SubscriptionPage() {
 
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('upgrade')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                 {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Upgrade to Lifetime — €49.99</>}
               </button>
@@ -321,7 +321,7 @@ export default function SubscriptionPage() {
                 <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
                 <div className="flex flex-col gap-1.5">
                   <button onClick={() => handleAction('cancel')} disabled={action !== null}
-                    className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                    className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
                     style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
                     {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Subscription'}
                   </button>
@@ -338,7 +338,7 @@ export default function SubscriptionPage() {
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('upgrade')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                 {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Upgrade to Lifetime — €49.99</>}
               </button>
@@ -347,7 +347,7 @@ export default function SubscriptionPage() {
             <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('cancel')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
                 {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Trial'}
               </button>
@@ -362,7 +362,7 @@ export default function SubscriptionPage() {
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('upgrade')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                 {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Upgrade to Lifetime — €49.99</>}
               </button>
@@ -371,7 +371,7 @@ export default function SubscriptionPage() {
             <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}>
                 {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Resubscribe — €29.99/year'}
               </button>
@@ -386,7 +386,7 @@ export default function SubscriptionPage() {
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('upgrade')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                 {action === 'upgrade' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><Zap size={13} /> Get Lifetime — €49.99</>}
               </button>
@@ -395,7 +395,7 @@ export default function SubscriptionPage() {
             <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('resubscribe')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ border: '1px solid var(--border)', color: 'var(--foreground)', backgroundColor: 'transparent' }}>
                 {action === 'resubscribe' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Subscribe Yearly — €29.99/year'}
               </button>
@@ -410,7 +410,7 @@ export default function SubscriptionPage() {
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>Actions</p>
             <div className="flex flex-col gap-1.5">
               <button onClick={() => handleAction('portal')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity disabled:opacity-60"
+                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: 'var(--destructive)', color: '#fff' }}>
                 {action === 'portal' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : <><CreditCard size={13} /> Update Payment Method</>}
               </button>

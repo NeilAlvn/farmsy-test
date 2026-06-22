@@ -20,6 +20,10 @@ html {
   overflow-y: scroll;
 }
 
+button, [role="button"], a {
+  cursor: pointer;
+}
+
 :root {
   --background: oklch(0.985 0.005 85);
   --foreground: oklch(0.18 0.01 60);

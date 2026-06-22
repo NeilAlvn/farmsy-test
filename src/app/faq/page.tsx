@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function FaqPage() {
   const t = await getTranslations('faq')
 
-  const linkClass = 'font-medium underline underline-offset-4'
+  const linkClass = 'font-medium underline underline-offset-4 hover:opacity-70 transition-opacity'
   const linkStyle = { color: 'var(--primary)' }
 
   const FAQS = [
