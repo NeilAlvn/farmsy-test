@@ -15,7 +15,7 @@ const TEXT    = '#1C1C1C'
 const MUTED   = '#6B6B6B'
 const BORDER  = '#E5E2DB'
 
-function base(content: string): string {
+function base(content: string, preheader = ''): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,32 +29,25 @@ function base(content: string): string {
   </style>
 </head>
 <body style="margin:0;padding:0;background:${CREAM};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:40px 16px;">
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>` : ''}
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:48px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
-
-          <!-- Logo -->
-          <tr>
-            <td style="padding-bottom:32px;text-align:center;">
-              <span style="font-family:'Fraunces',Georgia,serif;font-size:28px;font-style:italic;font-weight:600;color:${GREEN};letter-spacing:-0.5px;">farmsy</span>
-            </td>
-          </tr>
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
 
           <!-- Card -->
           <tr>
-            <td style="background:${WHITE};border-radius:20px;border:1px solid ${BORDER};overflow:hidden;">
+            <td style="background:${WHITE};border-radius:8px;border:1px solid ${BORDER};overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
               ${content}
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:28px 0 0;text-align:center;">
-              <p style="margin:0 0 6px;font-size:12px;color:${MUTED};">Farmsy · Discover local farms across NL &amp; BE</p>
+            <td style="padding:24px 0 0;text-align:center;">
+              <p style="margin:0 0 4px;font-size:12px;color:${MUTED};">Farmsy · Discover local farms across NL &amp; BE</p>
               <p style="margin:0;font-size:12px;color:${MUTED};">
-                Questions? Reply to this email or visit
-                <a href="${APP_URL}/contact" style="color:${GREEN};text-decoration:none;">farmsy.app/contact</a>
+                Questions? <a href="${APP_URL}/contact" style="color:${MUTED};text-decoration:underline;">farmsy.app/contact</a>
               </p>
             </td>
           </tr>
@@ -69,7 +62,7 @@ function base(content: string): string {
 
 function cta(label: string, href: string): string {
   return `<a href="${href}"
-    style="display:inline-block;background:${GREEN};color:${WHITE};text-decoration:none;font-size:15px;font-weight:600;padding:14px 32px;border-radius:12px;letter-spacing:0.01em;"
+    style="display:inline-block;background:${GREEN};color:${WHITE};text-decoration:none;font-size:15px;font-weight:600;padding:14px 36px;border-radius:6px;letter-spacing:0.01em;"
   >${label} →</a>`
 }
 
@@ -81,26 +74,45 @@ function divider(): string {
 // ─── 0. Email Verification ────────────────────────────────────────────────────
 export async function sendVerificationEmail(to: string, opts: { confirmUrl: string }) {
   const html = base(`
+    <!-- Dark green header with centered logo -->
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="padding:36px 32px 28px;text-align:center;">
-          <div style="width:56px;height:56px;border-radius:16px;background:${GREEN};margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
-            <span style="font-size:28px;">🌱</span>
-          </div>
-          <h1 style="margin:0 0 10px;font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;color:${TEXT};">Verify your email</h1>
-          <p style="margin:0 0 28px;font-size:15px;color:${MUTED};line-height:1.6;">
-            Click the button below to activate your Farmsy account.<br/>The link expires in 24 hours.
+        <td style="background:${GREEN};padding:36px 32px 32px;text-align:center;">
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-style:italic;font-weight:600;color:${WHITE};letter-spacing:-0.5px;">Farmsy</span>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Body -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:40px 40px 16px;text-align:center;">
+          <h1 style="margin:0 0 12px;font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;color:${TEXT};line-height:1.25;">One step left to get started</h1>
+          <p style="margin:0 0 8px;font-size:16px;color:${TEXT};line-height:1.6;">
+            Welcome to Farmsy — we're glad you're here.
+          </p>
+          <p style="margin:0 0 32px;font-size:15px;color:${MUTED};line-height:1.6;">
+            Confirm your email address to activate your account and start discovering local farms near you.
           </p>
           ${cta('Verify my email', opts.confirmUrl)}
-          <p style="margin:28px 0 0;font-size:12px;color:${MUTED};">
+          <p style="margin:32px 0 0;font-size:13px;color:${MUTED};line-height:1.6;">
+            This link expires in 24 hours.<br/>
             If you didn't create an account, you can safely ignore this email.
           </p>
         </td>
       </tr>
+      <tr>
+        <td style="padding:28px 40px 36px;text-align:center;border-top:1px solid ${BORDER};margin-top:8px;">
+          <p style="margin:0;font-size:13px;color:${MUTED};">
+            Having trouble? Copy and paste this link into your browser:<br/>
+            <a href="${opts.confirmUrl}" style="color:${GREEN};font-size:12px;word-break:break-all;text-decoration:none;">${opts.confirmUrl}</a>
+          </p>
+        </td>
+      </tr>
     </table>
-  `)
+  `, 'Confirm your email to activate your Farmsy account and start exploring local farms.')
 
-  return getResend().emails.send({ from: FROM, to, subject: 'Verify your Farmsy email', html })
+  return getResend().emails.send({ from: FROM, to, subject: 'Confirm your email — Farmsy', html })
 }
 
 
@@ -110,7 +122,7 @@ export async function sendWelcomeEmail(to: string) {
     <!-- Green header band -->
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="background:${GREEN};padding:36px 32px 32px;border-radius:19px 19px 0 0;">
+        <td style="background:${GREEN};padding:36px 32px 32px;">
           <p style="margin:0 0 10px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.12em;">Free Trial</p>
           <h1 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:32px;font-weight:600;color:${WHITE};line-height:1.2;">Welcome to Farmsy!</h1>
           <p style="margin:10px 0 0;font-size:16px;color:rgba(255,255,255,0.85);">Your 3-day free trial has started.</p>
@@ -242,7 +254,7 @@ export async function sendTrialEndingEmail(to: string, opts: { endDate: string }
     <!-- Amber warning header -->
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
-        <td style="background:#FFF8E7;border-radius:19px 19px 0 0;padding:28px 32px 24px;border-bottom:1px solid #F0E9D2;">
+        <td style="background:#FFF8E7;padding:28px 32px 24px;border-bottom:1px solid #F0E9D2;">
           <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#92621A;text-transform:uppercase;letter-spacing:0.12em;">⏳ Trial ending soon</p>
           <h1 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;color:${TEXT};line-height:1.2;">Your Farmsy trial ends tomorrow</h1>
         </td>
