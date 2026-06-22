@@ -73,7 +73,7 @@ export default function HeaderAuth() {
         >
           Sign in
         </button>
-        {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
+        {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />}
       </div>
     )
   }
