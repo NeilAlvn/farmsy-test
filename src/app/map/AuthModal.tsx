@@ -47,12 +47,12 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
         setError('Sign in failed. Please check your email and password.')
         setLoading(false)
       } else if (data.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('email_verified')
-          .eq('id', data.user.id)
-          .single()
-        if (!profile?.email_verified) {
+        const { data: { session } } = await supabase.auth.getSession()
+        const verifiedRes = await fetch('/api/auth/verified', {
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+        })
+        const { verified } = await verifiedRes.json()
+        if (!verified) {
           await supabase.auth.signOut()
           setError('Please verify your email first. Check your inbox for the confirmation link.')
           setLoading(false)
