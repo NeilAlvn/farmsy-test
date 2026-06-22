@@ -42,22 +42,23 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
     setLoading(true)
 
     if (mode === 'signin') {
+      const preCheck = await fetch('/api/auth/email-verified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const { verified } = await preCheck.json()
+      if (!verified) {
+        setError('Please verify your email first. Check your inbox for the confirmation link.')
+        setLoading(false)
+        return
+      }
+
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
       if (authError) {
         setError('Sign in failed. Please check your email and password.')
         setLoading(false)
       } else if (data.user) {
-        const { data: { session } } = await supabase.auth.getSession()
-        const verifiedRes = await fetch('/api/auth/verified', {
-          headers: { Authorization: `Bearer ${session?.access_token}` },
-        })
-        const { verified } = await verifiedRes.json()
-        if (!verified) {
-          await supabase.auth.signOut()
-          setError('Please verify your email first. Check your inbox for the confirmation link.')
-          setLoading(false)
-          return
-        }
         onAuth({ id: data.user.id, email: data.user.email ?? email })
       }
     } else {

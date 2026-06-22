@@ -58,24 +58,25 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
     setLoading(true)
 
     if (mode === 'signin') {
+      // Check email_verified before signing in — avoids auth state flickering
+      const preCheck = await fetch('/api/auth/email-verified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const { verified } = await preCheck.json()
+      if (!verified) {
+        setError('Please verify your email first. Check your inbox for the confirmation link.')
+        setLoading(false)
+        return
+      }
+
       const { data: signInData, error: err } = await supabase.auth.signInWithPassword({ email, password })
       if (err) {
         setError('Sign in failed. Please check your email and password.')
         setLoading(false)
       } else {
         if (signInData.user) {
-          // Check email_verified via service-role API to avoid RLS timing issues
-          const { data: { session } } = await supabase.auth.getSession()
-          const verifiedRes = await fetch('/api/auth/verified', {
-            headers: { Authorization: `Bearer ${session?.access_token}` },
-          })
-          const { verified } = await verifiedRes.json()
-          if (!verified) {
-            await supabase.auth.signOut()
-            setError('Please verify your email first. Check your inbox for the confirmation link.')
-            setLoading(false)
-            return
-          }
           await fetch('/api/session/create', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
