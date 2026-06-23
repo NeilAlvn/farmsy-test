@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
-  X, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, User, Calendar, MapPin,
+  X, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, User, Calendar, MapPin, KeyRound,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -41,6 +41,9 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState<string | null>(null)
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
+  const [forgotView, setForgotView]   = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent]   = useState(false)
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setVisible(true))
@@ -61,6 +64,18 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
       document.body.style.overflow = ''
     }
   }, [close])
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    await fetch('/api/auth/forgot-password', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email: forgotEmail }),
+    })
+    setLoading(false)
+    setForgotSent(true)
+  }
 
   function resetSignup() {
     setStep(1); setEmail(''); setPassword(''); setConfirm('')
@@ -134,9 +149,11 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
 
   const subtitle = verifyEmail
     ? 'Check your inbox'
-    : mode === 'signin'
-      ? 'Sign in to your account'
-      : step === 1 ? 'Create a new account' : 'Almost there'
+    : forgotView
+      ? 'Reset your password'
+      : mode === 'signin'
+        ? 'Sign in to your account'
+        : step === 1 ? 'Create a new account' : 'Almost there'
 
   return (
     <div
@@ -160,10 +177,13 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-border/40">
           <div className="flex items-center gap-2">
-            {mode === 'signup' && step === 2 && !verifyEmail && (
+            {((mode === 'signup' && step === 2 && !verifyEmail) || forgotView) && (
               <button
                 type="button"
-                onClick={() => { setStep(1); setError(null) }}
+                onClick={() => {
+                  if (forgotView) { setForgotView(false); setForgotSent(false); setForgotEmail(''); setError(null) }
+                  else { setStep(1); setError(null) }
+                }}
                 className="rounded-full p-1 text-muted-foreground hover:bg-border/40 hover:text-foreground transition-colors mr-1"
               >
                 <ArrowLeft size={15} />
@@ -181,8 +201,45 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
 
         <div className="px-6 py-5 space-y-4">
 
-          {/* Verify inbox screen */}
-          {verifyEmail ? (
+          {/* Forgot password view */}
+          {forgotView ? (
+            forgotSent ? (
+              <div className="flex flex-col items-center text-center py-4 gap-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}>
+                  <Mail size={26} style={{ color: 'var(--primary)' }} />
+                </div>
+                <div>
+                  <p className="font-semibold text-base text-foreground">Check your inbox</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    If an account exists for <strong className="text-foreground">{forgotEmail}</strong>,<br />we've sent a reset link. It expires in 1 hour.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setForgotView(false); setForgotSent(false); setForgotEmail(''); setError(null) }}
+                  className="mt-1 text-sm font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+                  style={{ color: 'var(--primary)' }}
+                >
+                  Back to sign in
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleForgot} className="space-y-3">
+                <p className="text-sm text-muted-foreground">Enter your email and we'll send you a link to reset your password.</p>
+                <div className="relative">
+                  <Mail size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
+                  <input type="email" required autoComplete="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} placeholder="you@example.com" className={inputCls} style={inputStyle} />
+                </div>
+                <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 disabled:opacity-60 flex items-center justify-center gap-2" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
+                  {loading ? <><Loader2 size={14} className="animate-spin" /> Sending…</> : 'Send reset link'}
+                </button>
+              </form>
+            )
+
+          ) : null}
+
+          {/* Verify inbox screen + main content */}
+          {!forgotView && verifyEmail ? (
             <div className="flex flex-col items-center text-center py-4 gap-4">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}>
                 <Mail size={26} style={{ color: 'var(--primary)' }} />
@@ -269,6 +326,11 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
                     <input type={showPw ? 'text' : 'password'} required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className={`${inputCls} pr-11`} style={inputStyle} />
                     <button type="button" tabIndex={-1} onClick={() => setShowPw(v => !v)} className="absolute right-3.5 top-1/2 -translate-y-1/2 hover:opacity-70 transition-opacity" style={{ color: 'var(--muted-foreground)' }}>
                       {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                  <div className="flex justify-end">
+                    <button type="button" onClick={() => { setForgotView(true); setForgotEmail(email); setError(null) }} className="text-xs hover:opacity-70 transition-opacity" style={{ color: 'var(--muted-foreground)' }}>
+                      Forgot password?
                     </button>
                   </div>
                   <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 disabled:opacity-60 flex items-center justify-center gap-2" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>

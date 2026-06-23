@@ -380,3 +380,45 @@ export async function sendWinBackEmail(to: string, opts: { discountCode?: string
 
   return getResend().emails.send({ from: FROM, to, subject: "We'd love to have you back 🌱", html })
 }
+
+
+// ─── 5. Password Reset ────────────────────────────────────────────────────────
+export async function sendPasswordResetEmail(to: string, opts: { resetUrl: string }) {
+  const html = base(`
+    <!-- Dark green header with logo -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="background:${GREEN};padding:36px 32px 32px;text-align:center;">
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-style:italic;font-weight:600;color:${WHITE};letter-spacing:-0.5px;">Farmsy</span>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Body -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:40px 40px 16px;text-align:center;">
+          <h1 style="margin:0 0 12px;font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:600;color:${TEXT};line-height:1.25;">Reset your password</h1>
+          <p style="margin:0 0 32px;font-size:15px;color:${MUTED};line-height:1.6;">
+            We received a request to reset your Farmsy password.<br/>Click the button below to choose a new one.
+          </p>
+          ${cta('Reset my password', opts.resetUrl)}
+          <p style="margin:32px 0 0;font-size:13px;color:${MUTED};line-height:1.6;">
+            This link expires in 1 hour.<br/>
+            If you didn't request a password reset, you can safely ignore this email.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:28px 40px 36px;text-align:center;border-top:1px solid ${BORDER};margin-top:8px;">
+          <p style="margin:0;font-size:13px;color:${MUTED};">
+            Having trouble? Copy and paste this link into your browser:<br/>
+            <a href="${opts.resetUrl}" style="color:${GREEN};font-size:12px;word-break:break-all;text-decoration:none;">${opts.resetUrl}</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  `, 'Reset your Farmsy password — link expires in 1 hour.')
+
+  return getResend().emails.send({ from: FROM, to, subject: 'Reset your Farmsy password', html })
+}
