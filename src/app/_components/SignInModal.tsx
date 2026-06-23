@@ -141,9 +141,13 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
           if (d.session_token) localStorage.setItem('farmsy_session_token', d.session_token)
         }).catch(() => {})
       }
-      close()
-      if (onSuccess) onSuccess()
-      else router.refresh()
+      if (onSuccess) {
+        setVisible(false)
+        onSuccess()
+      } else {
+        close()
+        router.refresh()
+      }
     }
   }
 
