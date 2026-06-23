@@ -9,6 +9,7 @@ import {
   LayoutDashboard, Users, CreditCard, Mail, MessageSquare, Tag,
   Shield, MapPin, LogOut, Loader2, Menu, X,
 } from 'lucide-react'
+import { getProfileRole } from './actions'
 
 const NAV_MAIN = [
   { href: '/admin/overview',      label: 'Overview',      icon: LayoutDashboard },
@@ -58,12 +59,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.replace('/auth/signin?redirect=/admin/overview')
         return
       }
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .maybeSingle()
-      if (profile?.role !== 'admin') {
+      const role = await getProfileRole(session.user.id)
+      if (role !== 'admin') {
         router.replace('/')
         return
       }

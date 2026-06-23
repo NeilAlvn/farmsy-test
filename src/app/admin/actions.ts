@@ -246,3 +246,13 @@ export async function getAdminContact(): Promise<ContactSubmissionRow[]> {
     .limit(500)
   return (data ?? []) as ContactSubmissionRow[]
 }
+
+export async function getProfileRole(userId: string): Promise<string | null> {
+  const supabase = db()
+  const { data } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .maybeSingle()
+  return data?.role ?? null
+}
