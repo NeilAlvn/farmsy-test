@@ -58,12 +58,21 @@ export default function ContactPage() {
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  const [submitError, setSubmitError] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const subjectLine = `[${TOPICS.find(t => t.value === topic)?.label ?? 'Contact'}] from ${name}`
-    const body = `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`
-    window.location.href = `mailto:info@farmsy.nl?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(body)}`
-    setSent(true)
+    setSubmitError(false)
+    const res = await fetch('/api/contact', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ name, email, topic, message, source: 'contact_page' }),
+    })
+    if (res.ok) {
+      setSent(true)
+    } else {
+      setSubmitError(true)
+    }
   }
 
   return (
@@ -113,10 +122,10 @@ export default function ContactPage() {
                     <Mail className="h-7 w-7" style={{ color: 'var(--primary-foreground)' }} />
                   </div>
                   <h3 className="mb-2 text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
-                    {t('successTitle')}
+                    Message sent!
                   </h3>
                   <p className="mb-5 text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                    {t('successMessage')}
+                    Thanks! We'll get back to you soon.
                   </p>
                   <button
                     onClick={() => setSent(false)}
@@ -152,6 +161,11 @@ export default function ContactPage() {
                     <textarea id="message" required rows={5} value={message} onChange={e => setMessage(e.target.value)} placeholder={t('messagePlaceholder')} style={{ ...inputStyle, resize: 'none' }} />
                   </div>
 
+                  {submitError && (
+                    <p className="text-sm font-medium" style={{ color: 'var(--destructive)' }}>
+                      Something went wrong. Please try again.
+                    </p>
+                  )}
                   <button
                     type="submit"
                     className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition hover:opacity-90"

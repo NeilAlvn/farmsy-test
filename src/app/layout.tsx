@@ -8,6 +8,7 @@ import { TripProvider } from "./_components/TripProvider";
 import { ToastProvider } from "./_components/ToastProvider";
 import BfcacheReload from "./_components/BfcacheReload";
 import SessionGuard from "./_components/SessionGuard";
+import FeedbackWidget from "./_components/FeedbackWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,7 +72,10 @@ export default async function RootLayout({
           <ToastProvider>
             <SessionGuard />
             <TripProvider>
-              <FavoritesProvider>{children}</FavoritesProvider>
+              <FavoritesProvider>
+                {children}
+                <FeedbackWidget />
+              </FavoritesProvider>
             </TripProvider>
           </ToastProvider>
         </NextIntlClientProvider>
