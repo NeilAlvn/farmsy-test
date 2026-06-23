@@ -352,13 +352,13 @@ export async function sendWinBackEmail(to: string, opts: { discountCode?: string
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td style="padding-bottom:12px;" align="center">
-                ${cta('Claim Your Discount', `${APP_URL}/pricing`)}
+                ${cta('Claim Your Discount', `${APP_URL}/?coupon=${discountCode}#pricing`)}
               </td>
             </tr>
           </table>
 
           <p style="margin:16px 0 0;font-size:13px;color:${MUTED};text-align:center;line-height:1.5;">
-            Use code <strong>${discountCode}</strong> at checkout · €23.99 for your first year (normally €29.99)
+            20% off your first year back · €23.99 instead of €29.99
           </p>
         </td>
       </tr>

@@ -11,7 +11,11 @@ const PRICE_IDS: Record<string, string> = {
 }
 
 export async function POST(request: Request) {
-  const { plan, userId } = await request.json() as { plan: 'yearly' | 'lifetime'; userId: string }
+  const { plan, userId, couponCode } = await request.json() as {
+    plan: 'yearly' | 'lifetime'
+    userId: string
+    couponCode?: string
+  }
 
   if (!plan || !PRICE_IDS[plan]) {
     return Response.json({ error: 'Invalid plan' }, { status: 400 })
@@ -27,9 +31,17 @@ export async function POST(request: Request) {
 
   const { data: profile } = await sb
     .from('profiles')
-    .select('email, stripe_customer_id, subscription_status')
+    .select('email, stripe_customer_id, subscription_status, win_back_sent')
     .eq('id', userId)
     .single()
+
+  // Eligibility check for COMEBACK20 — only canceled users who received win-back email
+  const isComebackEligible =
+    couponCode === 'COMEBACK20' &&
+    profile?.subscription_status === 'canceled' &&
+    profile?.win_back_sent === true
+
+  const appliedCoupon = isComebackEligible ? 'COMEBACK20' : undefined
 
   // Only offer the free trial to users who have never had a subscription.
   // 'free' is the default for new users — anything else means they've previously subscribed.
@@ -54,7 +66,6 @@ export async function POST(request: Request) {
   const origin = new URL(request.url).origin
 
   if (plan === 'lifetime') {
-    // One-time payment — no trial, no subscription
     const session = await stripe.checkout.sessions.create({
       customer:    customerId,
       mode:        'payment',
@@ -62,6 +73,7 @@ export async function POST(request: Request) {
       success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url:  `${origin}/subscription/cancelled`,
       metadata:    { supabase_user_id: userId, plan: 'lifetime' },
+      ...(appliedCoupon ? { discounts: [{ coupon: appliedCoupon }] } : {}),
     })
     return Response.json({ url: session.url })
   }
@@ -79,6 +91,7 @@ export async function POST(request: Request) {
       metadata: { supabase_user_id: userId, plan: 'yearly' },
     },
     payment_method_collection: 'always',
+    ...(appliedCoupon ? { discounts: [{ coupon: appliedCoupon }] } : {}),
   })
 
   return Response.json({ url: session.url })

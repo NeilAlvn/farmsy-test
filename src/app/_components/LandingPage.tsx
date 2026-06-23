@@ -601,6 +601,11 @@ function Pricing() {
   const [subStatus, setSubStatus] = useState<string | null>(null)
 
   useEffect(() => {
+    // Persist coupon code from URL into sessionStorage so it survives sign-in redirects
+    const params = new URLSearchParams(window.location.search)
+    const coupon = params.get('coupon')
+    if (coupon) sessionStorage.setItem('pending_coupon', coupon)
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsLoggedIn(!!session?.user)
       if (session?.access_token) {
@@ -621,14 +626,16 @@ function Pricing() {
     if (!session?.user) { setShowSignIn(true); return }
     setLoading(key)
     try {
+      const couponCode = sessionStorage.getItem('pending_coupon') ?? undefined
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, userId: session.user.id }),
+        body: JSON.stringify({ plan, userId: session.user.id, couponCode }),
       })
       const { url, error } = await res.json()
       if (error) throw new Error(error)
       sessionStorage.setItem('stripe_redirect', '1')
+      sessionStorage.removeItem('pending_coupon')
       window.location.href = url
     } catch {
       alert('Something went wrong. Please try again.')
