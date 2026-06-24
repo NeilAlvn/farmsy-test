@@ -68,12 +68,12 @@ export default function AdminVerifyPage() {
 
   async function resend() {
     setResending(true)
-    const token = localStorage.getItem('farmsy_session_token')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('farmsy_session_token') : null
     await fetch('/api/admin/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_token: token }),
-    })
+    }).catch(() => {})
     setResending(false)
     setResent(true)
     setDigits(['', '', '', '', '', ''])

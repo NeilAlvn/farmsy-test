@@ -66,15 +66,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .then(({ isAdmin, otpVerified }: { isAdmin: boolean; otpVerified: boolean }) => {
         if (!isAdmin) { router.replace('/'); return }
         if (!otpVerified) {
-          if (pathname === '/admin/verify') {
-            setState('verify')
-          } else {
-            fetch('/api/admin/send-otp', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ session_token: token }),
-            }).then(() => router.replace('/admin/verify'))
-          }
+          setState(pathname === '/admin/verify' ? 'verify' : 'loading')
+          if (pathname !== '/admin/verify') router.replace('/admin/verify')
           return
         }
         setState('ready')

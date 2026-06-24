@@ -132,15 +132,45 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
       setError('Sign in failed. Please check your email and password.')
       setLoading(false)
     } else {
+      let sessionToken = ''
       if (signInData.user) {
-        await fetch('/api/session/create', {
+        const d = await fetch('/api/session/create', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ user_id: signInData.user.id }),
-        }).then(r => r.json()).then(d => {
-          if (d.session_token) localStorage.setItem('farmsy_session_token', d.session_token)
-        }).catch(() => {})
+        }).then(r => r.json()).catch(() => ({}))
+        if (d.session_token) {
+          sessionToken = d.session_token
+          localStorage.setItem('farmsy_session_token', d.session_token)
+        }
       }
+
+      // Check if admin — if so, send OTP and go to verification page
+      if (sessionToken) {
+        const adminCheck = await fetch('/api/admin/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_token: sessionToken }),
+        }).then(r => r.json()).catch(() => ({ isAdmin: false, otpVerified: false }))
+
+        if (adminCheck.isAdmin && !adminCheck.otpVerified) {
+          await fetch('/api/admin/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_token: sessionToken }),
+          }).catch(() => {})
+          setVisible(false)
+          router.replace('/admin/verify')
+          return
+        }
+
+        if (adminCheck.isAdmin && adminCheck.otpVerified) {
+          setVisible(false)
+          router.replace('/admin/overview')
+          return
+        }
+      }
+
       if (onSuccess) {
         setVisible(false)
         onSuccess()
