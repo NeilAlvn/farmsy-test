@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef, type KeyboardEvent, type ClipboardEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
-  X, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, User, Calendar, MapPin, KeyRound,
+  X, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, User, Calendar, MapPin, ShieldCheck,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -45,6 +45,14 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotSent, setForgotSent]   = useState(false)
 
+  // Admin OTP step
+  const [adminOtpMode, setAdminOtpMode]   = useState(false)
+  const [otpDigits, setOtpDigits]         = useState(['', '', '', '', '', ''])
+  const [otpError, setOtpError]           = useState<string | null>(null)
+  const [otpResent, setOtpResent]         = useState(false)
+  const [adminSessionToken, setAdminSessionToken] = useState('')
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+
   useEffect(() => {
     const t = requestAnimationFrame(() => setVisible(true))
     return () => cancelAnimationFrame(t)
@@ -56,7 +64,7 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   }, [onClose])
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
+    const onKey = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') close() }
     document.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
     return () => {
@@ -75,6 +83,61 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
     })
     setLoading(false)
     setForgotSent(true)
+  }
+
+  function handleOtpChange(i: number, val: string) {
+    const char = val.replace(/\D/g, '').slice(-1)
+    const next = [...otpDigits]; next[i] = char; setOtpDigits(next); setOtpError(null)
+    if (char && i < 5) otpRefs.current[i + 1]?.focus()
+  }
+
+  function handleOtpKey(i: number, e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Backspace' && !otpDigits[i] && i > 0) otpRefs.current[i - 1]?.focus()
+    if (e.key === 'Enter' && otpDigits.join('').length === 6) submitOtp(otpDigits.join(''))
+  }
+
+  function handleOtpPaste(e: ClipboardEvent<HTMLInputElement>) {
+    e.preventDefault()
+    const text = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    const next = [...otpDigits]
+    for (let i = 0; i < text.length; i++) next[i] = text[i]
+    setOtpDigits(next)
+    const idx = Math.min(text.length, 5)
+    otpRefs.current[idx]?.focus()
+    if (text.length === 6) submitOtp(text)
+  }
+
+  async function submitOtp(code: string) {
+    setLoading(true); setOtpError(null)
+    const res = await fetch('/api/admin/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setVisible(false)
+      router.replace('/admin/overview')
+    } else {
+      setOtpError(data.error ?? 'Incorrect code. Try again.')
+      setLoading(false)
+      setOtpDigits(['', '', '', '', '', ''])
+      otpRefs.current[0]?.focus()
+    }
+  }
+
+  async function resendOtp() {
+    setOtpResent(false)
+    await fetch('/api/admin/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_token: adminSessionToken }),
+    }).catch(() => {})
+    setOtpDigits(['', '', '', '', '', ''])
+    setOtpError(null)
+    setOtpResent(true)
+    otpRefs.current[0]?.focus()
+    setTimeout(() => setOtpResent(false), 4000)
   }
 
   function resetSignup() {
@@ -145,7 +208,7 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
         }
       }
 
-      // Check if admin — if so, send OTP and go to verification page
+      // Admin check — show OTP step inside this modal
       if (sessionToken) {
         const adminCheck = await fetch('/api/admin/check', {
           method: 'POST',
@@ -153,20 +216,22 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
           body: JSON.stringify({ session_token: sessionToken }),
         }).then(r => r.json()).catch(() => ({ isAdmin: false, otpVerified: false }))
 
-        if (adminCheck.isAdmin && !adminCheck.otpVerified) {
+        if (adminCheck.isAdmin && adminCheck.otpVerified) {
+          setVisible(false)
+          router.replace('/admin/overview')
+          return
+        }
+
+        if (adminCheck.isAdmin) {
           await fetch('/api/admin/send-otp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_token: sessionToken }),
           }).catch(() => {})
-          setVisible(false)
-          router.replace('/admin/verify')
-          return
-        }
-
-        if (adminCheck.isAdmin && adminCheck.otpVerified) {
-          setVisible(false)
-          router.replace('/admin/overview')
+          setAdminSessionToken(sessionToken)
+          setAdminOtpMode(true)
+          setLoading(false)
+          setTimeout(() => otpRefs.current[0]?.focus(), 50)
           return
         }
       }
@@ -181,13 +246,15 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
     }
   }
 
-  const subtitle = verifyEmail
-    ? 'Check your inbox'
-    : forgotView
-      ? 'Reset your password'
-      : mode === 'signin'
-        ? 'Sign in to your account'
-        : step === 1 ? 'Create a new account' : 'Almost there'
+  const subtitle = adminOtpMode
+    ? 'Admin verification'
+    : verifyEmail
+      ? 'Check your inbox'
+      : forgotView
+        ? 'Reset your password'
+        : mode === 'signin'
+          ? 'Sign in to your account'
+          : step === 1 ? 'Create a new account' : 'Almost there'
 
   return (
     <div
@@ -234,6 +301,70 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
         </div>
 
         <div className="px-6 py-5 space-y-4">
+
+          {/* ── Admin OTP verification view ── */}
+          {adminOtpMode ? (
+            <div className="space-y-4">
+              <div className="flex flex-col items-center text-center gap-3 py-2">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}>
+                  <ShieldCheck size={22} style={{ color: 'var(--primary)' }} />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-foreground">Check your email</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">We sent a 6-digit code to your admin email</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-center">
+                {otpDigits.map((d, i) => (
+                  <input
+                    key={i}
+                    ref={el => { otpRefs.current[i] = el }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={d}
+                    onChange={e => handleOtpChange(i, e.target.value)}
+                    onKeyDown={e => handleOtpKey(i, e)}
+                    onPaste={handleOtpPaste}
+                    className="w-10 text-center text-xl font-bold rounded-xl focus:outline-none transition-all"
+                    style={{
+                      height: '48px',
+                      border: `2px solid ${d ? 'var(--primary)' : 'var(--border)'}`,
+                      backgroundColor: 'var(--background)',
+                      color: 'var(--foreground)',
+                    }}
+                  />
+                ))}
+              </div>
+
+              {otpError && (
+                <div className="flex items-start gap-2 rounded-xl px-3 py-2.5 text-xs"
+                  style={{ backgroundColor: 'oklch(0.62 0.2 25 / 0.06)', border: '1px solid oklch(0.62 0.2 25 / 0.15)', color: 'var(--destructive)' }}>
+                  <AlertCircle size={13} className="shrink-0 mt-0.5" />
+                  {otpError}
+                </div>
+              )}
+
+              {otpResent && (
+                <p className="text-center text-xs font-medium" style={{ color: 'var(--primary)' }}>New code sent — check your inbox.</p>
+              )}
+
+              <button
+                onClick={() => submitOtp(otpDigits.join(''))}
+                disabled={otpDigits.join('').length < 6 || loading}
+                className="w-full py-3.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 disabled:opacity-40 flex items-center justify-center gap-2"
+                style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+              >
+                {loading ? <><Loader2 size={14} className="animate-spin" /> Verifying…</> : 'Verify & open admin'}
+              </button>
+
+              <p className="text-center text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                Didn't get it?{' '}
+                <button onClick={resendOtp} className="underline underline-offset-2 hover:opacity-70">Resend code</button>
+              </p>
+            </div>
+          ) : (<>
 
           {/* Forgot password view */}
           {forgotView ? (
@@ -448,6 +579,8 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
               </p>
             </>
           )}
+
+          </>)} {/* end adminOtpMode conditional */}
 
         </div>
       </div>
