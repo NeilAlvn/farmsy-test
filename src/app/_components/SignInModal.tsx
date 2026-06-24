@@ -59,9 +59,10 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   }, [])
 
   const close = useCallback(() => {
+    if (adminOtpMode) return  // cannot dismiss while OTP verification is pending
     setVisible(false)
     setTimeout(onClose, 220)
-  }, [onClose])
+  }, [onClose, adminOtpMode])
 
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') close() }
@@ -289,9 +290,11 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
               <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
             </div>
           </div>
-          <button onClick={close} className="rounded-full p-1.5 text-muted-foreground hover:bg-border/40 hover:text-foreground transition-colors">
-            <X size={16} />
-          </button>
+          {!adminOtpMode && (
+            <button onClick={close} className="rounded-full p-1.5 text-muted-foreground hover:bg-border/40 hover:text-foreground transition-colors">
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         <div className="px-6 py-5 space-y-4">

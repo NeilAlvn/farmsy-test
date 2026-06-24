@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
 import { sendAdminOtpEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
@@ -30,6 +31,10 @@ export async function POST(request: Request) {
   if (profile?.role !== 'admin' || !profile?.email) {
     return Response.json({ error: 'forbidden' }, { status: 403 })
   }
+
+  // Invalidate any existing verified session — admin must complete OTP to regain access
+  const cookieStore = await cookies()
+  cookieStore.delete('admin_verified')
 
   // Generate 6-digit code, store hashed-free (short-lived, single-use) with 10 min expiry
   const code = String(Math.floor(100000 + Math.random() * 900000))
