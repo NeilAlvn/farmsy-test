@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
 import {
   LayoutDashboard, Users, CreditCard, Mail, MessageSquare, Tag,
   Shield, MapPin, LogOut, Loader2, Menu, X,
 } from 'lucide-react'
-import { getProfileRole } from './actions'
 
 const NAV_MAIN = [
   { href: '/admin/overview',      label: 'Overview',      icon: LayoutDashboard },
@@ -54,19 +52,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        router.replace('/auth/signin?redirect=/admin/overview')
-        return
-      }
-      const role = await getProfileRole(session.user.id)
-      const isAdmin = role === 'admin' || session.user.email === 'neilalvinmedallon@gmail.com'
-      if (!isAdmin) {
-        router.replace('/')
-        return
-      }
-      setReady(true)
+    const token = localStorage.getItem('farmsy_session_token')
+    if (!token) {
+      router.replace('/auth/signin?redirect=/admin/overview')
+      return
+    }
+    fetch('/api/admin/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_token: token }),
     })
+      .then(r => r.json())
+      .then(({ isAdmin }) => {
+        if (isAdmin) setReady(true)
+        else router.replace('/')
+      })
+      .catch(() => router.replace('/'))
   }, [router])
 
   if (!ready) {
