@@ -48,7 +48,7 @@ function SidebarLink({
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [ready, setReady] = useState(false)
+  const [state, setState] = useState<'loading' | 'verify' | 'ready'>('loading')
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -63,19 +63,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       body: JSON.stringify({ session_token: token }),
     })
       .then(r => r.json())
-      .then(({ isAdmin }) => {
-        if (isAdmin) setReady(true)
-        else router.replace('/')
+      .then(({ isAdmin, otpVerified }: { isAdmin: boolean; otpVerified: boolean }) => {
+        if (!isAdmin) { router.replace('/'); return }
+        if (!otpVerified) {
+          if (pathname === '/admin/verify') {
+            setState('verify')
+          } else {
+            fetch('/api/admin/send-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session_token: token }),
+            }).then(() => router.replace('/admin/verify'))
+          }
+          return
+        }
+        setState('ready')
       })
       .catch(() => router.replace('/'))
-  }, [router])
+  }, [router, pathname])
 
-  if (!ready) {
+  if (state === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
         <Loader2 size={22} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
       </div>
     )
+  }
+
+  if (state === 'verify') {
+    return <>{children}</>
   }
 
   const allNav = [...NAV_MAIN, ...NAV_TOOLS]
@@ -103,7 +119,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="px-3 py-4 border-t border-white/10">
           <button
-            onClick={async () => { await destroySession(); router.replace('/') }}
+            onClick={async () => {
+              await fetch('/api/admin/sign-out', { method: 'POST' }).catch(() => {})
+              await destroySession()
+              router.replace('/')
+            }}
             className="flex items-center gap-2.5 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/[0.08] transition-all"
           >
             <LogOut size={15} />
