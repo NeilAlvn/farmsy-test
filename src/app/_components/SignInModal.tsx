@@ -216,12 +216,6 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
           body: JSON.stringify({ session_token: sessionToken }),
         }).then(r => r.json()).catch(() => ({ isAdmin: false, otpVerified: false }))
 
-        if (adminCheck.isAdmin && adminCheck.otpVerified) {
-          setVisible(false)
-          router.replace('/admin/overview')
-          return
-        }
-
         if (adminCheck.isAdmin) {
           await fetch('/api/admin/send-otp', {
             method: 'POST',
