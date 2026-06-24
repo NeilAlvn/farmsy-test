@@ -52,9 +52,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
+    // Login and verify pages handle their own auth
+    if (pathname === '/admin/login') { setState('verify'); return }
+
     const token = localStorage.getItem('farmsy_session_token')
     if (!token) {
-      router.replace('/auth/signin?redirect=/admin/overview')
+      router.replace('/admin/login')
       return
     }
     fetch('/api/admin/check', {
