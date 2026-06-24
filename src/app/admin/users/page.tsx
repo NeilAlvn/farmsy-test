@@ -40,7 +40,7 @@ export default function UsersPage() {
   }, [users, search, roleFilter])
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
 
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Users</h1>

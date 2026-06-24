@@ -46,7 +46,7 @@ export default function SubscriptionsPage() {
   const churn = rows.length > 0 ? ((counts.canceled / rows.length) * 100).toFixed(1) : '0.0'
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
 
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Subscriptions</h1>

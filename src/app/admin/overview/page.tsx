@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Users, CreditCard, XCircle, Mail, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { getAdminStats, type ProfileAdminRow } from '../actions'
 
 function fmtDate(iso: string) {
@@ -45,7 +45,7 @@ export default function OverviewPage() {
   ]
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-8">
 
       {/* Header */}
       <div>
@@ -140,25 +140,6 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { icon: Users,    label: 'Manage Users',    href: '/admin/users' },
-          { icon: CreditCard, label: 'Subscriptions', href: '/admin/subscriptions' },
-          { icon: Mail,     label: 'Win-back',        href: '/admin/winback' },
-          { icon: XCircle,  label: 'Contact',         href: '/admin/contact' },
-        ].map(({ icon: Icon, label, href }) => (
-          <a
-            key={href}
-            href={href}
-            className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium transition-all hover:opacity-80"
-            style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', color: 'var(--foreground)' }}
-          >
-            <Icon size={15} style={{ color: 'var(--primary)' }} />
-            {label}
-          </a>
-        ))}
-      </div>
 
     </div>
   )

@@ -1,141 +1,160 @@
 'use client'
 
-import { Fragment, useEffect, useMemo, useState } from 'react'
-import { Loader2, ExternalLink } from 'lucide-react'
-import { getAdminContact, type ContactSubmissionRow } from '../actions'
+import { useCallback, useEffect, useState } from 'react'
+import { Pencil } from 'lucide-react'
+import { getInboxThreads, type ConversationRow } from './actions'
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
+import ThreadList    from './_components/ThreadList'
+import ThreadView   from './_components/ThreadView'
+import ComposeModal from './_components/ComposeModal'
 
-const TOPICS = ['All', 'Support', 'Billing', 'Partnership', 'Other'] as const
-type TopicFilter = typeof TOPICS[number]
+const POLL_INTERVAL = 30_000 // 30 seconds
 
 export default function ContactPage() {
-  const [rows, setRows] = useState<ContactSubmissionRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [topic, setTopic] = useState<TopicFilter>('All')
-  const [expanded, setExpanded] = useState<string | null>(null)
+  // ── Core state ──────────────────────────────────────────────────────────────
+  const [conversations, setConversations] = useState<ConversationRow[]>([])
+  const [loading, setLoading]             = useState(true)
+  const [selected, setSelected]           = useState<ConversationRow | null>(null)
+  const [showCompose, setShowCompose]     = useState(false)
 
+  // ── Filter / search state (passed down to ThreadList) ───────────────────────
+  const [search, setSearch]           = useState('')
+  const [topicFilter, setTopicFilter] = useState('All')
+
+  // ── Data fetching ────────────────────────────────────────────────────────────
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true)
+    try {
+      const data = await getInboxThreads()
+      setConversations(data)
+      // Keep selected row in sync if its data changed (e.g. reply arrived)
+      if (selected) {
+        const refreshed = data.find(c => c.id === selected.id)
+        if (refreshed) setSelected(refreshed)
+      }
+    } finally {
+      if (!silent) setLoading(false)
+    }
+  }, [selected])
+
+  // Initial load
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 30-second polling
   useEffect(() => {
-    getAdminContact().then(data => { setRows(data); setLoading(false) })
-  }, [])
+    const id = setInterval(() => load(true), POLL_INTERVAL)
+    return () => clearInterval(id)
+  }, [load])
 
-  const filtered = useMemo(() =>
-    topic === 'All' ? rows : rows.filter(r => r.topic.toLowerCase() === topic.toLowerCase()),
-    [rows, topic]
-  )
+  // ── Callbacks passed to child components ─────────────────────────────────────
+  // Called when a reply is sent so the conversation list refreshes immediately.
+  function onReplySent(updatedConversation: ConversationRow) {
+    setConversations(prev =>
+      prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
+    )
+    setSelected(updatedConversation)
+  }
 
+  // Called when compose sends — may be multiple threads (one per recipient).
+  // Prepends all new threads; selects the first one.
+  function onComposeSent(threads: ConversationRow[]) {
+    setConversations(prev => [...threads, ...prev])
+    if (threads[0]) setSelected(threads[0])
+    setShowCompose(false)
+  }
+
+  // Called when a thread is archived / submission deleted.
+  function onRemoved(id: string) {
+    setConversations(prev => prev.filter(c => c.id !== id))
+    if (selected?.id === id) setSelected(null)
+  }
+
+  // ── Derived counts ────────────────────────────────────────────────────────────
+  const totalCount    = conversations.length
+  const unrepliedCount = conversations.filter(c => !c.isReplied).length
+
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 4rem)' }}>
 
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Contact Submissions</h1>
-        <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-          {loading ? '…' : `${rows.length} total submissions`}
-        </p>
+      {/* ── Page header ─────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>
+            Contact
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
+            {loading
+              ? '…'
+              : `${totalCount} conversations · ${unrepliedCount} unreplied`}
+          </p>
+        </div>
+
+        {/* Compose button — green, prominent, top-left of action area */}
+        <button
+          onClick={() => setShowCompose(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-85"
+          style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+        >
+          <Pencil size={14} />
+          Compose
+        </button>
       </div>
 
-      {/* Topic filter */}
-      <div className="flex flex-wrap gap-2">
-        {TOPICS.map(t => (
-          <button
-            key={t}
-            onClick={() => setTopic(t)}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
-            style={topic === t
-              ? { backgroundColor: 'var(--primary)', color: 'white' }
-              : { backgroundColor: 'var(--card)', border: '1px solid var(--border)', color: 'var(--muted-foreground)' }
-            }
-          >
-            {t}
-            {t !== 'All' && (
-              <span className="ml-1.5 opacity-60">
-                {rows.filter(r => r.topic.toLowerCase() === t.toLowerCase()).length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* ── Two-column panel ─────────────────────────────────────────────────── */}
+      <div
+        className="flex-1 min-h-0 flex overflow-hidden rounded-2xl"
+        style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
+      >
+
+        {/* ── LEFT: thread / submission list ──────────────────────────────── */}
+        <div
+          className="w-72 lg:w-80 flex-shrink-0 flex flex-col"
+          style={{ borderRight: '1px solid var(--border)' }}
+        >
+          <ThreadList
+            conversations={conversations}
+            loading={loading}
+            selected={selected}
+            search={search}
+            topicFilter={topicFilter}
+            onSelect={setSelected}
+            onSearchChange={setSearch}
+            onTopicChange={setTopicFilter}
+            onRemoved={onRemoved}
+          />
+        </div>
+
+        {/* ── RIGHT: conversation / thread view ───────────────────────────── */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {selected ? (
+            <ThreadView
+              conversation={selected}
+              onReplySent={onReplySent}
+              onRemoved={onRemoved}
+            />
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center gap-2">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                strokeLinejoin="round" style={{ color: 'var(--border)' }}>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
+                Select a conversation to get started
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
-        {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 size={20} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
-          </div>
-        ) : filtered.length === 0 ? (
-          <p className="text-center py-16 text-sm" style={{ color: 'var(--muted-foreground)' }}>No submissions</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--cream)' }}>
-                  {['Name', 'Email', 'Topic', 'Message', 'Source', 'Received'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((r, i) => (
-                  <Fragment key={r.id}>
-                    <tr
-                      onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-                      style={{ borderBottom: expanded === r.id ? 'none' : i < filtered.length - 1 ? '1px solid var(--border)' : 'none', cursor: 'pointer' }}
-                      className="hover:bg-black/[0.02] transition-colors"
-                    >
-                      <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: 'var(--foreground)' }}>{r.name}</td>
-                      <td className="px-4 py-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                        <a
-                          href={`mailto:${r.email}`}
-                          onClick={e => e.stopPropagation()}
-                          className="flex items-center gap-1 hover:underline"
-                          style={{ color: 'var(--muted-foreground)' }}
-                        >
-                          {r.email}
-                          <ExternalLink size={10} />
-                        </a>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className="px-2 py-0.5 rounded-full text-xs font-medium"
-                          style={{ backgroundColor: 'var(--cream)', color: 'var(--foreground)' }}
-                        >
-                          {r.topic}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs max-w-[260px] truncate" style={{ color: 'var(--muted-foreground)' }}>{r.message}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className="text-xs font-medium"
-                          style={{ color: r.source === 'widget' ? '#D97706' : 'var(--muted-foreground)' }}
-                        >
-                          {r.source}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--muted-foreground)' }}>{fmtDate(r.created_at)}</td>
-                    </tr>
-                    {expanded === r.id && (
-                      <tr style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                        <td colSpan={6} className="px-4 pb-4 pt-1">
-                          <div className="rounded-xl p-4 text-sm" style={{ backgroundColor: 'var(--cream)', color: 'var(--foreground)' }}>
-                            <p className="font-semibold mb-1 text-xs uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>Full Message</p>
-                            <p className="leading-relaxed">{r.message}</p>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-      <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Click any row to expand the full message.</p>
-
+      {/* ── Compose modal ────────────────────────────────────────────────── */}
+      {showCompose && (
+        <ComposeModal
+          onClose={() => setShowCompose(false)}
+          onSent={onComposeSent}
+        />
+      )}
     </div>
   )
 }

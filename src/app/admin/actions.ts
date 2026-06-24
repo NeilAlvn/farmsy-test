@@ -170,6 +170,9 @@ export interface ContactSubmissionRow {
   message: string
   source: string
   created_at: string
+  replied_at: string | null
+  reply_message: string | null
+  reply_subject: string | null
 }
 
 export async function getAdminStats() {

@@ -414,7 +414,41 @@ export async function sendAdminOtpEmail(to: string, opts: { code: string }) {
 }
 
 
-// ─── 6. Password Reset ────────────────────────────────────────────────────────
+// ─── 6. Contact Reply ────────────────────────────────────────────────────────
+export async function sendContactReply(to: string, opts: { subject: string; body: string }) {
+  const bodyHtml = opts.body
+    .split('\n')
+    .map(line =>
+      line.trim() === ''
+        ? `<tr><td style="height:12px;"></td></tr>`
+        : `<tr><td style="padding:0 0 4px;font-size:15px;color:${TEXT};line-height:1.7;">${line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</td></tr>`
+    )
+    .join('')
+
+  const html = base(`
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="background:${GREEN};padding:36px 32px 32px;text-align:center;">
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-style:italic;font-weight:600;color:${WHITE};letter-spacing:-0.5px;">Farmsy</span>
+        </td>
+      </tr>
+    </table>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:36px 40px 40px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            ${bodyHtml}
+          </table>
+        </td>
+      </tr>
+    </table>
+  `)
+
+  return getResend().emails.send({ from: FROM, to, subject: opts.subject, html })
+}
+
+
+// ─── 7. Password Reset ────────────────────────────────────────────────────────
 export async function sendPasswordResetEmail(to: string, opts: { resetUrl: string }) {
   const html = base(`
     <!-- Dark green header with logo -->

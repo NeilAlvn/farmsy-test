@@ -25,7 +25,7 @@ export default function WinbackPage() {
   const resubscribed = rows.filter(r => r.subscription_status === 'active').length
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
 
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Win-back</h1>
