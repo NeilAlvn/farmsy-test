@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js'
 import { createHmac } from 'crypto'
 import { cookies } from 'next/headers'
 
@@ -9,45 +10,54 @@ function sign(data: object): string {
   return `${payload}.${sig}`
 }
 
-function unsign(token: string): Record<string, unknown> | null {
-  const dot = token.lastIndexOf('.')
-  if (dot === -1) return null
-  const payload = token.slice(0, dot)
-  const sig = token.slice(dot + 1)
-  const expected = createHmac('sha256', process.env.SUPABASE_SERVICE_ROLE_KEY!).update(payload).digest('hex')
-  if (sig !== expected) return null
-  try {
-    return JSON.parse(Buffer.from(payload, 'base64').toString())
-  } catch {
-    return null
-  }
-}
-
 export async function POST(request: Request) {
-  const { code } = await request.json().catch(() => ({})) as { code?: string }
-  if (!code) return Response.json({ error: 'Code required.' }, { status: 400 })
+  const { session_token, code } = await request.json().catch(() => ({})) as {
+    session_token?: string
+    code?: string
+  }
+  if (!session_token) return Response.json({ error: 'unauthorized' }, { status: 401 })
+  if (!code) return Response.json({ error: 'Please enter the 6-digit code.' }, { status: 400 })
 
+  const sb = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+
+  const { data: session } = await sb
+    .from('active_sessions')
+    .select('user_id')
+    .eq('session_token', session_token)
+    .single()
+
+  if (!session?.user_id) return Response.json({ error: 'unauthorized' }, { status: 401 })
+
+  const { data: profile } = await sb
+    .from('profiles')
+    .select('role, otp_code, otp_expires_at')
+    .eq('id', session.user_id)
+    .single()
+
+  if (profile?.role !== 'admin') return Response.json({ error: 'forbidden' }, { status: 403 })
+
+  if (!profile.otp_code || !profile.otp_expires_at) {
+    return Response.json({ error: 'Code expired, click resend', expired: true }, { status: 400 })
+  }
+
+  if (new Date(profile.otp_expires_at).getTime() < Date.now()) {
+    // Clear stale code
+    await sb.from('profiles').update({ otp_code: null, otp_expires_at: null }).eq('id', session.user_id)
+    return Response.json({ error: 'Code expired, click resend', expired: true }, { status: 400 })
+  }
+
+  if (code.trim() !== profile.otp_code) {
+    return Response.json({ error: 'Invalid code, try again' }, { status: 400 })
+  }
+
+  // Correct — clear the code and mark this session verified for 8h
+  await sb.from('profiles').update({ otp_code: null, otp_expires_at: null }).eq('id', session.user_id)
+
+  const verifiedToken = sign({ userId: session.user_id, expires: Date.now() + 8 * 60 * 60 * 1000 })
   const cookieStore = await cookies()
-  const pending = cookieStore.get('admin_otp_pending')?.value
-  if (!pending) return Response.json({ error: 'No verification in progress. Please go back and try again.' }, { status: 400 })
-
-  const data = unsign(pending)
-  if (!data) return Response.json({ error: 'Invalid session. Please go back and try again.' }, { status: 400 })
-
-  const { code: expected, userId, expires } = data as { code: string; userId: string; expires: number }
-
-  if (Date.now() > expires) {
-    cookieStore.delete('admin_otp_pending')
-    return Response.json({ error: 'Code expired. Please go back to request a new one.' }, { status: 400 })
-  }
-
-  if (code.trim() !== expected) {
-    return Response.json({ error: 'Incorrect code. Please try again.' }, { status: 400 })
-  }
-
-  cookieStore.delete('admin_otp_pending')
-
-  const verifiedToken = sign({ userId, expires: Date.now() + 8 * 60 * 60 * 1000 })
   cookieStore.set('admin_verified', verifiedToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

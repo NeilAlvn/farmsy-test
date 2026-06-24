@@ -37,15 +37,11 @@ export async function POST(request: Request) {
 
   const { data: profile } = await sb
     .from('profiles')
-    .select('role, email')
+    .select('role')
     .eq('id', session.user_id)
     .single()
 
-  const isAdmin =
-    profile?.role === 'admin' ||
-    profile?.email === 'neilalvinmedallon@gmail.com'
-
-  if (!isAdmin) return Response.json({ isAdmin: false, otpVerified: false })
+  if (profile?.role !== 'admin') return Response.json({ isAdmin: false, otpVerified: false })
 
   const cookieStore = await cookies()
   const verifiedCookie = cookieStore.get('admin_verified')?.value

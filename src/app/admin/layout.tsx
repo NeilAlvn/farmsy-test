@@ -48,16 +48,13 @@ function SidebarLink({
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [state, setState] = useState<'loading' | 'verify' | 'ready'>('loading')
+  const [state, setState] = useState<'loading' | 'ready'>('loading')
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    // Login and verify pages handle their own auth
-    if (pathname === '/admin/login') { setState('verify'); return }
-
     const token = localStorage.getItem('farmsy_session_token')
     if (!token) {
-      router.replace('/admin/login')
+      router.replace('/')
       return
     }
     fetch('/api/admin/check', {
@@ -67,16 +64,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     })
       .then(r => r.json())
       .then(({ isAdmin, otpVerified }: { isAdmin: boolean; otpVerified: boolean }) => {
-        if (!isAdmin) { router.replace('/'); return }
-        if (!otpVerified) {
-          setState(pathname === '/admin/verify' ? 'verify' : 'loading')
-          if (pathname !== '/admin/verify') router.replace('/admin/verify')
-          return
-        }
+        // Not an admin, or admin who hasn't passed OTP this session → home
+        if (!isAdmin || !otpVerified) { router.replace('/'); return }
         setState('ready')
       })
       .catch(() => router.replace('/'))
-  }, [router, pathname])
+  }, [router])
 
   if (state === 'loading') {
     return (
@@ -84,10 +77,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <Loader2 size={22} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
       </div>
     )
-  }
-
-  if (state === 'verify') {
-    return <>{children}</>
   }
 
   const allNav = [...NAV_MAIN, ...NAV_TOOLS]

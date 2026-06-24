@@ -112,14 +112,14 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
     const res = await fetch('/api/admin/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ session_token: adminSessionToken, code }),
     })
     const data = await res.json()
     if (res.ok) {
       setVisible(false)
       router.replace('/admin/overview')
     } else {
-      setOtpError(data.error ?? 'Incorrect code. Try again.')
+      setOtpError(data.error ?? 'Invalid code, try again')
       setLoading(false)
       setOtpDigits(['', '', '', '', '', ''])
       otpRefs.current[0]?.focus()
