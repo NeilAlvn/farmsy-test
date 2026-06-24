@@ -6,7 +6,7 @@ const DEFAULT_LOCALE = 'en'
 
 // Routes that require an authenticated Supabase session.
 // Unauthenticated visitors are redirected to the sign-in page.
-const AUTH_REQUIRED = ['/favorites', '/trips', '/profile', '/dashboard', '/admin']
+const AUTH_REQUIRED = ['/favorites', '/trips', '/profile', '/dashboard']
 
 export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
