@@ -32,7 +32,9 @@ export default function OverviewPage() {
   })
 
   useEffect(() => {
-    getAdminStats().then(data => { setStats(data); setLoading(false) })
+    getAdminStats()
+      .then(data => { setStats(data); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])
 
   const cards = [

@@ -64,26 +64,26 @@ export default function HeaderAuth() {
     return <div className="shrink-0 w-[72px] h-9" suppressHydrationWarning />
   }
 
-  if (!user) {
-    return (
-      <div className="shrink-0 w-[72px] h-9 flex items-center justify-end">
-        <button
-          onClick={() => setShowSignIn(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
-        >
-          Sign in
-        </button>
-        {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />}
-      </div>
-    )
-  }
-
-  const initials = (user.user_metadata?.full_name as string | undefined)
-    ? (user.user_metadata.full_name as string).split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
-    : user.email?.[0].toUpperCase() ?? 'U'
+  const initials = user
+    ? ((user.user_metadata?.full_name as string | undefined)
+        ? (user.user_metadata.full_name as string).split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+        : user.email?.[0].toUpperCase() ?? 'U')
+    : ''
 
   return (
-    <div className="shrink-0 w-[72px] h-9 flex items-center justify-end" suppressHydrationWarning>
+    <>
+      {/* Modal lives outside the !user conditional so it survives Supabase auth state changes mid-flow (e.g. admin OTP step) */}
+      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />}
+
+      <div className="shrink-0 w-[72px] h-9 flex items-center justify-end" suppressHydrationWarning>
+        {!user ? (
+          <button
+            onClick={() => setShowSignIn(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground"
+          >
+            Sign in
+          </button>
+        ) : (
       <div className="relative" ref={menuRef}>
         <button
           onClick={() => setOpen(o => !o)}
@@ -115,7 +115,9 @@ export default function HeaderAuth() {
             </nav>
           </div>
         )}
+        </div>
+        )}
       </div>
-    </div>
+    </>
   )
 }
