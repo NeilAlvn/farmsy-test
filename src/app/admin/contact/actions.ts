@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { sendContactReply } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 function db() {
   return createClient(
@@ -11,6 +12,38 @@ function db() {
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface BulkSendRow {
+  id: string
+  subject: string
+  body: string
+  recipientCount: number
+  successCount: number
+  failedCount: number
+  status: 'pending' | 'sending' | 'done' | 'partial'
+  sentAt: string
+  createdAt: string
+}
+
+export interface BulkSendRecipientRow {
+  id: string
+  bulkSendId: string
+  userId: string | null
+  userEmail: string
+  userName: string
+  threadId: string | null
+  status: 'pending' | 'sent' | 'failed'
+  error: string | null
+}
+
+export type RecipientFilter = 'all' | 'trialing' | 'active' | 'free' | 'canceled'
+
+export interface BulkSendUser {
+  id: string
+  email: string
+  name: string
+  subscriptionStatus: string
+}
 
 // Unified inbox row — represents either an existing thread or an unprocessed
 // contact_submission that hasn't been replied to yet (lazy migration).
@@ -177,7 +210,7 @@ export async function replyToThread(
 
   const { data: thread } = await supabase
     .from('message_threads')
-    .select('user_email, subject')
+    .select('user_id, user_email, subject, unread_user')
     .eq('id', threadId)
     .single()
 
@@ -205,14 +238,25 @@ export async function replyToThread(
     is_read: true,
   })
 
-  // Update thread metadata
+  // Update thread metadata + increment unread_user
   await supabase
     .from('message_threads')
     .update({
       last_message_at: new Date().toISOString(),
       last_message_preview: body.slice(0, 100),
+      unread_user: ((thread.unread_user as number) ?? 0) + 1,
     })
     .eq('id', threadId)
+
+  // Notify the user in-app if they have an account
+  if (thread.user_id) {
+    await createNotification(
+      thread.user_id,
+      'new_message',
+      'New message from Farmsy',
+      body.length > 80 ? body.slice(0, 80) + '…' : body,
+    )
+  }
 
   return { ok: true }
 }
@@ -326,6 +370,7 @@ export async function composeNewMessage(opts: {
       last_message_preview: opts.body.slice(0, 100),
       unread_admin: 0,
       unread_user: 1,
+      is_admin_initiated: true,
     })
     .select('id')
     .single()
@@ -348,6 +393,16 @@ export async function composeNewMessage(opts: {
     email_status: emailStatus,
     is_read: true,
   })
+
+  // Notify the user in-app if they have an account
+  if (opts.toUserId) {
+    await createNotification(
+      opts.toUserId,
+      'new_message',
+      `New message: ${opts.subject}`,
+      opts.body.length > 80 ? opts.body.slice(0, 80) + '…' : opts.body,
+    )
+  }
 
   return { ok: true, threadId: thread.id }
 }
@@ -406,4 +461,233 @@ export async function searchUsers(query: string): Promise<UserSearchResult[]> {
       u.email ||
       '',
   }))
+}
+
+// ─── getSentThreads ───────────────────────────────────────────────────────────
+// Returns admin-initiated threads for the Sent folder.
+
+export async function getSentThreads(): Promise<ConversationRow[]> {
+  const { data: threads, error } = await db()
+    .from('message_threads')
+    .select('id, user_id, user_email, user_name, subject, topic, last_message_at, last_message_preview, unread_admin, is_archived, is_admin_initiated')
+    .eq('is_admin_initiated', true)
+    .eq('is_archived', false)
+    .order('last_message_at', { ascending: false })
+    .limit(500)
+
+  if (error) return []
+
+  return (threads ?? []).map((t: any) => ({
+    id: t.id,
+    type: 'thread' as const,
+    threadId: t.id,
+    userId: t.user_id,
+    userEmail: t.user_email,
+    userName: t.user_name,
+    subject: t.subject,
+    topic: t.topic,
+    source: 'in_app',
+    lastMessageAt: t.last_message_at,
+    preview: t.last_message_preview ?? '',
+    unreadAdmin: t.unread_admin,
+    isReplied: true,
+    isArchived: t.is_archived,
+  }))
+}
+
+// ─── getBulkSends ─────────────────────────────────────────────────────────────
+// Returns all bulk campaigns, newest first.
+
+export async function getBulkSends(): Promise<BulkSendRow[]> {
+  const { data, error } = await db()
+    .from('bulk_sends')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) return []
+
+  return (data ?? []).map((b: any) => ({
+    id: b.id,
+    subject: b.subject,
+    body: b.body,
+    recipientCount: b.recipient_count,
+    successCount: b.success_count,
+    failedCount: b.failed_count,
+    status: b.status,
+    sentAt: b.sent_at,
+    createdAt: b.created_at,
+  }))
+}
+
+// ─── getBulkSendRecipients ────────────────────────────────────────────────────
+// Returns recipient rows for a single bulk campaign.
+
+export async function getBulkSendRecipients(bulkSendId: string): Promise<BulkSendRecipientRow[]> {
+  const { data, error } = await db()
+    .from('bulk_send_recipients')
+    .select('*')
+    .eq('bulk_send_id', bulkSendId)
+    .order('created_at', { ascending: true })
+    .limit(500)
+
+  if (error) return []
+
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    bulkSendId: r.bulk_send_id,
+    userId: r.user_id,
+    userEmail: r.user_email,
+    userName: r.user_name,
+    threadId: r.thread_id,
+    status: r.status,
+    error: r.error ?? null,
+  }))
+}
+
+// ─── getAllUsersForBulkSend ───────────────────────────────────────────────────
+// Returns all users matching a subscription filter (used by the Bulk Send modal).
+
+export async function getAllUsersForBulkSend(filter: RecipientFilter = 'all'): Promise<BulkSendUser[]> {
+  const supabase = db()
+  let query = supabase
+    .from('profiles')
+    .select('id, email, first_name, last_name, name, subscription_status')
+    .not('email', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(2000)
+
+  if (filter !== 'all') {
+    query = query.eq('subscription_status', filter)
+  }
+
+  const { data } = await query
+
+  return (data ?? []).map((u: any) => ({
+    id: u.id,
+    email: u.email ?? '',
+    name:
+      [u.first_name, u.last_name].filter(Boolean).join(' ') ||
+      u.name ||
+      u.email ||
+      '',
+    subscriptionStatus: u.subscription_status ?? 'free',
+  }))
+}
+
+// ─── sendBulkMessage ──────────────────────────────────────────────────────────
+// Creates a bulk_send campaign: one thread + one email per recipient.
+// Returns the bulk_send ID and success/failure counts.
+
+export async function sendBulkMessage(opts: {
+  subject: string
+  body: string
+  recipients: BulkSendUser[]
+}): Promise<{ ok: boolean; bulkSendId?: string; successCount: number; failedCount: number; error?: string }> {
+  const supabase = db()
+
+  // Create the campaign record
+  const { data: campaign, error: campErr } = await supabase
+    .from('bulk_sends')
+    .insert({
+      subject: opts.subject,
+      body: opts.body,
+      recipient_count: opts.recipients.length,
+      success_count: 0,
+      failed_count: 0,
+      status: 'sending',
+    })
+    .select('id')
+    .single()
+
+  if (campErr || !campaign) return { ok: false, successCount: 0, failedCount: 0, error: 'Failed to create campaign' }
+
+  const bulkSendId: string = campaign.id
+  let successCount = 0
+  let failedCount = 0
+
+  // Process in batches of 10 to avoid overwhelming Resend rate limits
+  const BATCH_SIZE = 10
+  for (let i = 0; i < opts.recipients.length; i += BATCH_SIZE) {
+    const batch = opts.recipients.slice(i, i + BATCH_SIZE)
+    await Promise.all(batch.map(async (recipient) => {
+      const firstName = recipient.name.split(' ')[0] || recipient.name
+      const personalizedBody = opts.body.replace(/\{\{name\}\}/g, firstName)
+
+      let threadId: string | null = null
+      let status: 'sent' | 'failed' = 'failed'
+      let errorMsg: string | null = null
+
+      try {
+        // Create thread
+        const { data: thread } = await supabase
+          .from('message_threads')
+          .insert({
+            user_id: recipient.id || null,
+            user_email: recipient.email,
+            user_name: recipient.name,
+            subject: opts.subject,
+            last_message_at: new Date().toISOString(),
+            last_message_preview: personalizedBody.slice(0, 100),
+            unread_admin: 0,
+            unread_user: 1,
+            is_admin_initiated: true,
+          })
+          .select('id')
+          .single()
+
+        if (thread) {
+          threadId = thread.id
+          // Insert message
+          await supabase.from('messages').insert({
+            thread_id: threadId,
+            sender_type: 'admin',
+            body: personalizedBody,
+            source: 'bulk',
+            email_status: 'pending',
+            is_read: true,
+          })
+          // Send email
+          await sendContactReply(recipient.email, { subject: opts.subject, body: personalizedBody })
+          // Update message email_status
+          await supabase
+            .from('messages')
+            .update({ email_status: 'sent' })
+            .eq('thread_id', threadId)
+            .eq('source', 'bulk')
+          status = 'sent'
+          successCount++
+        } else {
+          failedCount++
+          errorMsg = 'Thread creation failed'
+        }
+      } catch (e) {
+        failedCount++
+        errorMsg = e instanceof Error ? e.message : 'Unknown error'
+      }
+
+      // Record recipient outcome
+      await supabase.from('bulk_send_recipients').insert({
+        bulk_send_id: bulkSendId,
+        user_id: recipient.id || null,
+        user_email: recipient.email,
+        user_name: recipient.name,
+        thread_id: threadId,
+        status,
+        error: errorMsg,
+      })
+    }))
+  }
+
+  // Finalize campaign
+  await supabase
+    .from('bulk_sends')
+    .update({
+      success_count: successCount,
+      failed_count: failedCount,
+      status: failedCount === 0 ? 'done' : successCount === 0 ? 'partial' : 'partial',
+    })
+    .eq('id', bulkSendId)
+
+  return { ok: true, bulkSendId, successCount, failedCount }
 }

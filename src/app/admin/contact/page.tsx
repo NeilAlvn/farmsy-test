@@ -1,23 +1,42 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { Pencil } from 'lucide-react'
-import { getInboxThreads, type ConversationRow } from './actions'
+import { Pencil, Send } from 'lucide-react'
+import {
+  getInboxThreads,
+  getSentThreads,
+  getBulkSends,
+  type BulkSendRow,
+  type ConversationRow,
+} from './actions'
 
-import ThreadList    from './_components/ThreadList'
-import ThreadView   from './_components/ThreadView'
-import ComposeModal from './_components/ComposeModal'
+import ThreadList          from './_components/ThreadList'
+import ThreadView          from './_components/ThreadView'
+import ComposeModal        from './_components/ComposeModal'
+import SentList            from './_components/SentList'
+import BulkSendDetailView  from './_components/BulkSendDetailView'
+import BulkSendModal       from './_components/BulkSendModal'
 
-const POLL_INTERVAL = 30_000 // 30 seconds
+const POLL_INTERVAL = 30_000
+
+type View = 'inbox' | 'sent'
 
 export default function ContactPage() {
   // ── Core state ──────────────────────────────────────────────────────────────
+  const [view, setView]             = useState<View>('inbox')
   const [conversations, setConversations] = useState<ConversationRow[]>([])
   const [loading, setLoading]             = useState(true)
   const [selected, setSelected]           = useState<ConversationRow | null>(null)
   const [showCompose, setShowCompose]     = useState(false)
+  const [showBulkSend, setShowBulkSend]   = useState(false)
 
-  // ── Filter / search state (passed down to ThreadList) ───────────────────────
+  // ── Sent-view state ─────────────────────────────────────────────────────────
+  const [sentThreads, setSentThreads]       = useState<ConversationRow[]>([])
+  const [bulkSends, setBulkSends]           = useState<BulkSendRow[]>([])
+  const [loadingSent, setLoadingSent]       = useState(false)
+  const [selectedBulkSend, setSelectedBulkSend] = useState<BulkSendRow | null>(null)
+
+  // ── Filter / search state ───────────────────────────────────────────────────
   const [search, setSearch]           = useState('')
   const [topicFilter, setTopicFilter] = useState('All')
 
@@ -27,7 +46,6 @@ export default function ContactPage() {
     try {
       const data = await getInboxThreads()
       setConversations(data)
-      // Keep selected row in sync if its data changed (e.g. reply arrived)
       if (selected) {
         const refreshed = data.find(c => c.id === selected.id)
         if (refreshed) setSelected(refreshed)
@@ -37,17 +55,36 @@ export default function ContactPage() {
     }
   }, [selected])
 
-  // Initial load
+  const loadSent = useCallback(async (silent = false) => {
+    if (!silent) setLoadingSent(true)
+    try {
+      const [threads, campaigns] = await Promise.all([getSentThreads(), getBulkSends()])
+      setSentThreads(threads)
+      setBulkSends(campaigns)
+    } finally {
+      if (!silent) setLoadingSent(false)
+    }
+  }, [])
+
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 30-second polling
   useEffect(() => {
-    const id = setInterval(() => load(true), POLL_INTERVAL)
+    const id = setInterval(() => {
+      if (view === 'inbox') load(true)
+      else loadSent(true)
+    }, POLL_INTERVAL)
     return () => clearInterval(id)
-  }, [load])
+  }, [load, loadSent, view])
 
-  // ── Callbacks passed to child components ─────────────────────────────────────
-  // Called when a reply is sent so the conversation list refreshes immediately.
+  // ── View switching ────────────────────────────────────────────────────────────
+  function switchView(v: View) {
+    setView(v)
+    setSelected(null)
+    setSelectedBulkSend(null)
+    if (v === 'sent') loadSent()
+  }
+
+  // ── Callbacks ─────────────────────────────────────────────────────────────────
   function onReplySent(updatedConversation: ConversationRow) {
     setConversations(prev =>
       prev.map(c => c.id === updatedConversation.id ? updatedConversation : c)
@@ -55,22 +92,26 @@ export default function ContactPage() {
     setSelected(updatedConversation)
   }
 
-  // Called when compose sends — may be multiple threads (one per recipient).
-  // Prepends all new threads; selects the first one.
   function onComposeSent(threads: ConversationRow[]) {
     setConversations(prev => [...threads, ...prev])
     if (threads[0]) setSelected(threads[0])
     setShowCompose(false)
   }
 
-  // Called when a thread is archived / submission deleted.
   function onRemoved(id: string) {
     setConversations(prev => prev.filter(c => c.id !== id))
     if (selected?.id === id) setSelected(null)
   }
 
+  function onBulkSent(bulkSend: BulkSendRow) {
+    setBulkSends(prev => [bulkSend, ...prev])
+    setSelectedBulkSend(bulkSend)
+    setShowBulkSend(false)
+    setView('sent')
+  }
+
   // ── Derived counts ────────────────────────────────────────────────────────────
-  const totalCount    = conversations.length
+  const totalCount     = conversations.length
   const unrepliedCount = conversations.filter(c => !c.isReplied).length
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -90,15 +131,24 @@ export default function ContactPage() {
           </p>
         </div>
 
-        {/* Compose button — green, prominent, top-left of action area */}
-        <button
-          onClick={() => setShowCompose(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-85"
-          style={{ backgroundColor: 'var(--primary)', color: 'white' }}
-        >
-          <Pencil size={14} />
-          Compose
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowBulkSend(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors hover:bg-border/20"
+            style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          >
+            <Send size={14} />
+            Bulk Send
+          </button>
+          <button
+            onClick={() => setShowCompose(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-opacity hover:opacity-85"
+            style={{ backgroundColor: 'var(--primary)', color: 'white' }}
+          >
+            <Pencil size={14} />
+            Compose
+          </button>
+        </div>
       </div>
 
       {/* ── Two-column panel ─────────────────────────────────────────────────── */}
@@ -107,27 +157,67 @@ export default function ContactPage() {
         style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)' }}
       >
 
-        {/* ── LEFT: thread / submission list ──────────────────────────────── */}
+        {/* ── LEFT: list + Inbox/Sent tabs ────────────────────────────────── */}
         <div
           className="w-72 lg:w-80 flex-shrink-0 flex flex-col"
           style={{ borderRight: '1px solid var(--border)' }}
         >
-          <ThreadList
-            conversations={conversations}
-            loading={loading}
-            selected={selected}
-            search={search}
-            topicFilter={topicFilter}
-            onSelect={setSelected}
-            onSearchChange={setSearch}
-            onTopicChange={setTopicFilter}
-            onRemoved={onRemoved}
-          />
+          {/* Tab bar */}
+          <div
+            className="flex shrink-0"
+            style={{ borderBottom: '1px solid var(--border)' }}
+          >
+            {(['inbox', 'sent'] as const).map(v => (
+              <button
+                key={v}
+                onClick={() => switchView(v)}
+                className="flex-1 py-2.5 text-sm font-medium capitalize transition-colors relative"
+                style={{
+                  color: view === v ? 'var(--foreground)' : 'var(--muted-foreground)',
+                  backgroundColor: 'transparent',
+                }}
+              >
+                {v === 'inbox' ? 'Inbox' : 'Sent'}
+                {view === v && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-0.5"
+                    style={{ backgroundColor: 'var(--primary)' }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {view === 'inbox' ? (
+            <ThreadList
+              conversations={conversations}
+              loading={loading}
+              selected={selected}
+              search={search}
+              topicFilter={topicFilter}
+              onSelect={setSelected}
+              onSearchChange={setSearch}
+              onTopicChange={setTopicFilter}
+              onRemoved={onRemoved}
+            />
+          ) : (
+            <SentList
+              threads={sentThreads}
+              bulkSends={bulkSends}
+              loading={loadingSent}
+              selectedThread={selected}
+              selectedBulkSend={selectedBulkSend}
+              onSelectThread={c => { setSelected(c); setSelectedBulkSend(null) }}
+              onSelectBulkSend={b => { setSelectedBulkSend(b); setSelected(null) }}
+            />
+          )}
         </div>
 
-        {/* ── RIGHT: conversation / thread view ───────────────────────────── */}
+        {/* ── RIGHT: thread view or bulk send detail ───────────────────────── */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          {selected ? (
+          {view === 'sent' && selectedBulkSend ? (
+            <BulkSendDetailView bulkSend={selectedBulkSend} />
+          ) : selected ? (
             <ThreadView
               conversation={selected}
               onReplySent={onReplySent}
@@ -141,18 +231,24 @@ export default function ContactPage() {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
               <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
-                Select a conversation to get started
+                {view === 'inbox' ? 'Select a conversation to get started' : 'Select a message or campaign'}
               </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Compose modal ────────────────────────────────────────────────── */}
       {showCompose && (
         <ComposeModal
           onClose={() => setShowCompose(false)}
           onSent={onComposeSent}
+        />
+      )}
+
+      {showBulkSend && (
+        <BulkSendModal
+          onClose={() => setShowBulkSend(false)}
+          onSent={onBulkSent}
         />
       )}
     </div>

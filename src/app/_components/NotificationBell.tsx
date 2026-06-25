@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Bell, CheckCircle2, XCircle, Sparkles, Clock,
-  AlertCircle, CreditCard, LogIn, ShieldAlert, Info,
+  AlertCircle, CreditCard, LogIn, MessageSquare, ShieldAlert, Info,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -40,11 +41,13 @@ function NotifIcon({ type }: { type: string }) {
     case 'account_login':          return <LogIn className={cls} style={{ color: 'var(--muted-foreground)' }} />
     case 'session_kicked':         return <ShieldAlert className={cls} style={{ color: '#d97706' }} />
     case 'lifetime_activated':     return <Sparkles className={cls} style={{ color: 'var(--primary)' }} />
+    case 'new_message':            return <MessageSquare className={cls} style={{ color: 'var(--primary)' }} />
     default:                       return <Info className={cls} style={{ color: 'var(--muted-foreground)' }} />
   }
 }
 
 export default function NotificationBell() {
+  const router                        = useRouter()
   const [userId, setUserId]           = useState<string | null>(null)
   const [token, setToken]             = useState<string | null>(null)
   const [notifs, setNotifs]           = useState<Notification[]>([])
@@ -163,25 +166,30 @@ export default function NotificationBell() {
                 <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>No notifications yet</p>
               </div>
             ) : (
-              notifs.map(n => (
-                <div
-                  key={n.id}
-                  className="flex gap-3 px-4 py-3 border-b border-border/40 last:border-0 transition-colors"
-                  style={{ backgroundColor: n.read ? 'transparent' : 'oklch(0.36 0.07 145 / 0.04)' }}
-                >
-                  <div className="mt-0.5">
-                    <NotifIcon type={n.type} />
+              notifs.map(n => {
+                const isMessage = n.type === 'new_message'
+                return (
+                  <div
+                    key={n.id}
+                    role={isMessage ? 'button' : undefined}
+                    onClick={isMessage ? () => { setOpen(false); router.push('/messages') } : undefined}
+                    className={`flex gap-3 px-4 py-3 border-b border-border/40 last:border-0 transition-colors ${isMessage ? 'cursor-pointer hover:bg-border/20' : ''}`}
+                    style={{ backgroundColor: n.read ? 'transparent' : 'oklch(0.36 0.07 145 / 0.04)' }}
+                  >
+                    <div className="mt-0.5">
+                      <NotifIcon type={n.type} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold truncate" style={{ color: 'var(--foreground)' }}>{n.title}</p>
+                      <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{n.message}</p>
+                      <p className="text-[10px] mt-1" style={{ color: 'var(--border)' }}>{timeAgo(n.created_at)}</p>
+                    </div>
+                    {!n.read && (
+                      <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate" style={{ color: 'var(--foreground)' }}>{n.title}</p>
-                    <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>{n.message}</p>
-                    <p className="text-[10px] mt-1" style={{ color: 'var(--border)' }}>{timeAgo(n.created_at)}</p>
-                  </div>
-                  {!n.read && (
-                    <div className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
-                  )}
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>
