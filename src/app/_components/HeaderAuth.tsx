@@ -112,7 +112,7 @@ export default function HeaderAuth() {
               <Link href="/messages" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <MessageSquare size={14} /> Messages
               </Link>
-              <Link href="/invite" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-border/30" style={{ color: 'var(--primary)' }}>
+              <Link href="/invite" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <Gift size={14} /> Invite &amp; Earn
               </Link>
               <button onClick={signOut} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
