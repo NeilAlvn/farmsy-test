@@ -28,6 +28,61 @@ async function getEmail(userId: string, fallback?: string | null): Promise<strin
   return data?.email ?? null
 }
 
+async function rewardReferrer(refereeUserId: string) {
+  const client = sb()
+
+  const { data: referral } = await client
+    .from('referrals')
+    .select('id, referrer_id')
+    .eq('referee_id', refereeUserId)
+    .eq('status', 'pending')
+    .maybeSingle()
+
+  if (!referral) return
+
+  const { data: referrer } = await client
+    .from('profiles')
+    .select('stripe_subscription_id, pending_referral_months')
+    .eq('id', referral.referrer_id)
+    .single()
+
+  let extended = false
+  if (referrer?.stripe_subscription_id) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(referrer.stripe_subscription_id) as unknown as Stripe.Subscription & { current_period_end: number }
+      if (sub.status === 'active' || sub.status === 'trialing') {
+        const newEnd = sub.current_period_end + 30 * 24 * 60 * 60
+        await stripe.subscriptions.update(referrer.stripe_subscription_id, {
+          trial_end: newEnd,
+          proration_behavior: 'none',
+        } as Parameters<typeof stripe.subscriptions.update>[1])
+        extended = true
+      }
+    } catch { /* sub may be gone — fall through to credit */ }
+  }
+
+  if (!extended) {
+    await client
+      .from('profiles')
+      .update({ pending_referral_months: ((referrer?.pending_referral_months as number | null) ?? 0) + 1 })
+      .eq('id', referral.referrer_id)
+  }
+
+  await client
+    .from('referrals')
+    .update({ status: 'rewarded', rewarded_at: new Date().toISOString() })
+    .eq('id', referral.id)
+
+  await createNotification(
+    referral.referrer_id,
+    'referral_reward',
+    'You earned a free month! 🎉',
+    extended
+      ? 'A friend you referred just subscribed to Farmsy. We\'ve added 1 free month to your subscription.'
+      : 'A friend you referred just subscribed. 1 free month has been added to your next renewal.',
+  )
+}
+
 function stripeStatusToDb(status: Stripe.Subscription.Status): string {
   switch (status) {
     case 'active':    return 'active'
@@ -70,6 +125,14 @@ export async function POST(request: Request) {
       const email = await getEmail(userId, session.customer_details?.email ?? session.customer_email)
 
       // Lifetime — one-time payment
+      // Reset applied referral months credit (was used to extend trial at checkout)
+      const referralMonthsApplied = parseInt(session.metadata?.referral_months_applied ?? '0')
+      if (referralMonthsApplied > 0) {
+        await sb().from('profiles')
+          .update({ pending_referral_months: 0 })
+          .eq('id', userId)
+      }
+
       if (session.mode === 'payment') {
         await updateProfile(userId, {
           subscription_status:    'active',
@@ -168,6 +231,8 @@ export async function POST(request: Request) {
             nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
           })
         }
+        // Reward the referrer (if this user was referred)
+        await rewardReferrer(userId)
       }
 
       // Went past due

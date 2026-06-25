@@ -1,6 +1,6 @@
 {
   "nav": {
-    "comingSoon": "Binnenkort",
+    "comingSoon": "Nu Live",
     "map": "Kaart",
     "about": "Over ons",
     "faq": "FAQ",
@@ -13,11 +13,11 @@
     "headline2": "vers",
     "headlineEmphasis": "rechtstreeks van de bron.",
     "subheadline": "Farmsy verbindt je met geverifieerde boerderijen in Nederland en België. Van boerderijwinkels tot biologische producenten — ontdek, maak contact en steun de lokale landbouw.",
-    "launchingSoon": "Wees een van de eersten die Farmsy ervaart. Binnenkort beschikbaar."
+    "launchingSoon": "12.717+ boerderijen nu beschikbaar in NL & BE"
   },
   "subscribe": {
     "placeholder": "Voer je e-mailadres in",
-    "cta": "Vroeg toegang krijgen",
+    "cta": "Start Gratis Proefperiode",
     "consent": "Ik wil graag updates ontvangen van Farmsy.",
     "privacyPolicy": "Privacybeleid",
     "success": "Je staat op de lijst. We nemen snel contact met je op.",
@@ -35,10 +35,10 @@
     "eyebrow": "In cijfers",
     "verifiedFarms": "Geverifieerde boerderijen",
     "coverage": "Dekking",
-    "launching": "Lancering"
+    "launching": "Gratis proefperiode"
   },
   "features": {
-    "eyebrow": "Wat eraan komt",
+    "eyebrow": "Wat je krijgt",
     "headline1": "Alles wat je nodig hebt om",
     "headlineEmphasis": "lokaal te eten.",
     "findFarms": {
@@ -60,7 +60,7 @@
   },
   "pricing": {
     "eyebrow": "Farmsy Premium",
-    "subheading": "Krijg onbeperkte toegang tot alle boerderijvermeldingen in Nederland en België.",
+    "subheading": "Sluit je aan bij duizenden gebruikers die lokale boerderijen ontdekken in Nederland en België.",
     "yearly": "Jaarlijks",
     "perYear": "/jaar",
     "yearlyTagline": "3 dagen gratis proberen, daarna €29,99/jaar",

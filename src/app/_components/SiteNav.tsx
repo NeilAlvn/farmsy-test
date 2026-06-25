@@ -132,13 +132,6 @@ export default function SiteNav() {
           <LanguageSwitcher />
           <NotificationBell />
           <HeaderAuth />
-          <span className="hidden shrink-0 items-center gap-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground sm:inline-flex">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary/60 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            </span>
-            {t('comingSoon')}
-          </span>
         </div>
       </div>
     </header>

@@ -1,6 +1,6 @@
 {
   "nav": {
-    "comingSoon": "Bientôt",
+    "comingSoon": "Maintenant disponible",
     "map": "Carte",
     "about": "À propos",
     "faq": "FAQ",
@@ -13,11 +13,11 @@
     "headline2": "frais",
     "headlineEmphasis": "directement à la source.",
     "subheadline": "Farmsy vous connecte avec des fermes vérifiées aux Pays-Bas et en Belgique. Des magasins à la ferme aux producteurs biologiques — découvrez, connectez et soutenez l'agriculture locale.",
-    "launchingSoon": "Soyez parmi les premiers à découvrir Farmsy. Lancement imminent."
+    "launchingSoon": "12 717+ fermes disponibles maintenant en NL & BE"
   },
   "subscribe": {
     "placeholder": "Entrez votre adresse e-mail",
-    "cta": "Accès anticipé",
+    "cta": "Commencer l'essai gratuit",
     "consent": "Je souhaite recevoir des mises à jour de Farmsy.",
     "privacyPolicy": "Politique de confidentialité",
     "success": "Vous êtes sur la liste. Nous vous contacterons bientôt.",
@@ -35,10 +35,10 @@
     "eyebrow": "En chiffres",
     "verifiedFarms": "Fermes vérifiées",
     "coverage": "Couverture",
-    "launching": "Lancement"
+    "launching": "Essai gratuit"
   },
   "features": {
-    "eyebrow": "Ce qui arrive",
+    "eyebrow": "Ce que vous obtenez",
     "headline1": "Tout ce dont vous avez besoin pour",
     "headlineEmphasis": "manger local.",
     "findFarms": {
@@ -60,7 +60,7 @@
   },
   "pricing": {
     "eyebrow": "Farmsy Premium",
-    "subheading": "Accédez à toutes les fermes des Pays-Bas et de Belgique sans limite.",
+    "subheading": "Rejoignez des milliers d'utilisateurs qui découvrent des fermes locales aux Pays-Bas et en Belgique.",
     "yearly": "Annuel",
     "perYear": "/an",
     "yearlyTagline": "3 jours gratuits, puis €29,99/an",

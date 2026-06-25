@@ -1,6 +1,6 @@
 {
   "nav": {
-    "comingSoon": "Próximamente",
+    "comingSoon": "Ahora en vivo",
     "map": "Mapa",
     "about": "Acerca de",
     "faq": "FAQ",
@@ -13,11 +13,11 @@
     "headline2": "fresco",
     "headlineEmphasis": "directamente de la fuente.",
     "subheadline": "Farmsy te conecta con granjas verificadas en los Países Bajos y Bélgica. Desde tiendas en la granja hasta productores orgánicos — descubre, conecta y apoya la agricultura local.",
-    "launchingSoon": "Sé de los primeros en experimentar Farmsy. Próximamente."
+    "launchingSoon": "12.717+ granjas disponibles ahora en NL & BE"
   },
   "subscribe": {
     "placeholder": "Introduce tu correo electrónico",
-    "cta": "Acceso anticipado",
+    "cta": "Iniciar prueba gratuita",
     "consent": "Me gustaría recibir actualizaciones de Farmsy.",
     "privacyPolicy": "Política de privacidad",
     "success": "Estás en la lista. Nos pondremos en contacto pronto.",
@@ -35,10 +35,10 @@
     "eyebrow": "En números",
     "verifiedFarms": "Granjas verificadas",
     "coverage": "Cobertura",
-    "launching": "Lanzamiento"
+    "launching": "Prueba gratuita"
   },
   "features": {
-    "eyebrow": "Lo que viene",
+    "eyebrow": "Lo que obtienes",
     "headline1": "Todo lo que necesitas para",
     "headlineEmphasis": "comer local.",
     "findFarms": {
@@ -60,7 +60,7 @@
   },
   "pricing": {
     "eyebrow": "Farmsy Premium",
-    "subheading": "Accede a todos los listados de granjas en los Países Bajos y Bélgica sin límite.",
+    "subheading": "Únete a miles de usuarios que descubren granjas locales en los Países Bajos y Bélgica.",
     "yearly": "Anual",
     "perYear": "/año",
     "yearlyTagline": "3 días gratis, luego €29,99/año",

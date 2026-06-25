@@ -159,16 +159,24 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
     e.preventDefault()
     setError(null)
     setLoading(true)
+
+    const refCode = document.cookie
+      .split('; ')
+      .find(c => c.startsWith('farmsy_ref='))
+      ?.split('=')[1]
+
     const res = await fetch('/api/auth/signup', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password, firstName, lastName, dob, streetAddress, city, postalCode, country }),
+      body:    JSON.stringify({ email, password, firstName, lastName, dob, streetAddress, city, postalCode, country, refCode }),
     })
     const data = await res.json()
     if (!res.ok) {
       setError(data.error ?? 'Something went wrong. Please try again.')
       setLoading(false)
     } else {
+      // Clear referral cookie — already consumed
+      document.cookie = 'farmsy_ref=; path=/; max-age=0'
       setVerifyEmail(email)
       setLoading(false)
     }

@@ -1,6 +1,6 @@
 {
   "nav": {
-    "comingSoon": "Coming soon",
+    "comingSoon": "Now Live",
     "map": "Map",
     "about": "About",
     "faq": "FAQ",
@@ -13,11 +13,11 @@
     "headline2": "fresh",
     "headlineEmphasis": "from the source.",
     "subheadline": "Farmsy connects you with verified farms across the Netherlands and Belgium. From farm shops to organic producers — discover, connect, and support local agriculture.",
-    "launchingSoon": "Be among the first to experience Farmsy. Launching soon."
+    "launchingSoon": "12,717+ farms available now across NL & BE"
   },
   "subscribe": {
     "placeholder": "Enter your email",
-    "cta": "Get Early Access",
+    "cta": "Start Free Trial",
     "consent": "I'd like to receive updates from Farmsy.",
     "privacyPolicy": "Privacy policy",
     "success": "You're on the list. We'll be in touch soon.",
@@ -35,10 +35,10 @@
     "eyebrow": "By the numbers",
     "verifiedFarms": "Verified farms",
     "coverage": "Coverage",
-    "launching": "Launching"
+    "launching": "Free trial"
   },
   "features": {
-    "eyebrow": "What's coming",
+    "eyebrow": "What you get",
     "headline1": "Everything you need to",
     "headlineEmphasis": "eat local.",
     "findFarms": {
@@ -60,7 +60,7 @@
   },
   "pricing": {
     "eyebrow": "Farmsy Premium",
-    "subheading": "Get unlimited access to every farm listing in the Netherlands and Belgium.",
+    "subheading": "Join thousands of users discovering local farms across the Netherlands and Belgium.",
     "yearly": "Yearly",
     "perYear": "/year",
     "yearlyTagline": "Try free for 3 days, then €29.99/year",

@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     email, password,
     firstName, lastName, dob,
     streetAddress, city, postalCode, country,
+    refCode,
   } = await request.json() as {
     email: string
     password: string
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
     city?: string
     postalCode?: string
     country?: string
+    refCode?: string
   }
 
   if (!email || !password) {
@@ -61,6 +63,31 @@ export async function POST(request: Request) {
 
   const APP_URL = 'https://farmsy.app'
   await sendVerificationEmail(email, { confirmUrl: `${APP_URL}/auth/verify?token=${token}` })
+
+  // Referral tracking — link new user to referrer if a valid ref code was supplied
+  if (refCode && data.user?.id) {
+    const code = refCode.toUpperCase()
+    const { data: referrer } = await sb
+      .from('profiles')
+      .select('id')
+      .eq('referral_code', code)
+      .neq('id', data.user.id)  // cannot refer yourself
+      .maybeSingle()
+
+    if (referrer) {
+      await sb.from('profiles')
+        .update({ referred_by: referrer.id })
+        .eq('id', data.user.id)
+
+      await sb.from('referrals').insert({
+        referrer_id:   referrer.id,
+        referee_id:    data.user.id,
+        referral_code: code,
+        status:        'pending',
+      })
+      // ignore unique-constraint error (idempotent — can't be referred twice)
+    }
+  }
 
   return Response.json({ ok: true })
 }

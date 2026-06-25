@@ -1,6 +1,6 @@
 {
   "nav": {
-    "comingSoon": "Demnächst",
+    "comingSoon": "Jetzt Live",
     "map": "Karte",
     "about": "Über uns",
     "faq": "FAQ",
@@ -13,11 +13,11 @@
     "headline2": "frisch",
     "headlineEmphasis": "direkt von der Quelle.",
     "subheadline": "Farmsy verbindet Sie mit verifizierten Bauernhöfen in den Niederlanden und Belgien. Von Hofläden bis zu Bio-Produzenten — entdecken, vernetzen und unterstützen Sie die lokale Landwirtschaft.",
-    "launchingSoon": "Seien Sie einer der Ersten, die Farmsy erleben. Bald verfügbar."
+    "launchingSoon": "12.717+ Höfe jetzt verfügbar in NL & BE"
   },
   "subscribe": {
     "placeholder": "E-Mail-Adresse eingeben",
-    "cta": "Frühen Zugang erhalten",
+    "cta": "Kostenlos Testen",
     "consent": "Ich möchte Updates von Farmsy erhalten.",
     "privacyPolicy": "Datenschutzrichtlinie",
     "success": "Sie stehen auf der Liste. Wir melden uns bald.",
@@ -35,10 +35,10 @@
     "eyebrow": "Zahlen & Fakten",
     "verifiedFarms": "Verifizierte Bauernhöfe",
     "coverage": "Abdeckung",
-    "launching": "Markteinführung"
+    "launching": "Kostenlose Testphase"
   },
   "features": {
-    "eyebrow": "Was kommt",
+    "eyebrow": "Was Sie erhalten",
     "headline1": "Alles, was Sie brauchen, um",
     "headlineEmphasis": "lokal zu essen.",
     "findFarms": {
@@ -60,7 +60,7 @@
   },
   "pricing": {
     "eyebrow": "Farmsy Premium",
-    "subheading": "Unbegrenzter Zugang zu allen Hofeinträgen in den Niederlanden und Belgien.",
+    "subheading": "Schließen Sie sich Tausenden von Nutzern an, die lokale Höfe in den Niederlanden und Belgien entdecken.",
     "yearly": "Jährlich",
     "perYear": "/Jahr",
     "yearlyTagline": "3 Tage kostenlos testen, dann €29,99/Jahr",

@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   const { data: profile } = await sb
     .from('profiles')
-    .select('email, stripe_customer_id, subscription_status, win_back_sent')
+    .select('email, stripe_customer_id, subscription_status, win_back_sent, pending_referral_months')
     .eq('id', userId)
     .single()
 
@@ -45,7 +45,9 @@ export async function POST(request: Request) {
 
   // Only offer the free trial to users who have never had a subscription.
   // 'free' is the default for new users — anything else means they've previously subscribed.
-  const hadPriorSubscription = !!profile?.subscription_status && profile.subscription_status !== 'free'
+  const hadPriorSubscription  = !!profile?.subscription_status && profile.subscription_status !== 'free'
+  const pendingReferralMonths = (profile?.pending_referral_months as number | null) ?? 0
+  const bonusTrialDays        = pendingReferralMonths * 30
 
   // Reuse existing Stripe customer or create a new one
   let customerId = profile?.stripe_customer_id as string | undefined
@@ -79,15 +81,23 @@ export async function POST(request: Request) {
   }
 
   // Yearly subscription — trial only for first-time subscribers
+  // Earned referral months extend the trial (30 days each)
+  const baseTrialDays = hadPriorSubscription ? 0 : 3
+  const totalTrialDays = baseTrialDays + bonusTrialDays
+
   const session = await stripe.checkout.sessions.create({
     customer:   customerId,
     mode:       'subscription',
     line_items: [{ price: PRICE_IDS.yearly, quantity: 1 }],
     success_url: `${origin}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url:  `${origin}/subscription/cancelled`,
-    metadata:    { supabase_user_id: userId, plan: 'yearly' },
+    metadata: {
+      supabase_user_id: userId,
+      plan: 'yearly',
+      ...(pendingReferralMonths > 0 ? { referral_months_applied: String(pendingReferralMonths) } : {}),
+    },
     subscription_data: {
-      ...(hadPriorSubscription ? {} : { trial_period_days: 3 }),
+      ...(totalTrialDays > 0 ? { trial_period_days: totalTrialDays } : {}),
       metadata: { supabase_user_id: userId, plan: 'yearly' },
     },
     payment_method_collection: 'always',

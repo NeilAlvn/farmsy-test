@@ -24,6 +24,7 @@ import {
   Check,
   Loader2,
   Zap,
+  MapIcon,
 } from 'lucide-react'
 import FarmCard from '@/app/FarmCard'
 import type { FarmPreview } from '@/app/page'
@@ -49,6 +50,14 @@ const fadeUp = {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    if (ref && /^[A-Z0-9]{6,12}$/.test(ref.toUpperCase())) {
+      document.cookie = `farmsy_ref=${ref.toUpperCase()}; path=/; max-age=604800; SameSite=Lax`
+    }
+  }, [])
+
   return (
     <div
       className="relative min-h-screen"
@@ -81,8 +90,14 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
 
 function Hero() {
   const t = useTranslations('hero')
+  const [showSignIn, setShowSignIn] = useState(false)
+
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-16 sm:pt-24">
+      {showSignIn && (
+        <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />
+      )}
+
       {/* Background Image */}
       <div className="absolute inset-0 -z-10">
         <Image
@@ -92,11 +107,11 @@ function Hero() {
           priority
           className="object-cover opacity-20"
         />
-        <div 
-          className="absolute inset-0" 
-          style={{ 
-            background: 'linear-gradient(to bottom, transparent, var(--background) 95%)' 
-          }} 
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, var(--background) 95%)'
+          }}
         />
       </div>
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
@@ -135,20 +150,41 @@ function Hero() {
             {t('subheadline')}
           </motion.p>
 
+          {/* CTAs */}
           <motion.div
             initial="hidden"
             animate="show"
             variants={fadeUp}
             transition={{ delay: 0.25 }}
-            className="mt-10"
+            className="mt-10 flex flex-col items-center gap-3 sm:flex-row lg:justify-start"
           >
-            <div className="lg:max-w-lg">
-              <SubscribeForm id="hero" />
-            </div>
-            <p className="mt-5 text-sm text-muted-foreground">
-              {t('launchingSoon')}
-            </p>
+            <button
+              onClick={() => setShowSignIn(true)}
+              className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold transition hover:opacity-85"
+              style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
+            >
+              Start Free Trial
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <MapGateLink
+              href="/map"
+              className="inline-flex items-center gap-2 rounded-xl border px-7 py-3.5 text-base font-semibold transition hover:opacity-80"
+              style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+            >
+              <MapIcon className="h-4 w-4" />
+              Explore Farms
+            </MapGateLink>
           </motion.div>
+
+          <motion.p
+            initial="hidden"
+            animate="show"
+            variants={fadeUp}
+            transition={{ delay: 0.32 }}
+            className="mt-5 text-sm text-muted-foreground"
+          >
+            {t('launchingSoon')}
+          </motion.p>
 
           <motion.div
             initial="hidden"
@@ -454,9 +490,9 @@ function FeaturedFarms({ farms }: { farms: FarmPreview[] }) {
 function Stats() {
   const t = useTranslations('stats')
   const stats = [
-    { value: 12000, suffix: '+', label: t('verifiedFarms') },
+    { value: 12000, suffix: '+',   label: t('verifiedFarms') },
     { value: null,  text: 'NL & BE', label: t('coverage') },
-    { value: null,  text: '2026',    label: t('launching') },
+    { value: null,  text: '3-day',   label: t('launching') },
   ]
 
   return (
