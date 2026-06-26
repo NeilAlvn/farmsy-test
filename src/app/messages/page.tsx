@@ -81,8 +81,9 @@ function fmtTime(iso: string): string {
 export default function ContactSupportPage() {
   const router = useRouter()
 
-  const [userId, setUserId]     = useState<string | null>(null)
+  const [userId, setUserId]       = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string>('')
+  const [userName, setUserName]   = useState<string>('')
   const [threads, setThreads]   = useState<UserThread[]>([])
   const [loading, setLoading]   = useState(true)
   const [selected, setSelected] = useState<UserThread | null>(null)
@@ -109,6 +110,7 @@ export default function ContactSupportPage() {
       if (!session?.user) { router.replace('/'); return }
       setUserId(session.user.id)
       setUserEmail(session.user.email ?? '')
+      setUserName((session.user.user_metadata?.full_name as string | undefined) ?? session.user.email ?? '')
     })
   }, [router])
 
@@ -197,7 +199,7 @@ export default function ContactSupportPage() {
     }
     setSendingNew(true)
     setComposeError('')
-    const result = await createUserThread(userId, userEmail, newSubject.trim(), newBody.trim())
+    const result = await createUserThread(userId, userEmail, userName, newSubject.trim(), newBody.trim())
     if (!result.ok || !result.thread) {
       setComposeError(result.error ?? 'Failed to send. Please try again.')
       setSendingNew(false)

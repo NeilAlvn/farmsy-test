@@ -84,6 +84,7 @@ export async function markThreadReadByUser(threadId: string, userId: string): Pr
 export async function createUserThread(
   userId: string,
   userEmail: string,
+  userName: string,
   subject: string,
   body: string,
 ): Promise<{ ok: boolean; thread?: UserThread; error?: string }> {
@@ -94,6 +95,7 @@ export async function createUserThread(
     .insert({
       user_id: userId,
       user_email: userEmail,
+      user_name: userName,
       subject,
       last_message_at: new Date().toISOString(),
       last_message_preview: body.slice(0, 100),
