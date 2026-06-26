@@ -89,7 +89,7 @@ export async function rewardReferrerOnConversion(refereeUserId: string): Promise
     'referral_reward',
     'You earned a free month! 🎉',
     extended
-      ? 'A friend you referred just started their Farmsy trial. We\'ve added 1 free month to your subscription.'
-      : 'A friend you referred just started their Farmsy trial. 1 free month has been added — it\'ll be applied at your next renewal or checkout.',
+      ? 'A friend you referred just started their Farmsy trial. We\'ve added 30 free days straight onto your subscription — your next payment date has been pushed back a month, no action needed.'
+      : 'A friend you referred just started their Farmsy trial. You\'ve earned 30 free days! They\'re added automatically the next time you start a plan — on top of your 3-day trial, so you get 33 days free before your first charge.',
   )
 }

@@ -81,7 +81,7 @@ export default function InvitePage() {
             </div>
             <h1 className="font-display text-3xl font-medium tracking-tight mb-3" style={{ color: 'var(--foreground)' }}>
               Invite friends,{' '}
-              <span className="serif-italic" style={{ color: 'var(--primary)' }}>earn free time</span>
+              <span className="serif-italic" style={{ color: 'var(--primary)' }}>earn free access</span>
             </h1>
             <p className="text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
               Share your link. When a friend signs up and starts their free trial, you get{' '}
@@ -312,7 +312,7 @@ export default function InvitePage() {
                 color:           'var(--primary)',
               }}
             >
-              🎁 You have <strong>{stats!.pendingMonths} free month{stats!.pendingMonths > 1 ? 's' : ''}</strong> waiting — they'll be applied automatically when you next subscribe or renew.
+              🎁 You have <strong>{stats!.pendingMonths} free month{stats!.pendingMonths > 1 ? 's' : ''}</strong> ({stats!.pendingMonths * 30} extra free days) waiting — added automatically on top of your trial when you start your plan, so your first charge is pushed back {stats!.pendingMonths} month{stats!.pendingMonths > 1 ? 's' : ''}.
             </motion.div>
           )}
 
