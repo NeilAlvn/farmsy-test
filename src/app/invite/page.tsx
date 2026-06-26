@@ -3,11 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Copy, Check, Gift, Users, Link as LinkIcon, Ticket, ArrowRight } from 'lucide-react'
+import { Copy, Check, Gift, Users, Link as LinkIcon, Ticket, ArrowRight, Clock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import SiteNav from '@/app/_components/SiteNav'
 import SiteFooter from '@/app/_components/SiteFooter'
 import { getReferralData, redeemReferralCode, type ReferralStats } from './actions'
+
+function fmtShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -252,6 +256,50 @@ export default function InvitePage() {
               </div>
             ))}
           </motion.div>
+
+          {/* ── Referral activity ─────────────────────────────────────────────── */}
+          {!loading && (stats?.entries.length ?? 0) > 0 && (
+            <motion.div
+              initial="hidden" animate="show" variants={fadeUp}
+              transition={{ delay: 0.22 }}
+              className="mt-6 rounded-2xl border border-border bg-card p-6"
+            >
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted-foreground)' }}>
+                Referral activity
+              </p>
+              <div className="flex flex-col gap-3">
+                {stats!.entries.map((e, i) => {
+                  const rewarded = e.status === 'rewarded'
+                  return (
+                    <div key={i} className="flex items-center gap-3">
+                      <div
+                        className="shrink-0 flex h-8 w-8 items-center justify-center rounded-full"
+                        style={{
+                          backgroundColor: rewarded ? 'oklch(0.36 0.07 145 / 0.12)' : 'oklch(0.75 0.13 75 / 0.15)',
+                          color:           rewarded ? 'var(--primary)' : '#B45309',
+                        }}
+                      >
+                        {rewarded ? <Check className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--foreground)' }}>
+                          {e.label}
+                        </p>
+                        <p className="text-xs" style={{ color: rewarded ? 'var(--primary)' : 'var(--muted-foreground)' }}>
+                          {rewarded
+                            ? 'Started their trial · you earned 1 free month'
+                            : 'Waiting for them to start their free trial'}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                        {fmtShortDate(e.date)}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </motion.div>
+          )}
 
           {/* Pending months note */}
           {!loading && (stats?.pendingMonths ?? 0) > 0 && (

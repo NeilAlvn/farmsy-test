@@ -12,6 +12,20 @@ function sb() {
 }
 
 /**
+ * Notifies the referrer the moment a friend redeems their code / signs up with
+ * their link — before any reward. Gives immediate feedback while the actual free
+ * month stays gated on the friend starting their trial.
+ */
+export async function notifyReferrerPending(referrerId: string, refereeLabel: string): Promise<void> {
+  await createNotification(
+    referrerId,
+    'referral_pending',
+    'Someone used your code! 🎉',
+    `${refereeLabel} joined with your referral code. You'll earn 1 free month as soon as they start their free trial.`,
+  )
+}
+
+/**
  * Rewards the referrer with 1 free month once a friend they referred CONVERTS —
  * i.e. completes Stripe checkout (adds a card / starts the free trial or buys
  * lifetime). Gating on a real payment method prevents throwaway-account abuse.

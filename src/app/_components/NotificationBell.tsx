@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Bell, CheckCircle2, XCircle, Sparkles, Clock,
-  AlertCircle, CreditCard, LogIn, MessageSquare, ShieldAlert, Info,
+  AlertCircle, CreditCard, LogIn, MessageSquare, ShieldAlert, Info, Gift,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -42,6 +42,8 @@ function NotifIcon({ type }: { type: string }) {
     case 'session_kicked':         return <ShieldAlert className={cls} style={{ color: '#d97706' }} />
     case 'lifetime_activated':     return <Sparkles className={cls} style={{ color: 'var(--primary)' }} />
     case 'new_message':            return <MessageSquare className={cls} style={{ color: 'var(--primary)' }} />
+    case 'referral_pending':       return <Gift className={cls} style={{ color: '#B45309' }} />
+    case 'referral_reward':        return <Gift className={cls} style={{ color: 'var(--primary)' }} />
     default:                       return <Info className={cls} style={{ color: 'var(--muted-foreground)' }} />
   }
 }

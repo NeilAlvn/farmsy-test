@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendVerificationEmail } from '@/lib/email'
+import { notifyReferrerPending } from '@/lib/referrals'
 import { randomBytes } from 'crypto'
 
 export const dynamic = 'force-dynamic'
@@ -86,6 +87,13 @@ export async function POST(request: Request) {
         status:        'pending',
       })
       // ignore unique-constraint error (idempotent — can't be referred twice)
+
+      // Let the referrer know a friend joined with their link (reward still
+      // lands later, once this friend starts their trial)
+      const refereeLabel = [firstName, lastName].filter(Boolean).join(' ') || email
+      try {
+        await notifyReferrerPending(referrer.id, refereeLabel)
+      } catch { /* non-fatal */ }
     }
   }
 
