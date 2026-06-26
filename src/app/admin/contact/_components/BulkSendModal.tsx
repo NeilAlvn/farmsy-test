@@ -54,7 +54,7 @@ const FILTERS: { value: RecipientFilter; label: string }[] = [
 
 interface BulkSendModalProps {
   onClose: () => void
-  onSent: (bulkSend: BulkSendRow) => void
+  onSent: () => void
 }
 
 export default function BulkSendModal({ onClose, onSent }: BulkSendModalProps) {
@@ -152,19 +152,7 @@ export default function BulkSendModal({ onClose, onSent }: BulkSendModalProps) {
 
     setProgressLabel(`Sent to ${result.successCount} recipients`)
 
-    // Build a BulkSendRow to hand back
-    const sent: BulkSendRow = {
-      id: result.bulkSendId!,
-      subject,
-      body,
-      recipientCount: selectedUsers.length,
-      successCount: result.successCount,
-      failedCount: result.failedCount,
-      status: result.failedCount === 0 ? 'done' : 'partial',
-      sentAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    }
-    onSent(sent)
+    onSent()
   }
 
   // ── Backdrop click ────────────────────────────────────────────────────────
