@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Search } from 'lucide-react'
 import { getAdminUsers, type ProfileAdminRow } from '../actions'
+import EditUserDrawer from './_components/EditUserDrawer'
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -21,10 +22,14 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all')
+  const [editingId, setEditingId] = useState<string | null>(null)
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true)
     getAdminUsers().then(data => { setUsers(data); setLoading(false) })
   }, [])
+
+  useEffect(() => { load() }, [load])
 
   const filtered = useMemo(() => {
     let list = users
@@ -45,7 +50,7 @@ export default function UsersPage() {
       <div>
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Users</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
-          {loading ? '…' : `${users.length.toLocaleString()} registered accounts`}
+          {loading ? '…' : `${users.length.toLocaleString()} registered accounts · click a row to edit`}
         </p>
       </div>
 
@@ -104,8 +109,9 @@ export default function UsersPage() {
                 {filtered.map((u, i) => (
                   <tr
                     key={u.id}
+                    onClick={() => setEditingId(u.id)}
                     style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}
-                    className="hover:bg-black/[0.02] transition-colors"
+                    className="hover:bg-black/[0.02] transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3 font-medium whitespace-nowrap" style={{ color: 'var(--foreground)' }}>{displayName(u)}</td>
                     <td className="px-4 py-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>{u.email ?? '—'}</td>
@@ -147,6 +153,14 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      {editingId && (
+        <EditUserDrawer
+          userId={editingId}
+          onClose={() => setEditingId(null)}
+          onSaved={load}
+        />
+      )}
 
     </div>
   )

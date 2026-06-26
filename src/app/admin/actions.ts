@@ -259,3 +259,78 @@ export async function getProfileRole(userId: string): Promise<string | null> {
     .maybeSingle()
   return data?.role ?? null
 }
+
+// ─── User editor (admin testing tool) ──────────────────────────────────────────
+
+// Fields the admin editor is allowed to write. Anything not in this set is
+// ignored server-side, so id/created_at and other system columns are protected.
+const EDITABLE_USER_FIELDS = new Set<string>([
+  'name', 'first_name', 'last_name', 'email', 'role',
+  'subscription_status', 'subscription_plan', 'subscription_end_date',
+  'email_verified', 'win_back_sent', 'cancelled_at',
+  'referral_code', 'referred_by', 'pending_referral_months',
+  'stripe_customer_id', 'stripe_subscription_id',
+])
+
+// Returns the full profile row (every column that exists in the DB) so the
+// editor can render only the fields that are actually present — resilient to
+// pending migrations that may not have added referral/personal columns yet.
+export async function getUserDetail(userId: string): Promise<Record<string, unknown> | null> {
+  const supabase = db()
+  const { data } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle()
+  return (data as Record<string, unknown> | null) ?? null
+}
+
+export async function updateUserFields(
+  userId: string,
+  fields: Record<string, unknown>,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = db()
+
+  const clean: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(fields)) {
+    if (EDITABLE_USER_FIELDS.has(key)) clean[key] = value === '' ? null : value
+  }
+
+  if (Object.keys(clean).length === 0) return { ok: false, error: 'No editable fields provided.' }
+
+  const { error } = await supabase.from('profiles').update(clean).eq('id', userId)
+  if (error) return { ok: false, error: error.message }
+  return { ok: true }
+}
+
+// One-click reset of billing + referral state for a single user, for testing.
+export async function resetUserTestingState(
+  userId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = db()
+  // Only set columns that exist — probe the row first.
+  const { data: row } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle()
+  if (!row) return { ok: false, error: 'User not found.' }
+
+  const candidate: Record<string, unknown> = {
+    subscription_status:     'free',
+    subscription_plan:       null,
+    subscription_end_date:   null,
+    stripe_subscription_id:  null,
+    win_back_sent:           false,
+    cancelled_at:            null,
+    pending_referral_months: 0,
+  }
+  const reset: Record<string, unknown> = {}
+  for (const key of Object.keys(candidate)) {
+    if (key in (row as Record<string, unknown>)) reset[key] = candidate[key]
+  }
+
+  const { error } = await supabase.from('profiles').update(reset).eq('id', userId)
+  if (error) return { ok: false, error: error.message }
+
+  // Clear any referrals this user redeemed (so a code can be re-tested)
+  await supabase.from('referrals').delete().eq('referee_id', userId)
+
+  return { ok: true }
+}
