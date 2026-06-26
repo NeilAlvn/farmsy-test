@@ -90,12 +90,22 @@ export async function createUserThread(
 ): Promise<{ ok: boolean; thread?: UserThread; error?: string }> {
   const supabase = db()
 
+  // Prefer the name stored in profiles over what auth metadata reports
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('first_name, last_name, name')
+    .eq('id', userId)
+    .maybeSingle()
+  const resolvedName = profile
+    ? ([profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.name || userName)
+    : userName
+
   const { data: thread, error: threadErr } = await supabase
     .from('message_threads')
     .insert({
       user_id: userId,
       user_email: userEmail,
-      user_name: userName,
+      user_name: resolvedName,
       subject,
       last_message_at: new Date().toISOString(),
       last_message_preview: body.slice(0, 100),
