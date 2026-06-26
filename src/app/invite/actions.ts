@@ -10,11 +10,50 @@ function sb() {
 }
 
 export interface ReferralStats {
-  code:           string
-  invited:        number
-  converted:      number
-  monthsEarned:   number
-  pendingMonths:  number
+  code:            string
+  invited:         number
+  joined:          number
+  monthsEarned:    number
+  pendingMonths:   number
+  hasRedeemedCode: boolean
+}
+
+export async function redeemReferralCode(
+  userId: string,
+  code: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const client = sb()
+  const trimmed = code.trim().toUpperCase()
+
+  // Find the referrer by code
+  const { data: referrer } = await client
+    .from('profiles')
+    .select('id, referral_code')
+    .eq('referral_code', trimmed)
+    .maybeSingle()
+
+  if (!referrer) return { ok: false, error: 'Code not found. Double-check and try again.' }
+  if (referrer.id === userId) return { ok: false, error: "You can't use your own referral code." }
+
+  // Check the user hasn't already redeemed a code
+  const { data: existing } = await client
+    .from('referrals')
+    .select('id')
+    .eq('referee_id', userId)
+    .maybeSingle()
+
+  if (existing) return { ok: false, error: "You've already used a referral code — this can only be done once." }
+
+  // Create the referral
+  const { error } = await client.from('referrals').insert({
+    referrer_id: referrer.id,
+    referee_id:  userId,
+    status:      'pending',
+  })
+
+  if (error) return { ok: false, error: 'Something went wrong. Please try again.' }
+
+  return { ok: true }
 }
 
 export async function getReferralData(userId: string): Promise<ReferralStats | null> {
@@ -28,19 +67,20 @@ export async function getReferralData(userId: string): Promise<ReferralStats | n
 
   if (!profile?.referral_code) return null
 
-  const { data: referrals } = await client
-    .from('referrals')
-    .select('status')
-    .eq('referrer_id', userId)
+  const [{ data: referrals }, { data: redeemed }] = await Promise.all([
+    client.from('referrals').select('status').eq('referrer_id', userId),
+    client.from('referrals').select('id').eq('referee_id', userId).maybeSingle(),
+  ])
 
-  const invited   = referrals?.length ?? 0
-  const converted = referrals?.filter(r => r.status === 'rewarded').length ?? 0
+  const invited = referrals?.length ?? 0
+  const joined  = referrals?.filter(r => r.status === 'rewarded' || r.status === 'pending').length ?? 0
 
   return {
-    code:          profile.referral_code,
+    code:            profile.referral_code,
     invited,
-    converted,
-    monthsEarned:  converted,
-    pendingMonths: (profile.pending_referral_months as number | null) ?? 0,
+    joined,
+    monthsEarned:    referrals?.filter(r => r.status === 'rewarded').length ?? 0,
+    pendingMonths:   (profile.pending_referral_months as number | null) ?? 0,
+    hasRedeemedCode: !!redeemed,
   }
 }
