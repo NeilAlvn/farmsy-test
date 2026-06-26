@@ -46,9 +46,10 @@ export async function redeemReferralCode(
 
   // Create the referral
   const { error } = await client.from('referrals').insert({
-    referrer_id: referrer.id,
-    referee_id:  userId,
-    status:      'pending',
+    referrer_id:   referrer.id,
+    referee_id:    userId,
+    referral_code: trimmed,
+    status:        'pending',
   })
 
   if (error) return { ok: false, error: 'Something went wrong. Please try again.' }

@@ -9,6 +9,7 @@ import { ToastProvider } from "./_components/ToastProvider";
 import BfcacheReload from "./_components/BfcacheReload";
 import SessionGuard from "./_components/SessionGuard";
 import FeedbackWidget from "./_components/FeedbackWidget";
+import RefCapture from "./_components/RefCapture";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +69,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-gray-900">
         <BfcacheReload />
+        <RefCapture />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ToastProvider>
             <SessionGuard />
