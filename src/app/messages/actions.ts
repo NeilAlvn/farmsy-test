@@ -100,7 +100,6 @@ export async function createUserThread(
       unread_admin: 1,
       unread_user: 0,
       is_archived: false,
-      is_admin_initiated: false,
     })
     .select('id, subject, last_message_at, last_message_preview, unread_user')
     .single()

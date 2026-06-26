@@ -370,12 +370,14 @@ export async function composeNewMessage(opts: {
       last_message_preview: opts.body.slice(0, 100),
       unread_admin: 0,
       unread_user: 1,
-      is_admin_initiated: true,
     })
     .select('id')
     .single()
 
   if (error || !thread) return { ok: false, error: 'Failed to create thread' }
+
+  // Best-effort: set is_admin_initiated once the migration has run
+  await supabase.from('message_threads').update({ is_admin_initiated: true } as any).eq('id', thread.id)
 
   let emailStatus: 'sent' | 'failed' | 'skipped' = 'skipped'
   try {
@@ -631,13 +633,14 @@ export async function sendBulkMessage(opts: {
             last_message_preview: personalizedBody.slice(0, 100),
             unread_admin: 0,
             unread_user: 1,
-            is_admin_initiated: true,
           })
           .select('id')
           .single()
 
         if (thread) {
           threadId = thread.id
+          // Best-effort: set is_admin_initiated once the migration has run
+          await supabase.from('message_threads').update({ is_admin_initiated: true } as any).eq('id', threadId)
           // Insert message
           await supabase.from('messages').insert({
             thread_id: threadId,
