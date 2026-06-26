@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { createNotification } from '@/lib/notifications'
+import { rewardReferrerOnConversion } from '@/lib/referrals'
 import {
   sendWelcomeEmail,
   sendPaymentConfirmationEmail,
@@ -66,6 +67,11 @@ export async function POST(request: Request) {
       const userId  = session.metadata?.supabase_user_id
       const plan    = session.metadata?.plan
       if (!userId) break
+
+      // This user just added a card (started a trial / bought lifetime) — if they
+      // were referred, the referrer now earns their free month. Gating here (not
+      // on bare sign-up) requires a real payment method, blocking reward farming.
+      await rewardReferrerOnConversion(userId)
 
       const email = await getEmail(userId, session.customer_details?.email ?? session.customer_email)
 

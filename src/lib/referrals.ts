@@ -12,8 +12,9 @@ function sb() {
 }
 
 /**
- * Rewards the referrer with 1 free month when a friend they referred SIGNS UP.
- * (No paid subscription required from the friend.)
+ * Rewards the referrer with 1 free month once a friend they referred CONVERTS —
+ * i.e. completes Stripe checkout (adds a card / starts the free trial or buys
+ * lifetime). Gating on a real payment method prevents throwaway-account abuse.
  *
  * - If the referrer has an active/trialing Stripe subscription, the current
  *   period is extended by 30 days.
@@ -21,9 +22,9 @@ function sb() {
  *   automatically at their next checkout/renewal.
  *
  * Idempotent: only acts on a referral that is still 'pending', then marks it
- * 'rewarded', so it can safely be called from multiple sign-up entry points.
+ * 'rewarded', so it can safely be called from multiple entry points / retried.
  */
-export async function rewardReferrerOnSignup(refereeUserId: string): Promise<void> {
+export async function rewardReferrerOnConversion(refereeUserId: string): Promise<void> {
   const client = sb()
 
   const { data: referral } = await client
@@ -74,7 +75,7 @@ export async function rewardReferrerOnSignup(refereeUserId: string): Promise<voi
     'referral_reward',
     'You earned a free month! 🎉',
     extended
-      ? 'A friend you referred just signed up for Farmsy. We\'ve added 1 free month to your subscription.'
-      : 'A friend you referred just signed up. 1 free month has been added — it\'ll be applied at your next renewal or checkout.',
+      ? 'A friend you referred just started their Farmsy trial. We\'ve added 1 free month to your subscription.'
+      : 'A friend you referred just started their Farmsy trial. 1 free month has been added — it\'ll be applied at your next renewal or checkout.',
   )
 }

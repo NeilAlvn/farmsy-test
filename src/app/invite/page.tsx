@@ -80,9 +80,9 @@ export default function InvitePage() {
               <span className="serif-italic" style={{ color: 'var(--primary)' }}>earn free time</span>
             </h1>
             <p className="text-base leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-              Share your link. Every time a friend signs up using it, you get{' '}
+              Share your link. When a friend signs up and starts their free trial, you get{' '}
               <strong style={{ color: 'var(--foreground)' }}>1 free month</strong> added to your
-              Farmsy account — no paid subscription required from them.
+              Farmsy account — automatically.
             </p>
           </motion.div>
 
@@ -106,8 +106,8 @@ export default function InvitePage() {
                 {
                   step: '2',
                   icon: Users,
-                  title: 'Friend signs up',
-                  desc:  'When someone creates a Farmsy account using your link, that counts as a successful referral. They don\'t need to subscribe.',
+                  title: 'Friend starts their free trial',
+                  desc:  'When someone signs up with your link and starts their 3-day free trial, that counts as a successful referral. No need to wait for them to pay.',
                 },
                 {
                   step: '3',
@@ -196,7 +196,7 @@ export default function InvitePage() {
                 style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.07)', color: 'var(--primary)' }}
               >
                 <Check className="h-4 w-4 shrink-0" />
-                {codeSuccess ? "Code redeemed — your friend has been credited!" : "You've already used a referral code."}
+                {codeSuccess ? "Code applied — your friend earns a free month once you start your trial!" : "You've already used a referral code."}
               </div>
             ) : (
               <form onSubmit={handleRedeemCode} className="flex gap-2">
