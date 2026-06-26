@@ -70,7 +70,7 @@ export default function SuccessContent({ activated }: { activated: boolean }) {
               Try the map
             </Link>
             <Link
-              href="/contact"
+              href="/messages"
               className="inline-flex items-center justify-center px-6 py-3 rounded-2xl font-semibold text-sm"
               style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}
             >

@@ -80,7 +80,7 @@ export default function FarmersPage() {
                   {t('claimBtn')} <ArrowRight className="h-4 w-4" />
                 </button>
                 <Link
-                  href="/contact"
+                  href="/messages"
                   className="inline-flex items-center gap-2 rounded-xl border px-6 py-3 text-sm font-semibold transition hover:opacity-80"
                   style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 >

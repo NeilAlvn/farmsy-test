@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, Mail, MessageSquare, Plus, Send, X } from 'lucide-react'
+import { ArrowLeft, Loader2, MessageSquare, Plus, Send, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import SiteNav from '@/app/_components/SiteNav'
+import SignInModal from '@/app/_components/SignInModal'
 import {
   createUserThread,
   getUserThreadMessages,
@@ -16,6 +17,16 @@ import {
 } from './actions'
 
 const POLL_INTERVAL = 30_000
+
+const TOPICS = [
+  { value: '',        label: 'Select a topic…' },
+  { value: 'General', label: 'General question' },
+  { value: 'Farm listing', label: 'Farm listing / farm owner' },
+  { value: 'Data issue', label: 'Data correction' },
+  { value: 'Feedback', label: 'Feedback / suggestion' },
+  { value: 'Privacy', label: 'Privacy' },
+  { value: 'Other', label: 'Other' },
+]
 
 // ─── Message bubble (user perspective) ───────────────────────────────────────
 
@@ -84,6 +95,8 @@ export default function ContactSupportPage() {
   const [userId, setUserId]       = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string>('')
   const [userName, setUserName]   = useState<string>('')
+  const [authState, setAuthState] = useState<'checking' | 'in' | 'out'>('checking')
+  const [showSignIn, setShowSignIn] = useState(false)
   const [threads, setThreads]   = useState<UserThread[]>([])
   const [loading, setLoading]   = useState(true)
   const [selected, setSelected] = useState<UserThread | null>(null)
@@ -96,6 +109,7 @@ export default function ContactSupportPage() {
 
   // Compose new thread
   const [composing, setComposing]         = useState(false)
+  const [newTopic, setNewTopic]           = useState('')
   const [newSubject, setNewSubject]       = useState('')
   const [newBody, setNewBody]             = useState('')
   const [sendingNew, setSendingNew]       = useState(false)
@@ -106,13 +120,17 @@ export default function ContactSupportPage() {
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.user) { router.replace('/'); return }
+    function apply(session: Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']) {
+      if (!session?.user) { setAuthState('out'); return }
       setUserId(session.user.id)
       setUserEmail(session.user.email ?? '')
       setUserName((session.user.user_metadata?.full_name as string | undefined) ?? session.user.email ?? '')
-    })
-  }, [router])
+      setAuthState('in')
+    }
+    supabase.auth.getSession().then(({ data: { session } }) => apply(session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => apply(session))
+    return () => subscription.unsubscribe()
+  }, [])
 
   // ── Load threads ────────────────────────────────────────────────────────────
   const loadThreads = useCallback(async (id: string, silent = false) => {
@@ -193,13 +211,15 @@ export default function ContactSupportPage() {
 
   // ── Send new thread ─────────────────────────────────────────────────────────
   async function handleSendNew() {
-    if (!userId || !newSubject.trim() || !newBody.trim()) {
-      setComposeError('Please fill in both subject and message.')
+    if (!userId || !newTopic || !newSubject.trim() || !newBody.trim()) {
+      setComposeError('Please choose a topic and fill in the subject and message.')
       return
     }
     setSendingNew(true)
     setComposeError('')
-    const result = await createUserThread(userId, userEmail, userName, newSubject.trim(), newBody.trim())
+    // Prefix the topic so it shows in the admin inbox subject line
+    const fullSubject = `[${newTopic}] ${newSubject.trim()}`
+    const result = await createUserThread(userId, userEmail, userName, fullSubject, newBody.trim())
     if (!result.ok || !result.thread) {
       setComposeError(result.error ?? 'Failed to send. Please try again.')
       setSendingNew(false)
@@ -208,6 +228,7 @@ export default function ContactSupportPage() {
     setThreads(prev => [result.thread!, ...prev])
     setSelected(result.thread!)
     setComposing(false)
+    setNewTopic('')
     setNewSubject('')
     setNewBody('')
     setSendingNew(false)
@@ -230,6 +251,52 @@ export default function ContactSupportPage() {
   }
 
   const totalUnread = threads.reduce((acc, t) => acc + t.unreadUser, 0)
+
+  // ── Auth gate ─────────────────────────────────────────────────────────────────
+  if (authState === 'checking') {
+    return (
+      <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--background)' }}>
+        <SiteNav />
+        <div className="flex flex-1 items-center justify-center">
+          <Loader2 size={20} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
+        </div>
+      </div>
+    )
+  }
+
+  if (authState === 'out') {
+    return (
+      <div className="flex min-h-screen flex-col" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
+        <SiteNav />
+        {showSignIn && (
+          <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />
+        )}
+        <main className="flex flex-1 items-center justify-center px-6 py-16">
+          <div className="w-full max-w-md text-center">
+            <div
+              className="mx-auto mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl"
+              style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}
+            >
+              <MessageSquare className="h-7 w-7" style={{ color: 'var(--primary)' }} strokeWidth={1.5} />
+            </div>
+            <h1 className="font-display text-2xl font-medium tracking-tight mb-3" style={{ color: 'var(--foreground)' }}>
+              Contact Farmsy Support
+            </h1>
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              Sign in to send us a message — questions, farm listings, data issues, or feedback. We reply right here in your account, usually within one business day.
+            </p>
+            <button
+              onClick={() => setShowSignIn(true)}
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              Sign in to message us
+            </button>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -364,6 +431,24 @@ export default function ContactSupportPage() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Topic</label>
+                    <select
+                      value={newTopic}
+                      onChange={e => setNewTopic(e.target.value)}
+                      className="rounded-xl border px-4 py-2.5 text-sm outline-none"
+                      style={{
+                        borderColor: 'var(--border)',
+                        backgroundColor: 'var(--background)',
+                        color: newTopic ? 'var(--foreground)' : 'var(--muted-foreground)',
+                      }}
+                    >
+                      {TOPICS.map(tp => (
+                        <option key={tp.value} value={tp.value} disabled={tp.value === ''}>{tp.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Subject</label>
                     <input
                       type="text"
@@ -404,7 +489,7 @@ export default function ContactSupportPage() {
                 <div className="shrink-0 px-5 py-4" style={{ borderTop: '1px solid var(--border)' }}>
                   <button
                     onClick={handleSendNew}
-                    disabled={sendingNew || !newSubject.trim() || !newBody.trim()}
+                    disabled={sendingNew || !newTopic || !newSubject.trim() || !newBody.trim()}
                     className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
                     style={{ backgroundColor: 'var(--primary)' }}
                   >
@@ -509,31 +594,6 @@ export default function ContactSupportPage() {
                   <Plus size={14} />
                   New Message
                 </button>
-
-                {/* Direct email options (merged from the old Contact page) */}
-                <div className="mt-8 w-full max-w-sm">
-                  <p className="mb-3 text-center text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted-foreground)' }}>
-                    Prefer email?
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    {[
-                      { label: 'General support', email: 'info@farmsy.nl',     subject: 'Support request' },
-                      { label: 'Farm owners',     email: 'farms@farmsy.nl',    subject: 'Farm owner inquiry' },
-                      { label: 'Feedback',        email: 'feedback@farmsy.nl', subject: 'Feedback' },
-                    ].map(({ label, email, subject }) => (
-                      <a
-                        key={email}
-                        href={`mailto:${email}?subject=${encodeURIComponent(subject)}`}
-                        className="flex items-center gap-3 rounded-xl border px-4 py-2.5 transition-colors hover:bg-border/20"
-                        style={{ borderColor: 'var(--border)' }}
-                      >
-                        <Mail size={15} style={{ color: 'var(--primary)' }} />
-                        <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{label}</span>
-                        <span className="ml-auto text-xs" style={{ color: 'var(--muted-foreground)' }}>{email}</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
           </div>

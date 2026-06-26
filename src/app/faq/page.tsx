@@ -39,13 +39,13 @@ export default async function FaqPage() {
     {
       q: t('q6'),
       a: t.rich('a6', {
-        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+        contactLink: (c) => <Link href="/messages" className={linkClass} style={linkStyle}>{c}</Link>,
       }),
     },
     {
       q: t('q7'),
       a: t.rich('a7', {
-        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+        contactLink: (c) => <Link href="/messages" className={linkClass} style={linkStyle}>{c}</Link>,
         osmLink:     (c) => <a href="https://www.openstreetmap.org/edit" target="_blank" rel="noopener noreferrer" className={linkClass} style={linkStyle}>{c}</a>,
       }),
     },
@@ -53,7 +53,7 @@ export default async function FaqPage() {
       q: t('q8'),
       a: t.rich('a8', {
         b:           (c) => <strong>{c}</strong>,
-        contactLink: (c) => <Link href="/contact" className={linkClass} style={linkStyle}>{c}</Link>,
+        contactLink: (c) => <Link href="/messages" className={linkClass} style={linkStyle}>{c}</Link>,
       }),
     },
     {
@@ -117,7 +117,7 @@ export default async function FaqPage() {
               Our team reads every message and we typically get back to you within one business day. Whether it's a technical question, a data issue, or just feedback — we want to hear it.
             </p>
             <Link
-              href="/contact"
+              href="/messages"
               className="mt-2 inline-flex w-fit items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
@@ -176,7 +176,7 @@ export default async function FaqPage() {
               </p>
             </div>
             <Link
-              href="/contact"
+              href="/messages"
               className="inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >

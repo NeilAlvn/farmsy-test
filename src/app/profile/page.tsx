@@ -225,7 +225,7 @@ export default function ProfilePage() {
                   {profile?.role === 'user' && (
                     <p className="text-xs text-gray-400 mt-1.5">
                       Own a farm?{' '}
-                      <Link href="/contact" className="text-emerald-600 hover:underline font-medium">
+                      <Link href="/messages" className="text-emerald-600 hover:underline font-medium">
                         Contact us to claim it
                       </Link>
                     </p>

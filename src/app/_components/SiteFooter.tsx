@@ -90,7 +90,7 @@ export default function SiteFooter() {
               {([
                 { key: 'privacyPolicy', href: '/privacy' },
                 { key: 'terms',         href: '/terms' },
-                { key: 'contact',       href: '/contact' },
+                { key: 'contact',       href: '/messages' },
               ] as const).map(({ key, href }) => (
                 <li key={href}>
                   <Link href={href} className="text-muted-foreground transition-colors hover:text-foreground">
