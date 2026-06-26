@@ -83,7 +83,6 @@ export default function SiteNav() {
     { label: t('map'),     href: '/map' },
     { label: t('about'),   href: '/about' },
     { label: t('faq'),     href: '/faq' },
-    { label: t('contact'), href: '/contact' },
   ]
 
   return (

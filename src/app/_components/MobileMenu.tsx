@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { href: '/about', label: 'About' },
   { href: '/farmers', label: 'For Farmers' },
   { href: '/faq', label: 'FAQ' },
-  { href: '/contact', label: 'Contact' },
 ]
 
 const SECONDARY_LINKS = [

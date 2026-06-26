@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, MessageSquare, Plus, Send, X } from 'lucide-react'
+import { ArrowLeft, Loader2, Mail, MessageSquare, Plus, Send, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import SiteNav from '@/app/_components/SiteNav'
 import {
@@ -491,14 +491,14 @@ export default function ContactSupportPage() {
               </>
             ) : (
               /* ── Empty state ──────────────────────────────────────────── */
-              <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-3">
+              <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-3 px-8">
                 <MessageSquare size={36} style={{ color: 'var(--border)' }} strokeWidth={1.5} />
                 <div className="text-center">
                   <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                     Contact Farmsy Support
                   </p>
-                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                    Select a conversation or start a new one
+                  <p className="text-xs max-w-xs" style={{ color: 'var(--muted-foreground)' }}>
+                    Send us a message and we'll reply right here — we typically get back to you within one business day.
                   </p>
                 </div>
                 <button
@@ -509,6 +509,31 @@ export default function ContactSupportPage() {
                   <Plus size={14} />
                   New Message
                 </button>
+
+                {/* Direct email options (merged from the old Contact page) */}
+                <div className="mt-8 w-full max-w-sm">
+                  <p className="mb-3 text-center text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: 'var(--muted-foreground)' }}>
+                    Prefer email?
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { label: 'General support', email: 'info@farmsy.nl',     subject: 'Support request' },
+                      { label: 'Farm owners',     email: 'farms@farmsy.nl',    subject: 'Farm owner inquiry' },
+                      { label: 'Feedback',        email: 'feedback@farmsy.nl', subject: 'Feedback' },
+                    ].map(({ label, email, subject }) => (
+                      <a
+                        key={email}
+                        href={`mailto:${email}?subject=${encodeURIComponent(subject)}`}
+                        className="flex items-center gap-3 rounded-xl border px-4 py-2.5 transition-colors hover:bg-border/20"
+                        style={{ borderColor: 'var(--border)' }}
+                      >
+                        <Mail size={15} style={{ color: 'var(--primary)' }} />
+                        <span className="text-sm font-medium" style={{ color: 'var(--foreground)' }}>{label}</span>
+                        <span className="ml-auto text-xs" style={{ color: 'var(--muted-foreground)' }}>{email}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
