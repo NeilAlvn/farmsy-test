@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, MessageSquare, Send } from 'lucide-react'
+import { ArrowLeft, Loader2, MessageSquare, Plus, Send, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import SiteNav from '@/app/_components/SiteNav'
 import {
+  createUserThread,
   getUserThreadMessages,
   getUserThreads,
   markThreadReadByUser,
@@ -17,7 +18,6 @@ import {
 const POLL_INTERVAL = 30_000
 
 // ─── Message bubble (user perspective) ───────────────────────────────────────
-// user → RIGHT (green), admin → LEFT (cream)
 
 function Bubble({ msg }: { msg: UserMessageRow }) {
   const isUser = msg.senderType === 'user'
@@ -39,7 +39,7 @@ function Bubble({ msg }: { msg: UserMessageRow }) {
         </div>
         <div className={`flex items-center gap-1.5 mt-1 ${isUser ? 'justify-end' : 'justify-start'}`}>
           <span className="text-[10px]" style={{ color: 'var(--muted-foreground)' }}>
-            {isUser ? 'You' : 'Farmsy'}
+            {isUser ? 'You' : 'Farmsy Support'}
           </span>
           <span className="text-[10px]" style={{ color: 'var(--border)' }}>·</span>
           <span className="text-[10px]" style={{ color: 'var(--muted-foreground)' }}>{time}</span>
@@ -49,7 +49,7 @@ function Bubble({ msg }: { msg: UserMessageRow }) {
   )
 }
 
-// ─── Time label between message groups ───────────────────────────────────────
+// ─── Date label ───────────────────────────────────────────────────────────────
 
 function getDateLabel(iso: string): string {
   const d = new Date(iso)
@@ -62,12 +62,10 @@ function getDateLabel(iso: string): string {
   return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
-// ─── Thread list item ─────────────────────────────────────────────────────────
-
 function fmtTime(iso: string): string {
   const d   = new Date(iso)
   const now = new Date()
-  const diffMs  = now.getTime() - d.getTime()
+  const diffMs   = now.getTime() - d.getTime()
   const diffMins = Math.floor(diffMs / 60_000)
   if (diffMins < 1)  return 'just now'
   if (diffMins < 60) return `${diffMins}m`
@@ -80,15 +78,14 @@ function fmtTime(iso: string): string {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export default function MessagesPage() {
+export default function ContactSupportPage() {
   const router = useRouter()
 
   const [userId, setUserId]     = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
   const [threads, setThreads]   = useState<UserThread[]>([])
   const [loading, setLoading]   = useState(true)
   const [selected, setSelected] = useState<UserThread | null>(null)
-
-  // Mobile: show list or thread
   const [mobileView, setMobileView] = useState<'list' | 'thread'>('list')
 
   const [messages, setMessages]       = useState<UserMessageRow[]>([])
@@ -96,17 +93,22 @@ export default function MessagesPage() {
   const [reply, setReply]             = useState('')
   const [sending, setSending]         = useState(false)
 
+  // Compose new thread
+  const [composing, setComposing]         = useState(false)
+  const [newSubject, setNewSubject]       = useState('')
+  const [newBody, setNewBody]             = useState('')
+  const [sendingNew, setSendingNew]       = useState(false)
+  const [composeError, setComposeError]   = useState('')
+
   const bottomRef   = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.user) {
-        router.replace('/')
-        return
-      }
+      if (!session?.user) { router.replace('/'); return }
       setUserId(session.user.id)
+      setUserEmail(session.user.email ?? '')
     })
   }, [router])
 
@@ -123,7 +125,6 @@ export default function MessagesPage() {
     loadThreads(userId)
   }, [userId, loadThreads])
 
-  // 30s polling
   useEffect(() => {
     if (!userId) return
     const id = setInterval(() => loadThreads(userId, true), POLL_INTERVAL)
@@ -142,7 +143,6 @@ export default function MessagesPage() {
     setThreads(prev => prev.map(t => t.id === selected.id ? { ...t, unreadUser: 0 } : t))
   }, [selected?.id, userId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -150,6 +150,7 @@ export default function MessagesPage() {
   // ── Select thread ───────────────────────────────────────────────────────────
   function selectThread(t: UserThread) {
     setSelected(t)
+    setComposing(false)
     setMobileView('thread')
   }
 
@@ -174,7 +175,6 @@ export default function MessagesPage() {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id))
       setReply(body)
     } else {
-      // Refresh messages to get real IDs
       const data = await getUserThreadMessages(selected.id, userId)
       setMessages(data)
       loadThreads(userId, true)
@@ -187,6 +187,29 @@ export default function MessagesPage() {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  // ── Send new thread ─────────────────────────────────────────────────────────
+  async function handleSendNew() {
+    if (!userId || !newSubject.trim() || !newBody.trim()) {
+      setComposeError('Please fill in both subject and message.')
+      return
+    }
+    setSendingNew(true)
+    setComposeError('')
+    const result = await createUserThread(userId, userEmail, newSubject.trim(), newBody.trim())
+    if (!result.ok || !result.thread) {
+      setComposeError(result.error ?? 'Failed to send. Please try again.')
+      setSendingNew(false)
+      return
+    }
+    setThreads(prev => [result.thread!, ...prev])
+    setSelected(result.thread!)
+    setComposing(false)
+    setNewSubject('')
+    setNewBody('')
+    setSendingNew(false)
+    loadThreads(userId, true)
   }
 
   // ── Group messages by date ──────────────────────────────────────────────────
@@ -204,7 +227,6 @@ export default function MessagesPage() {
     return groups
   }
 
-  // ── Unread total for page title ─────────────────────────────────────────────
   const totalUnread = threads.reduce((acc, t) => acc + t.unreadUser, 0)
 
   // ── Render ──────────────────────────────────────────────────────────────────
@@ -213,22 +235,20 @@ export default function MessagesPage() {
       <SiteNav />
 
       <main className="flex flex-1 flex-col overflow-hidden" style={{ height: 'calc(100vh - 4rem)' }}>
-
-        {/* ── Desktop: two-column layout ─────────────────────────────────── */}
         <div
           className="mx-auto flex w-full max-w-5xl flex-1 overflow-hidden rounded-2xl my-6 mx-6 sm:mx-auto"
           style={{ border: '1px solid var(--border)', backgroundColor: 'var(--card)', maxHeight: 'calc(100vh - 8rem)' }}
         >
 
-          {/* LEFT: thread list — hidden on mobile when thread is open */}
+          {/* LEFT: thread list */}
           <div
             className={`flex flex-col border-r w-80 shrink-0 ${mobileView === 'thread' ? 'hidden md:flex' : 'flex'}`}
             style={{ borderColor: 'var(--border)' }}
           >
             {/* Header */}
-            <div className="shrink-0 px-4 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            <div className="shrink-0 flex items-center justify-between px-4 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
               <h1 className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>
-                Messages
+                Support
                 {totalUnread > 0 && (
                   <span
                     className="ml-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
@@ -238,6 +258,15 @@ export default function MessagesPage() {
                   </span>
                 )}
               </h1>
+              <button
+                onClick={() => { setComposing(true); setSelected(null); setMobileView('thread') }}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-border/30"
+                style={{ color: 'var(--primary)' }}
+                title="New message"
+              >
+                <Plus size={13} />
+                New
+              </button>
             </div>
 
             {/* List */}
@@ -247,10 +276,13 @@ export default function MessagesPage() {
                   <Loader2 size={18} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
                 </div>
               ) : threads.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-2 py-10">
+                <div className="flex flex-col items-center justify-center gap-2 py-10 text-center px-4">
                   <MessageSquare size={28} style={{ color: 'var(--border)' }} />
-                  <p className="text-sm text-center" style={{ color: 'var(--muted-foreground)' }}>
+                  <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
                     No messages yet
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                    Send us a message and we'll get back to you.
                   </p>
                 </div>
               ) : (
@@ -260,19 +292,19 @@ export default function MessagesPage() {
                     onClick={() => selectThread(t)}
                     className="w-full text-left px-3 py-3 rounded-xl transition-colors flex items-start gap-2.5"
                     style={{
-                      backgroundColor: selected?.id === t.id ? 'oklch(0.36 0.07 145 / 0.08)' : 'transparent',
+                      backgroundColor: selected?.id === t.id && !composing ? 'oklch(0.36 0.07 145 / 0.08)' : 'transparent',
                     }}
                   >
                     <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold"
                       style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.12)', color: 'var(--primary)' }}
                     >
-                      F
+                      FS
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1 mb-0.5">
                         <span
-                          className="truncate text-sm font-medium"
+                          className="truncate text-sm"
                           style={{ color: 'var(--foreground)', fontWeight: t.unreadUser > 0 ? 700 : 500 }}
                         >
                           {t.subject}
@@ -297,11 +329,91 @@ export default function MessagesPage() {
             </div>
           </div>
 
-          {/* RIGHT: thread view — hidden on mobile when list is shown */}
+          {/* RIGHT: compose or thread view */}
           <div className={`flex flex-1 flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : 'flex'}`}>
-            {selected ? (
+
+            {/* ── Compose new thread ────────────────────────────────────── */}
+            {composing ? (
               <>
-                {/* Thread header */}
+                <div className="shrink-0 flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <div className="flex items-center gap-3">
+                    <button
+                      className="md:hidden rounded-lg p-1.5 transition-colors hover:bg-border/30"
+                      onClick={() => { setComposing(false); setMobileView('list') }}
+                    >
+                      <ArrowLeft size={16} style={{ color: 'var(--muted-foreground)' }} />
+                    </button>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>New Message</p>
+                  </div>
+                  <button
+                    className="hidden md:flex rounded-lg p-1.5 transition-colors hover:bg-border/30"
+                    onClick={() => setComposing(false)}
+                  >
+                    <X size={15} style={{ color: 'var(--muted-foreground)' }} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-4">
+                  <div
+                    className="rounded-xl p-4 text-sm"
+                    style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.06)', color: 'var(--muted-foreground)' }}
+                  >
+                    Send a message to the Farmsy Support team. We'll reply as soon as possible.
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Subject</label>
+                    <input
+                      type="text"
+                      value={newSubject}
+                      onChange={e => setNewSubject(e.target.value)}
+                      placeholder="What's this about?"
+                      className="rounded-xl border px-4 py-2.5 text-sm outline-none"
+                      style={{
+                        borderColor: 'var(--border)',
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--foreground)',
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <label className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Message</label>
+                    <textarea
+                      value={newBody}
+                      onChange={e => setNewBody(e.target.value)}
+                      placeholder="Describe your question or issue…"
+                      rows={6}
+                      className="flex-1 resize-none rounded-xl border px-4 py-3 text-sm outline-none leading-relaxed"
+                      style={{
+                        borderColor: 'var(--border)',
+                        backgroundColor: 'var(--background)',
+                        color: 'var(--foreground)',
+                        minHeight: '140px',
+                      }}
+                    />
+                  </div>
+
+                  {composeError && (
+                    <p className="text-xs" style={{ color: 'var(--destructive)' }}>{composeError}</p>
+                  )}
+                </div>
+
+                <div className="shrink-0 px-5 py-4" style={{ borderTop: '1px solid var(--border)' }}>
+                  <button
+                    onClick={handleSendNew}
+                    disabled={sendingNew || !newSubject.trim() || !newBody.trim()}
+                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                    style={{ backgroundColor: 'var(--primary)' }}
+                  >
+                    {sendingNew ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                    Send Message
+                  </button>
+                </div>
+              </>
+            ) : selected ? (
+              /* ── Thread view ──────────────────────────────────────────── */
+              <>
                 <div className="shrink-0 flex items-center gap-3 px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
                   <button
                     className="md:hidden rounded-lg p-1.5 transition-colors hover:bg-border/30"
@@ -315,7 +427,6 @@ export default function MessagesPage() {
                   </div>
                 </div>
 
-                {/* Messages */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                   {loadingMsgs ? (
                     <div className="flex items-center justify-center py-10">
@@ -340,7 +451,6 @@ export default function MessagesPage() {
                   <div ref={bottomRef} />
                 </div>
 
-                {/* Reply bar */}
                 <div className="shrink-0 px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
                   <div className="flex items-end gap-2">
                     <textarea
@@ -349,7 +459,7 @@ export default function MessagesPage() {
                       onChange={e => setReply(e.target.value)}
                       onKeyDown={handleKeyDown}
                       rows={1}
-                      placeholder="Type a message… (Enter to send)"
+                      placeholder="Type a reply… (Enter to send)"
                       className="flex-1 resize-none rounded-2xl border px-4 py-2.5 text-sm outline-none leading-relaxed"
                       style={{
                         borderColor: 'var(--border)',
@@ -378,11 +488,25 @@ export default function MessagesPage() {
                 </div>
               </>
             ) : (
-              <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-2">
+              /* ── Empty state ──────────────────────────────────────────── */
+              <div className="hidden md:flex flex-1 flex-col items-center justify-center gap-3">
                 <MessageSquare size={36} style={{ color: 'var(--border)' }} strokeWidth={1.5} />
-                <p className="text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
-                  Select a message to read
-                </p>
+                <div className="text-center">
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
+                    Contact Farmsy Support
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>
+                    Select a conversation or start a new one
+                  </p>
+                </div>
+                <button
+                  onClick={() => setComposing(true)}
+                  className="mt-1 flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: 'var(--primary)' }}
+                >
+                  <Plus size={14} />
+                  New Message
+                </button>
               </div>
             )}
           </div>

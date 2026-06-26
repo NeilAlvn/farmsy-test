@@ -81,6 +81,60 @@ export async function markThreadReadByUser(threadId: string, userId: string): Pr
     .eq('user_id', userId)
 }
 
+export async function createUserThread(
+  userId: string,
+  userEmail: string,
+  subject: string,
+  body: string,
+): Promise<{ ok: boolean; thread?: UserThread; error?: string }> {
+  const supabase = db()
+
+  const { data: thread, error: threadErr } = await supabase
+    .from('message_threads')
+    .insert({
+      user_id: userId,
+      user_email: userEmail,
+      subject,
+      last_message_at: new Date().toISOString(),
+      last_message_preview: body.slice(0, 100),
+      unread_admin: 1,
+      unread_user: 0,
+      is_archived: false,
+      is_admin_initiated: false,
+    })
+    .select('id, subject, last_message_at, last_message_preview, unread_user')
+    .single()
+
+  if (threadErr || !thread) return { ok: false, error: 'Could not create thread' }
+
+  await supabase.from('messages').insert({
+    thread_id: thread.id,
+    sender_type: 'user',
+    body,
+    source: 'in_app',
+    email_status: 'skipped',
+    is_read: false,
+  })
+
+  try {
+    await sendContactReply('neilalvinmedallon@gmail.com', {
+      subject: `New support message: ${subject} — Farmsy`,
+      body: `New message from ${userEmail}:\n\n${body}`,
+    })
+  } catch { /* non-fatal */ }
+
+  return {
+    ok: true,
+    thread: {
+      id: thread.id,
+      subject: thread.subject,
+      lastMessageAt: thread.last_message_at,
+      preview: body.slice(0, 100),
+      unreadUser: 0,
+    },
+  }
+}
+
 export async function sendUserReply(
   threadId: string,
   userId: string,

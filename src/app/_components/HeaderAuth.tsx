@@ -110,7 +110,7 @@ export default function HeaderAuth() {
                 <CreditCard size={14} /> Subscription
               </Link>
               <Link href="/messages" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <MessageSquare size={14} /> Messages
+                <MessageSquare size={14} /> Contact Support
               </Link>
               <Link href="/invite" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <Gift size={14} /> Invite &amp; Earn
