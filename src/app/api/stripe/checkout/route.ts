@@ -49,8 +49,21 @@ export async function POST(request: Request) {
   const pendingReferralMonths = (profile?.pending_referral_months as number | null) ?? 0
   const bonusTrialDays        = pendingReferralMonths * 30
 
+  try {
+
   // Reuse existing Stripe customer or create a new one
   let customerId = profile?.stripe_customer_id as string | undefined
+
+  // The stored customer may have been deleted in Stripe (e.g. test cleanup).
+  // Verify it still exists; if not, drop it so we recreate below.
+  if (customerId) {
+    try {
+      const existing = await stripe.customers.retrieve(customerId)
+      if ((existing as Stripe.DeletedCustomer).deleted) customerId = undefined
+    } catch {
+      customerId = undefined
+    }
+  }
 
   if (!customerId) {
     const customer = await stripe.customers.create({
@@ -105,4 +118,10 @@ export async function POST(request: Request) {
   })
 
   return Response.json({ url: session.url })
+
+  } catch (e) {
+    const message = e instanceof Error ? e.message : 'Checkout failed'
+    console.error('[stripe/checkout] error:', message)
+    return Response.json({ error: message }, { status: 500 })
+  }
 }
