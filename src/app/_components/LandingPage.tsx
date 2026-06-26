@@ -72,6 +72,7 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
     >
       <TrialCountdownBanner />
       <SiteNav />
+      <ReferralWelcome />
       <main>
         <Hero />
         <Stats />
@@ -83,6 +84,59 @@ export default function LandingPage({ farms }: { farms: FarmPreview[] }) {
       </main>
       <SiteFooter />
     </div>
+  )
+}
+
+// ─── Referral welcome banner ────────────────────────────────────────────────
+// When someone arrives via a referral link (?ref=CODE), acknowledge the invite
+// and nudge them to sign up. The code itself is captured to a cookie by the
+// root effect above; this just makes the invite visible.
+
+function ReferralWelcome() {
+  const [refCode, setRefCode]     = useState<string | null>(null)
+  const [dismissed, setDismissed] = useState(false)
+  const [showSignIn, setShowSignIn] = useState(false)
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    if (!ref || !/^[A-Z0-9]{6,12}$/i.test(ref)) return
+    // Only show to logged-out visitors
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) setRefCode(ref.toUpperCase())
+    })
+  }, [])
+
+  if (!refCode || dismissed) return null
+
+  return (
+    <>
+      {showSignIn && (
+        <SignInModal onClose={() => setShowSignIn(false)} onSuccess={() => setShowSignIn(false)} />
+      )}
+      <div className="px-6 py-3" style={{ backgroundColor: 'var(--primary)' }}>
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-3 sm:flex-row">
+          <p className="text-center text-sm font-medium text-white">
+            🎁 A friend invited you to Farmsy! Start your <strong>free 3-day trial</strong> — no charge until day&nbsp;3, cancel anytime.
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowSignIn(true)}
+              className="whitespace-nowrap rounded-lg bg-white px-4 py-1.5 text-sm font-semibold transition hover:opacity-90"
+              style={{ color: 'var(--primary)' }}
+            >
+              Claim your free trial
+            </button>
+            <button
+              onClick={() => setDismissed(true)}
+              aria-label="Dismiss"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-white/80 transition hover:bg-white/15 hover:text-white"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
