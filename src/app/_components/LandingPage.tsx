@@ -92,6 +92,15 @@ function Hero() {
   const t = useTranslations('hero')
   const [showSignIn, setShowSignIn] = useState(false)
 
+  async function handleFreeTrial() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user) {
+      window.location.href = '/pricing'
+    } else {
+      setShowSignIn(true)
+    }
+  }
+
   return (
     <section className="relative overflow-hidden px-6 pb-24 pt-16 sm:pt-24">
       {showSignIn && (
@@ -159,7 +168,7 @@ function Hero() {
             className="mt-10 flex flex-col items-center gap-3 sm:flex-row lg:justify-start"
           >
             <button
-              onClick={() => setShowSignIn(true)}
+              onClick={handleFreeTrial}
               className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-base font-semibold transition hover:opacity-85"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
