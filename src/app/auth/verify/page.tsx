@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import { rewardReferrerOnSignup } from '@/lib/referrals'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +37,11 @@ export default async function VerifyPage({
   }).eq('id', profile.id)
 
   if (updateError) redirect('/auth/signin?error=invalid-token')
+
+  // Sign-up is now complete — reward the referrer (if this user was referred via a link)
+  try {
+    await rewardReferrerOnSignup(profile.id)
+  } catch { /* non-fatal — never block verification on referral reward */ }
 
   redirect('/auth/signin?verified=true')
 }

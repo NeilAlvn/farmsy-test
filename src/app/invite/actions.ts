@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { rewardReferrerOnSignup } from '@/lib/referrals'
 
 function sb() {
   return createClient(
@@ -53,6 +54,12 @@ export async function redeemReferralCode(
   })
 
   if (error) return { ok: false, error: 'Something went wrong. Please try again.' }
+
+  // The redeemer is already a signed-up user, so the referrer earns their
+  // free month right away.
+  try {
+    await rewardReferrerOnSignup(userId)
+  } catch { /* non-fatal — referral row is created, reward can be retried */ }
 
   return { ok: true }
 }
