@@ -216,7 +216,7 @@ export async function getAdminStats() {
     .from('email_subscribers')
     .select('id, email, source, status, created_at')
     .order('created_at', { ascending: false })
-    .limit(8)
+    .limit(500)
 
   const { data: recentSignups } = await supabase
     .from('profiles')
