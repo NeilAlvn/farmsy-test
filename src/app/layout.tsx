@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     default: "Farmsy – Discover Local Farms in the Netherlands & Belgium",
     template: "%s · Farmsy",
   },
-  description: "Find verified farms across the Netherlands and Belgium — 13,000+ farm shops, organic producers, and direct-to-consumer food producers.",
+  description: "Find verified farms across the Netherlands and Belgium — 12,000+ farm shops, organic producers, and direct-to-consumer food producers.",
   icons: {
     icon: [
       { url: '/icon', type: 'image/png', sizes: '32x32' },
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Farmsy – Discover Local Farms in the Netherlands & Belgium",
-    description: "Find verified farms across the Netherlands and Belgium — 13,000+ farm shops, organic producers, and direct-to-consumer food producers.",
+    description: "Find verified farms across the Netherlands and Belgium — 12,000+ farm shops, organic producers, and direct-to-consumer food producers.",
     url: 'https://farmsy.app',
     images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
     siteName: 'Farmsy',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: "Farmsy – Discover Local Farms in the Netherlands & Belgium",
-    description: "Find verified farms across the Netherlands and Belgium — 13,000+ farm shops, organic producers, and direct-to-consumer food producers.",
+    description: "Find verified farms across the Netherlands and Belgium — 12,000+ farm shops, organic producers, and direct-to-consumer food producers.",
     images: ['/opengraph-image'],
   },
 };

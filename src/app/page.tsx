@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   openGraph: {
     title: 'Farmsy – Discover Local Farms in the Netherlands & Belgium',
-    description: 'Discover 13,000+ verified farms across the Netherlands and Belgium.',
+    description: 'Discover 12,000+ verified farms across the Netherlands and Belgium.',
     url: 'https://farmsy.app',
     type: 'website',
     siteName: 'Farmsy',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Farmsy – Discover Local Farms in the Netherlands & Belgium',
-    description: 'Discover 13,000+ verified farms across the Netherlands and Belgium.',
+    description: 'Discover 12,000+ verified farms across the Netherlands and Belgium.',
   },
 }
 

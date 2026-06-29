@@ -13,17 +13,7 @@
     "headline2": "fresh",
     "headlineEmphasis": "from the source.",
     "subheadline": "Farmsy connects you with verified farms across the Netherlands and Belgium. From farm shops to organic producers — discover, connect, and support local agriculture.",
-    "launchingSoon": "12,717+ farms available now across NL & BE"
-  },
-  "subscribe": {
-    "placeholder": "Enter your email",
-    "cta": "Start Free Trial",
-    "consent": "I'd like to receive updates from Farmsy.",
-    "privacyPolicy": "Privacy policy",
-    "success": "You're on the list. We'll be in touch soon.",
-    "errorEmail": "Please enter a valid email address.",
-    "errorConsent": "Please accept the consent to continue.",
-    "errorGeneric": "Something went wrong. Try again."
+    "launchingSoon": "12,000+ farms available now across NL & BE"
   },
   "farms": {
     "eyebrow": "Fresh from the farm",
@@ -69,7 +59,7 @@
     "trialNotice": "No charge for 3 days. Cancel anytime before trial ends and you won't be billed.",
     "manageSub": "Manage subscription",
     "finePrint": "All prices include VAT. Payments processed securely by Stripe. Cancel any time from your billing portal.",
-    "feature1": "Access to 12,717+ verified farms across NL & BE",
+    "feature1": "Access to 12,000+ verified farms across NL & BE",
     "feature2": "Unlimited farm search results",
     "feature3": "Full farm details — phone, website, hours",
     "feature4": "Priority support & early access",
@@ -99,12 +89,6 @@
     "a5": "Data is regularly reviewed by our team. The best way to keep a listing current is for the farm owner to claim it — claimed listings can be edited directly and changes appear immediately.",
     "q6": "Do you have a mobile app?",
     "a6": "Not yet — but our website is fully responsive and works great on mobile. You can add it to your home screen for an app-like experience. A native app is on our roadmap."
-  },
-  "cta": {
-    "eyebrow": "Early access",
-    "headline1": "Be the first to know",
-    "headlineEmphasis": "when we launch.",
-    "subtext": "Join the pre-launch list. No spam — just one email when Farmsy goes live."
   },
   "store": {
     "downloadOn": "Download on the",
@@ -201,39 +185,6 @@
     "ctaTitleEmphasis": "questions?",
     "ctaSubtext": "We're happy to help. Send us a message and we'll get back to you within one business day.",
     "ctaButton": "Contact us"
-  },
-  "contact": {
-    "eyebrow": "Get in touch",
-    "headline": "We'd love to",
-    "headlineEmphasis": "hear from you",
-    "subheading": "Whether you have questions about finding farms, need help with your subscription, want to report incorrect farm data, or just want to say hello — we're here. We typically respond within one business day.",
-    "formTitle": "Send us a message",
-    "fieldName": "Name",
-    "namePlaceholder": "Your name",
-    "fieldEmail": "Email",
-    "emailPlaceholder": "your@email.com",
-    "fieldTopic": "Topic",
-    "topicPlaceholder": "Select a topic…",
-    "fieldMessage": "Message",
-    "messagePlaceholder": "How can we help?",
-    "sendBtn": "Send message",
-    "disclaimer": "This opens your email app. No data is sent to our servers from this form.",
-    "topicGeneral": "General question",
-    "topicFarm": "Farm owner / claim inquiry",
-    "topicData": "Incorrect farm data",
-    "topicFeedback": "Feedback or suggestion",
-    "topicPrivacy": "Privacy / data request",
-    "topicOther": "Other",
-    "successTitle": "Message opened in your email app",
-    "successMessage": "Your email client should have opened with the message pre-filled. Send it from there and we'll get back to you soon.",
-    "successAnother": "Send another message",
-    "directTitle": "Direct contact",
-    "farmOwnerTitle": "Farm owners",
-    "farmOwnerDesc": "Questions about claiming your listing, updating your information, or removing your farm.",
-    "supportTitle": "Support",
-    "supportDesc": "Can't find a farm, spotted an error, or need help? We'll get back to you quickly.",
-    "feedbackTitle": "Feedback",
-    "feedbackDesc": "Ideas for new features, farms we should add, or anything you'd like to see improve."
   },
   "farmers": {
     "eyebrow": "For Farmers",

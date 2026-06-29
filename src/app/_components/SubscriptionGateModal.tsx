@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { useToast } from './ToastProvider'
 
 const FEATURES = [
-  'Access to 12,717+ verified farms across NL & BE',
+  'Access to 12,000+ verified farms across NL & BE',
   'Full farm details — phone, website, hours',
   'Unlimited search & filters',
   'Early access to new features',

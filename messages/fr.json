@@ -13,17 +13,7 @@
     "headline2": "frais",
     "headlineEmphasis": "directement à la source.",
     "subheadline": "Farmsy vous connecte avec des fermes vérifiées aux Pays-Bas et en Belgique. Des magasins à la ferme aux producteurs biologiques — découvrez, connectez et soutenez l'agriculture locale.",
-    "launchingSoon": "12 717+ fermes disponibles maintenant en NL & BE"
-  },
-  "subscribe": {
-    "placeholder": "Entrez votre adresse e-mail",
-    "cta": "Commencer l'essai gratuit",
-    "consent": "Je souhaite recevoir des mises à jour de Farmsy.",
-    "privacyPolicy": "Politique de confidentialité",
-    "success": "Vous êtes sur la liste. Nous vous contacterons bientôt.",
-    "errorEmail": "Veuillez entrer une adresse e-mail valide.",
-    "errorConsent": "Veuillez accepter le consentement pour continuer.",
-    "errorGeneric": "Une erreur s'est produite. Réessayez."
+    "launchingSoon": "12 000+ fermes disponibles maintenant en NL & BE"
   },
   "farms": {
     "eyebrow": "Frais de la ferme",
@@ -69,7 +59,7 @@
     "trialNotice": "Aucun frais pendant 3 jours. Annulez avant la fin de l'essai et vous ne serez pas facturé.",
     "manageSub": "Gérer l'abonnement",
     "finePrint": "Tous les prix incluent la TVA. Paiements traités par Stripe. Annulez à tout moment depuis votre portail de facturation.",
-    "feature1": "Accès à 12 717+ fermes vérifiées aux Pays-Bas & Belgique",
+    "feature1": "Accès à 12 000+ fermes vérifiées aux Pays-Bas & Belgique",
     "feature2": "Résultats de recherche illimités",
     "feature3": "Détails complets — téléphone, site web, horaires",
     "feature4": "Support prioritaire & accès anticipé",
@@ -99,12 +89,6 @@
     "a5": "Les données sont régulièrement examinées par notre équipe. La meilleure façon de maintenir une fiche à jour est que le propriétaire la revendique — les fiches revendiquées peuvent être modifiées directement et les changements apparaissent immédiatement.",
     "q6": "Avez-vous une application mobile?",
     "a6": "Pas encore — mais notre site web est entièrement responsive et fonctionne très bien sur mobile. Vous pouvez l'ajouter à votre écran d'accueil. Une application native est sur notre feuille de route."
-  },
-  "cta": {
-    "eyebrow": "Accès anticipé",
-    "headline1": "Soyez le premier à savoir",
-    "headlineEmphasis": "quand nous lançons.",
-    "subtext": "Rejoignez la liste de pré-lancement. Pas de spam — juste un e-mail quand Farmsy sera en ligne."
   },
   "store": {
     "downloadOn": "Télécharger sur l'",
@@ -201,39 +185,6 @@
     "ctaTitleEmphasis": "questions ?",
     "ctaSubtext": "Nous sommes heureux d'aider. Envoyez-nous un message et nous vous répondrons dans un jour ouvrable.",
     "ctaButton": "Nous contacter"
-  },
-  "contact": {
-    "eyebrow": "Prendre contact",
-    "headline": "Nous adorerions",
-    "headlineEmphasis": "vous entendre",
-    "subheading": "Questions, demandes de données ou juste dire bonjour — nous répondons généralement dans un jour ouvrable.",
-    "formTitle": "Envoyez-nous un message",
-    "fieldName": "Nom",
-    "namePlaceholder": "Votre nom",
-    "fieldEmail": "E-mail",
-    "emailPlaceholder": "votre@email.fr",
-    "fieldTopic": "Sujet",
-    "topicPlaceholder": "Choisir un sujet…",
-    "fieldMessage": "Message",
-    "messagePlaceholder": "Comment pouvons-nous vous aider ?",
-    "sendBtn": "Envoyer le message",
-    "disclaimer": "Cela ouvre votre application e-mail. Aucune donnée n'est envoyée à nos serveurs via ce formulaire.",
-    "topicGeneral": "Question générale",
-    "topicFarm": "Propriétaire / demande de revendication",
-    "topicData": "Données incorrectes",
-    "topicFeedback": "Retour d'information ou suggestion",
-    "topicPrivacy": "Confidentialité / demande de données",
-    "topicOther": "Autre",
-    "successTitle": "Message ouvert dans votre application e-mail",
-    "successMessage": "Votre client de messagerie devrait s'être ouvert avec le message pré-rempli. Envoyez-le de là et nous vous répondrons bientôt.",
-    "successAnother": "Envoyer un autre message",
-    "directTitle": "Contact direct",
-    "farmOwnerTitle": "Propriétaires de fermes",
-    "farmOwnerDesc": "Questions sur la revendication de votre fiche, la mise à jour de vos informations ou la suppression de votre ferme.",
-    "supportTitle": "Support",
-    "supportDesc": "Vous ne trouvez pas une ferme, vous avez repéré une erreur ou avez besoin d'aide ? Nous répondons rapidement.",
-    "feedbackTitle": "Retour d'information",
-    "feedbackDesc": "Idées de nouvelles fonctionnalités, fermes à ajouter ou améliorations souhaitées."
   },
   "farmers": {
     "eyebrow": "Pour les Agriculteurs",

@@ -13,17 +13,7 @@
     "headline2": "fresco",
     "headlineEmphasis": "directamente de la fuente.",
     "subheadline": "Farmsy te conecta con granjas verificadas en los Países Bajos y Bélgica. Desde tiendas en la granja hasta productores orgánicos — descubre, conecta y apoya la agricultura local.",
-    "launchingSoon": "12.717+ granjas disponibles ahora en NL & BE"
-  },
-  "subscribe": {
-    "placeholder": "Introduce tu correo electrónico",
-    "cta": "Iniciar prueba gratuita",
-    "consent": "Me gustaría recibir actualizaciones de Farmsy.",
-    "privacyPolicy": "Política de privacidad",
-    "success": "Estás en la lista. Nos pondremos en contacto pronto.",
-    "errorEmail": "Por favor, introduce una dirección de correo válida.",
-    "errorConsent": "Por favor, acepta el consentimiento para continuar.",
-    "errorGeneric": "Algo salió mal. Inténtalo de nuevo."
+    "launchingSoon": "12.000+ granjas disponibles ahora en NL & BE"
   },
   "farms": {
     "eyebrow": "Fresco de la granja",
@@ -69,7 +59,7 @@
     "trialNotice": "Sin cargos durante 3 días. Cancela antes de que termine la prueba y no se te cobrará.",
     "manageSub": "Gestionar suscripción",
     "finePrint": "Todos los precios incluyen IVA. Pagos procesados por Stripe. Cancela en cualquier momento desde tu portal de facturación.",
-    "feature1": "Acceso a 12.717+ granjas verificadas en NL & BE",
+    "feature1": "Acceso a 12.000+ granjas verificadas en NL & BE",
     "feature2": "Resultados de búsqueda ilimitados",
     "feature3": "Detalles completos — teléfono, web, horarios",
     "feature4": "Soporte prioritario & acceso anticipado",
@@ -99,12 +89,6 @@
     "a5": "Los datos son revisados regularmente por nuestro equipo. La mejor manera de mantener un listado actualizado es que el propietario lo reclame — los listados reclamados pueden editarse directamente y los cambios aparecen de inmediato.",
     "q6": "¿Tienen una aplicación móvil?",
     "a6": "Todavía no — pero nuestro sitio web es totalmente responsive y funciona muy bien en móvil. Puedes añadirlo a tu pantalla de inicio para una experiencia similar a una app. Una app nativa está en nuestra hoja de ruta."
-  },
-  "cta": {
-    "eyebrow": "Acceso anticipado",
-    "headline1": "Sé el primero en saber",
-    "headlineEmphasis": "cuándo lanzamos.",
-    "subtext": "Únete a la lista de prelanzamiento. Sin spam — solo un correo cuando Farmsy esté en vivo."
   },
   "store": {
     "downloadOn": "Descargar en",
@@ -201,39 +185,6 @@
     "ctaTitleEmphasis": "preguntas?",
     "ctaSubtext": "Estamos encantados de ayudar. Envíanos un mensaje y te responderemos en un día hábil.",
     "ctaButton": "Contáctanos"
-  },
-  "contact": {
-    "eyebrow": "Ponerse en contacto",
-    "headline": "Nos encantaría",
-    "headlineEmphasis": "saber de ti",
-    "subheading": "Preguntas, solicitudes de datos o simplemente decir hola — normalmente respondemos en un día hábil.",
-    "formTitle": "Envíanos un mensaje",
-    "fieldName": "Nombre",
-    "namePlaceholder": "Tu nombre",
-    "fieldEmail": "Correo",
-    "emailPlaceholder": "tu@correo.es",
-    "fieldTopic": "Tema",
-    "topicPlaceholder": "Selecciona un tema…",
-    "fieldMessage": "Mensaje",
-    "messagePlaceholder": "¿Cómo podemos ayudarte?",
-    "sendBtn": "Enviar mensaje",
-    "disclaimer": "Esto abre tu aplicación de correo. No se envían datos a nuestros servidores desde este formulario.",
-    "topicGeneral": "Pregunta general",
-    "topicFarm": "Propietario / consulta de reclamación",
-    "topicData": "Datos incorrectos de granja",
-    "topicFeedback": "Comentarios o sugerencia",
-    "topicPrivacy": "Privacidad / solicitud de datos",
-    "topicOther": "Otro",
-    "successTitle": "Mensaje abierto en tu aplicación de correo",
-    "successMessage": "Tu cliente de correo debería haberse abierto con el mensaje prellenado. Envíalo desde ahí y te responderemos pronto.",
-    "successAnother": "Enviar otro mensaje",
-    "directTitle": "Contacto directo",
-    "farmOwnerTitle": "Propietarios de granjas",
-    "farmOwnerDesc": "Preguntas sobre reclamar tu listado, actualizar tu información o eliminar tu granja.",
-    "supportTitle": "Soporte",
-    "supportDesc": "¿No encuentras una granja, viste un error o necesitas ayuda? Te responderemos rápido.",
-    "feedbackTitle": "Comentarios",
-    "feedbackDesc": "Ideas para nuevas funciones, granjas que deberíamos añadir o mejoras que te gustaría ver."
   },
   "farmers": {
     "eyebrow": "Para Agricultores",

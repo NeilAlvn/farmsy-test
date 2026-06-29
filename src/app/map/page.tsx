@@ -8,7 +8,7 @@ import type { SlimFarm } from './FarmMap'
 
 export const metadata: Metadata = {
   title: 'Farm Map',
-  description: 'Explore an interactive map of 13,000+ verified farms, farm shops, and local producers across the Netherlands and Belgium.',
+  description: 'Explore an interactive map of 12,000+ verified farms, farm shops, and local producers across the Netherlands and Belgium.',
   alternates: { canonical: '/map' },
 }
 

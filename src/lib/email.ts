@@ -150,7 +150,7 @@ export async function sendVerificationEmail(to: string, opts: { confirmUrl: stri
     ${h1('Confirm your email address')}
 
     <p>Someone (hopefully you) created a Farmsy account using this email address. Click the button below to confirm it's you and activate your account.</p>
-    <p>Once verified, you'll have instant access to <strong>12,717+ local farms</strong> across the Netherlands and Belgium.</p>
+    <p>Once verified, you'll have instant access to <strong>12,000+ local farms</strong> across the Netherlands and Belgium.</p>
 
     ${btn('Confirm email address', opts.confirmUrl)}
 
@@ -174,7 +174,7 @@ export async function sendWelcomeEmail(to: string) {
     ${label('Welcome')}
     ${h1('Your free trial has started')}
 
-    <p>Welcome to Farmsy! You now have <strong>3 days of full access</strong> to the platform — 12,717+ local farms across the Netherlands and Belgium.</p>
+    <p>Welcome to Farmsy! You now have <strong>3 days of full access</strong> to the platform — 12,000+ local farms across the Netherlands and Belgium.</p>
 
     <p>Here's what you can do right now:</p>
 
@@ -276,7 +276,7 @@ export async function sendTrialEndingEmail(to: string, opts: { endDate: string }
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
       ${[
-        'Full access to 12,717+ farms across NL & BE',
+        'Full access to 12,000+ farms across NL & BE',
         'Interactive map, routing, and farm filters',
         'Favourites, trip planning, and new farm alerts',
       ].map(item => `
@@ -323,7 +323,7 @@ export async function sendWinBackEmail(to: string, opts: { discountCode?: string
       </tr>
     </table>
 
-    <p>Farmsy gives you access to 12,717+ local farms — fresh eggs, vegetables, dairy, flowers, and more from farmers near you.</p>
+    <p>Farmsy gives you access to 12,000+ local farms — fresh eggs, vegetables, dairy, flowers, and more from farmers near you.</p>
 
     ${btn('Claim your discount', `${APP_URL}/?coupon=${code}#pricing`)}
 

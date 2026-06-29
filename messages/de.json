@@ -13,17 +13,7 @@
     "headline2": "frisch",
     "headlineEmphasis": "direkt von der Quelle.",
     "subheadline": "Farmsy verbindet Sie mit verifizierten Bauernhöfen in den Niederlanden und Belgien. Von Hofläden bis zu Bio-Produzenten — entdecken, vernetzen und unterstützen Sie die lokale Landwirtschaft.",
-    "launchingSoon": "12.717+ Höfe jetzt verfügbar in NL & BE"
-  },
-  "subscribe": {
-    "placeholder": "E-Mail-Adresse eingeben",
-    "cta": "Kostenlos Testen",
-    "consent": "Ich möchte Updates von Farmsy erhalten.",
-    "privacyPolicy": "Datenschutzrichtlinie",
-    "success": "Sie stehen auf der Liste. Wir melden uns bald.",
-    "errorEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
-    "errorConsent": "Bitte akzeptieren Sie die Einwilligung, um fortzufahren.",
-    "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    "launchingSoon": "12.000+ Höfe jetzt verfügbar in NL & BE"
   },
   "farms": {
     "eyebrow": "Frisch vom Hof",
@@ -69,7 +59,7 @@
     "trialNotice": "Keine Kosten für 3 Tage. Kündigen Sie vor Ende des Tests und Sie werden nicht belastet.",
     "manageSub": "Abonnement verwalten",
     "finePrint": "Alle Preise inkl. MwSt. Zahlungen verarbeitet von Stripe. Jederzeit über Ihr Abrechnungsportal kündigen.",
-    "feature1": "Zugang zu 12.717+ verifizierten Höfen in NL & BE",
+    "feature1": "Zugang zu 12.000+ verifizierten Höfen in NL & BE",
     "feature2": "Unbegrenzte Suchergebnisse",
     "feature3": "Vollständige Hofdaten — Telefon, Website, Öffnungszeiten",
     "feature4": "Prioritätssupport & Früher Zugang",
@@ -99,12 +89,6 @@
     "a5": "Daten werden regelmäßig von unserem Team überprüft. Der beste Weg, einen Eintrag aktuell zu halten, ist, dass der Hofbesitzer ihn beansprucht — beanspruchte Einträge können direkt bearbeitet werden und Änderungen erscheinen sofort.",
     "q6": "Haben Sie eine mobile App?",
     "a6": "Noch nicht — aber unsere Website ist vollständig responsive und funktioniert hervorragend auf Mobilgeräten. Sie können sie zu Ihrem Startbildschirm hinzufügen. Eine native App ist auf unserer Roadmap."
-  },
-  "cta": {
-    "eyebrow": "Früher Zugang",
-    "headline1": "Seien Sie der Erste,",
-    "headlineEmphasis": "wenn wir starten.",
-    "subtext": "Tragen Sie sich in die Vorstart-Liste ein. Kein Spam — nur eine E-Mail, wenn Farmsy live geht."
   },
   "store": {
     "downloadOn": "Laden im",
@@ -201,39 +185,6 @@
     "ctaTitleEmphasis": "Fragen?",
     "ctaSubtext": "Wir helfen gerne. Schicken Sie uns eine Nachricht und wir antworten innerhalb eines Werktages.",
     "ctaButton": "Kontaktieren Sie uns"
-  },
-  "contact": {
-    "eyebrow": "Kontakt",
-    "headline": "Wir freuen uns,",
-    "headlineEmphasis": "von Ihnen zu hören",
-    "subheading": "Fragen, Datenanfragen oder einfach Hallo — wir antworten in der Regel innerhalb eines Werktages.",
-    "formTitle": "Schreiben Sie uns",
-    "fieldName": "Name",
-    "namePlaceholder": "Ihr Name",
-    "fieldEmail": "E-Mail",
-    "emailPlaceholder": "ihre@email.de",
-    "fieldTopic": "Betreff",
-    "topicPlaceholder": "Betreff wählen…",
-    "fieldMessage": "Nachricht",
-    "messagePlaceholder": "Wie können wir helfen?",
-    "sendBtn": "Nachricht senden",
-    "disclaimer": "Dies öffnet Ihr E-Mail-Programm. Es werden keine Daten an unsere Server gesendet.",
-    "topicGeneral": "Allgemeine Frage",
-    "topicFarm": "Hofbesitzer / Beanspruchungsanfrage",
-    "topicData": "Falsche Hofdaten",
-    "topicFeedback": "Feedback oder Vorschlag",
-    "topicPrivacy": "Datenschutz / Datenanfrage",
-    "topicOther": "Sonstiges",
-    "successTitle": "Nachricht in Ihrer E-Mail-App geöffnet",
-    "successMessage": "Ihr E-Mail-Client sollte mit der vorausgefüllten Nachricht geöffnet worden sein. Senden Sie sie und wir melden uns bald.",
-    "successAnother": "Eine weitere Nachricht senden",
-    "directTitle": "Direktkontakt",
-    "farmOwnerTitle": "Hofbesitzer",
-    "farmOwnerDesc": "Fragen zu Ihrem Eintrag, Datenkorrekturen oder Entfernung Ihres Hofes.",
-    "supportTitle": "Support",
-    "supportDesc": "Können Sie einen Hof nicht finden, haben einen Fehler entdeckt oder brauchen Hilfe? Wir antworten schnell.",
-    "feedbackTitle": "Feedback",
-    "feedbackDesc": "Ideen für neue Funktionen, Höfe die wir hinzufügen sollen oder Verbesserungsvorschläge."
   },
   "farmers": {
     "eyebrow": "Für Landwirte",

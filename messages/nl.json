@@ -13,17 +13,7 @@
     "headline2": "vers",
     "headlineEmphasis": "rechtstreeks van de bron.",
     "subheadline": "Farmsy verbindt je met geverifieerde boerderijen in Nederland en België. Van boerderijwinkels tot biologische producenten — ontdek, maak contact en steun de lokale landbouw.",
-    "launchingSoon": "12.717+ boerderijen nu beschikbaar in NL & BE"
-  },
-  "subscribe": {
-    "placeholder": "Voer je e-mailadres in",
-    "cta": "Start Gratis Proefperiode",
-    "consent": "Ik wil graag updates ontvangen van Farmsy.",
-    "privacyPolicy": "Privacybeleid",
-    "success": "Je staat op de lijst. We nemen snel contact met je op.",
-    "errorEmail": "Voer een geldig e-mailadres in.",
-    "errorConsent": "Accepteer de toestemming om door te gaan.",
-    "errorGeneric": "Er is iets misgegaan. Probeer opnieuw."
+    "launchingSoon": "12.000+ boerderijen nu beschikbaar in NL & BE"
   },
   "farms": {
     "eyebrow": "Vers van de boerderij",
@@ -69,7 +59,7 @@
     "trialNotice": "Geen kosten voor 3 dagen. Annuleer voor het einde van de proefperiode en je wordt niet gefactureerd.",
     "manageSub": "Abonnement beheren",
     "finePrint": "Alle prijzen zijn inclusief btw. Betalingen verwerkt door Stripe. Annuleer op elk moment via je facturatieportaal.",
-    "feature1": "Toegang tot 12.717+ geverifieerde boerderijen in NL & BE",
+    "feature1": "Toegang tot 12.000+ geverifieerde boerderijen in NL & BE",
     "feature2": "Onbeperkte zoekresultaten",
     "feature3": "Volledige boerderijgegevens — telefoon, website, openingstijden",
     "feature4": "Prioriteitsondersteuning & vroege toegang",
@@ -99,12 +89,6 @@
     "a5": "Gegevens worden regelmatig door ons team beoordeeld. De beste manier om een vermelding actueel te houden is dat de boer deze claimt — geclaimde vermeldingen kunnen direct worden bewerkt en wijzigingen verschijnen onmiddellijk.",
     "q6": "Hebben jullie een mobiele app?",
     "a6": "Nog niet — maar onze website werkt volledig responsief en werkt uitstekend op mobiel. Je kunt hem aan je startscherm toevoegen voor een app-achtige ervaring. Een native app staat op onze roadmap."
-  },
-  "cta": {
-    "eyebrow": "Vroege toegang",
-    "headline1": "Wees de eerste die het weet",
-    "headlineEmphasis": "wanneer we lanceren.",
-    "subtext": "Schrijf je in voor de pre-launch lijst. Geen spam — alleen één e-mail wanneer Farmsy live gaat."
   },
   "store": {
     "downloadOn": "Download in de",
@@ -201,39 +185,6 @@
     "ctaTitleEmphasis": "vragen?",
     "ctaSubtext": "We helpen je graag. Stuur ons een bericht en we reageren binnen één werkdag.",
     "ctaButton": "Neem contact op"
-  },
-  "contact": {
-    "eyebrow": "Neem contact op",
-    "headline": "We horen",
-    "headlineEmphasis": "graag van je",
-    "subheading": "Vragen, verzoeken over boerderijdata, of gewoon hallo zeggen — we reageren doorgaans binnen één werkdag.",
-    "formTitle": "Stuur ons een bericht",
-    "fieldName": "Naam",
-    "namePlaceholder": "Jouw naam",
-    "fieldEmail": "E-mail",
-    "emailPlaceholder": "jouw@email.nl",
-    "fieldTopic": "Onderwerp",
-    "topicPlaceholder": "Kies een onderwerp…",
-    "fieldMessage": "Bericht",
-    "messagePlaceholder": "Hoe kunnen we helpen?",
-    "sendBtn": "Bericht versturen",
-    "disclaimer": "Dit opent je e-mailprogramma. Er worden geen gegevens naar onze servers verzonden via dit formulier.",
-    "topicGeneral": "Algemene vraag",
-    "topicFarm": "Boereigenaar / claim-verzoek",
-    "topicData": "Onjuiste boerderijdata",
-    "topicFeedback": "Feedback of suggestie",
-    "topicPrivacy": "Privacy / gegevensverzoek",
-    "topicOther": "Overig",
-    "successTitle": "Bericht geopend in je e-mailprogramma",
-    "successMessage": "Je e-mailclient zou moeten zijn geopend met het bericht vooraf ingevuld. Verstuur het vanaf daar en we nemen snel contact op.",
-    "successAnother": "Nog een bericht sturen",
-    "directTitle": "Direct contact",
-    "farmOwnerTitle": "Boereigenaren",
-    "farmOwnerDesc": "Vragen over het claimen van je vermelding, het bijwerken van je gegevens of het verwijderen van je boerderij.",
-    "supportTitle": "Ondersteuning",
-    "supportDesc": "Kan je een boerderij niet vinden, heb je een fout gezien of heb je hulp nodig? We reageren snel.",
-    "feedbackTitle": "Feedback",
-    "feedbackDesc": "Ideeën voor nieuwe functies, boerderijen die we moeten toevoegen of iets dat je wilt zien verbeteren."
   },
   "farmers": {
     "eyebrow": "Voor Boeren",
