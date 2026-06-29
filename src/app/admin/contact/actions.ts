@@ -36,13 +36,14 @@ export interface BulkSendRecipientRow {
   error: string | null
 }
 
-export type RecipientFilter = 'all' | 'trialing' | 'active' | 'free' | 'canceled'
+export type RecipientFilter = 'all' | 'trialing' | 'active' | 'free' | 'canceled' | 'waitlist'
 
 export interface BulkSendUser {
   id: string
   email: string
   name: string
   subscriptionStatus: string
+  isWaitlist?: boolean   // true → email_subscribers row, has no user account
 }
 
 // Unified inbox row — represents either an existing thread or an unprocessed
@@ -552,6 +553,25 @@ export async function getBulkSendRecipients(bulkSendId: string): Promise<BulkSen
 
 export async function getAllUsersForBulkSend(filter: RecipientFilter = 'all'): Promise<BulkSendUser[]> {
   const supabase = db()
+
+  // Waiting list lives in a separate table and has no user account.
+  if (filter === 'waitlist') {
+    const { data } = await supabase
+      .from('email_subscribers')
+      .select('id, email, created_at')
+      .not('email', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(2000)
+
+    return (data ?? []).map((s: any) => ({
+      id: s.id,
+      email: s.email ?? '',
+      name: s.email ?? '',
+      subscriptionStatus: 'waitlist',
+      isWaitlist: true,
+    }))
+  }
+
   let query = supabase
     .from('profiles')
     .select('id, email, first_name, last_name, name, subscription_status')
@@ -620,12 +640,16 @@ export async function sendBulkMessage(opts: {
       let status: 'sent' | 'failed' = 'failed'
       let errorMsg: string | null = null
 
+      // Waiting-list recipients have no user account — never set their
+      // subscriber id as a thread user_id (it isn't a profiles id).
+      const recipientUserId = recipient.isWaitlist ? null : (recipient.id || null)
+
       try {
         // Create thread
         const { data: thread } = await supabase
           .from('message_threads')
           .insert({
-            user_id: recipient.id || null,
+            user_id: recipientUserId,
             user_email: recipient.email,
             user_name: recipient.name,
             subject: opts.subject,
@@ -672,7 +696,7 @@ export async function sendBulkMessage(opts: {
       // Record recipient outcome
       await supabase.from('bulk_send_recipients').insert({
         bulk_send_id: bulkSendId,
-        user_id: recipient.id || null,
+        user_id: recipientUserId,
         user_email: recipient.email,
         user_name: recipient.name,
         thread_id: threadId,

@@ -54,6 +54,80 @@ export async function getEmailSubscribers(): Promise<EmailSubscriberRow[]> {
   return (data ?? []) as EmailSubscriberRow[]
 }
 
+// Unified "people" list for the overview: registered users + waiting-list
+// signups in one table, deduped by email. A waiting-list email that already
+// has an account is folded into that user's row (fromWaitlist=true) so the
+// admin can see who converted.
+export interface PeopleRow {
+  id: string
+  name: string
+  email: string
+  kind: 'user' | 'waitlist'
+  status: string         // subscription status for users, 'waitlist' otherwise
+  joined: string         // created_at
+  fromWaitlist: boolean  // user who was also on the waiting list (i.e. converted)
+}
+
+export async function getPeople(): Promise<PeopleRow[]> {
+  const supabase = db()
+
+  const [{ data: profiles }, { data: subs }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, email, first_name, last_name, name, subscription_status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(2000),
+    supabase
+      .from('email_subscribers')
+      .select('id, email, created_at')
+      .order('created_at', { ascending: false })
+      .limit(2000),
+  ])
+
+  const waitlistEmails = new Set(
+    (subs ?? []).map((s: { email: string | null }) => (s.email ?? '').toLowerCase()).filter(Boolean)
+  )
+
+  const userEmails = new Set<string>()
+  const rows: PeopleRow[] = []
+
+  for (const p of (profiles ?? []) as Array<Record<string, unknown>>) {
+    const email = (p.email as string | null) ?? ''
+    if (email) userEmails.add(email.toLowerCase())
+    rows.push({
+      id: p.id as string,
+      name:
+        [p.first_name, p.last_name].filter(Boolean).join(' ') ||
+        (p.name as string | null) ||
+        email ||
+        '—',
+      email,
+      kind: 'user',
+      status: (p.subscription_status as string | null) ?? 'free',
+      joined: p.created_at as string,
+      fromWaitlist: email ? waitlistEmails.has(email.toLowerCase()) : false,
+    })
+  }
+
+  // Waiting-list signups that never created an account.
+  for (const s of (subs ?? []) as Array<Record<string, unknown>>) {
+    const email = (s.email as string | null) ?? ''
+    if (!email || userEmails.has(email.toLowerCase())) continue
+    rows.push({
+      id: `wl_${s.id as string}`,
+      name: email,
+      email,
+      kind: 'waitlist',
+      status: 'waitlist',
+      joined: s.created_at as string,
+      fromWaitlist: true,
+    })
+  }
+
+  rows.sort((a, b) => new Date(b.joined).getTime() - new Date(a.joined).getTime())
+  return rows
+}
+
 export async function getClaims(): Promise<ClaimRow[]> {
   const supabase = db()
 

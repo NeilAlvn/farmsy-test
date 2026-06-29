@@ -48,6 +48,7 @@ const FILTERS: { value: RecipientFilter; label: string }[] = [
   { value: 'active',   label: 'Active' },
   { value: 'free',     label: 'Free' },
   { value: 'canceled', label: 'Canceled' },
+  { value: 'waitlist', label: 'Waiting list' },
 ]
 
 // ─── Main modal ───────────────────────────────────────────────────────────────
