@@ -3,19 +3,21 @@ import { createClient } from '@supabase/supabase-js'
 import LandingPage from './_components/LandingPage'
 
 export const metadata: Metadata = {
-  title: 'Farmsy — Discover local farms across NL & BE',
+  title: { absolute: 'Farmsy – Discover Local Farms in the Netherlands & Belgium' },
   description:
     'Farmsy connects you with verified farms across the Netherlands and Belgium. From farm shops to organic producers — discover, connect, and support local agriculture.',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Farmsy — Discover local farms across NL & BE',
-    description: 'Discover 12,000+ verified farms across the Netherlands and Belgium.',
+    title: 'Farmsy – Discover Local Farms in the Netherlands & Belgium',
+    description: 'Discover 13,000+ verified farms across the Netherlands and Belgium.',
+    url: 'https://farmsy.app',
     type: 'website',
     siteName: 'Farmsy',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Farmsy — Discover local farms across NL & BE',
-    description: 'Discover 12,000+ verified farms across the Netherlands and Belgium.',
+    title: 'Farmsy – Discover Local Farms in the Netherlands & Belgium',
+    description: 'Discover 13,000+ verified farms across the Netherlands and Belgium.',
   },
 }
 
@@ -71,7 +73,25 @@ async function fetchFeaturedFarms(): Promise<FarmPreview[]> {
   return valid
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Farmsy',
+  url: 'https://farmsy.app',
+  logo: 'https://farmsy.app/icon',
+  description:
+    'Farmsy helps you discover verified local farms, farm shops, and direct-to-consumer food producers across the Netherlands and Belgium.',
+}
+
 export default async function Home() {
   const farms = await fetchFeaturedFarms()
-  return <LandingPage farms={farms} />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <LandingPage farms={farms} />
+    </>
+  )
 }

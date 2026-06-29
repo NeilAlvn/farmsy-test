@@ -6,8 +6,9 @@ import { MapPin, Database, Users, Leaf, ArrowRight, Globe } from 'lucide-react'
 import ContentLayout from '@/app/_components/ContentLayout'
 
 export const metadata: Metadata = {
-  title: 'About – Farmsy',
+  title: 'About',
   description: 'Learn about Farmsy — connecting consumers with local farms across the Netherlands and Belgium.',
+  alternates: { canonical: '/about' },
 }
 
 export default async function AboutPage() {

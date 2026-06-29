@@ -1,9 +1,16 @@
+import type { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import MapLoader from './MapLoader'
 import SubscriptionGuard from '@/app/_components/SubscriptionGuard'
 import MapNav from './MapNav'
 import { MapSearchProvider } from './MapSearchContext'
 import type { SlimFarm } from './FarmMap'
+
+export const metadata: Metadata = {
+  title: 'Farm Map',
+  description: 'Explore an interactive map of 13,000+ verified farms, farm shops, and local producers across the Netherlands and Belgium.',
+  alternates: { canonical: '/map' },
+}
 
 export const revalidate = 1800
 
