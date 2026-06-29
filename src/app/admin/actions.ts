@@ -36,6 +36,24 @@ export interface FarmAdminRow {
   is_claimed: boolean | null
 }
 
+export interface EmailSubscriberRow {
+  id: string
+  email: string
+  source: string | null
+  status: string | null
+  created_at: string
+}
+
+export async function getEmailSubscribers(): Promise<EmailSubscriberRow[]> {
+  const supabase = db()
+  const { data } = await supabase
+    .from('email_subscribers')
+    .select('id, email, source, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(500)
+  return (data ?? []) as EmailSubscriberRow[]
+}
+
 export async function getClaims(): Promise<ClaimRow[]> {
   const supabase = db()
 
@@ -184,13 +202,21 @@ export async function getAdminStats() {
     { count: canceledCount },
     { count: winbackCount },
     { count: contactCount },
+    { count: waitlistCount },
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('subscription_status', 'active'),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('subscription_status', 'canceled'),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('win_back_sent', true),
     supabase.from('contact_submissions').select('*', { count: 'exact', head: true }),
+    supabase.from('email_subscribers').select('*', { count: 'exact', head: true }),
   ])
+
+  const { data: waitlist } = await supabase
+    .from('email_subscribers')
+    .select('id, email, source, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(8)
 
   const { data: recentSignups } = await supabase
     .from('profiles')
@@ -204,7 +230,9 @@ export async function getAdminStats() {
     canceledSubscriptions: canceledCount ?? 0,
     winbackSent: winbackCount ?? 0,
     totalContact: contactCount ?? 0,
+    waitlistCount: waitlistCount ?? 0,
     recentSignups: (recentSignups ?? []) as ProfileAdminRow[],
+    recentWaitlist: (waitlist ?? []) as EmailSubscriberRow[],
   }
 }
 

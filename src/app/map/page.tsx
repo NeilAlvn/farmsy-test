@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import MapLoader from './MapLoader'
-import SubscriptionGuard from '@/app/_components/SubscriptionGuard'
 import MapNav from './MapNav'
 import { MapSearchProvider } from './MapSearchContext'
 import type { SlimFarm } from './FarmMap'
@@ -84,7 +83,7 @@ async function fetchFarms(): Promise<{ farms: SlimFarm[]; error: string | null }
 
   while (true) {
     const { data, error } = await supabase
-      .rpc('get_farms_slim')
+      .rpc('get_farms_pins')
       .range(from, from + PAGE_SIZE - 1)
 
     if (error) return { farms: [], error: error.message }
@@ -119,10 +118,10 @@ export default async function MapPage() {
             {error}
           </p>
           <p className="text-sm text-gray-500">
-            Make sure the <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">get_farms_slim</code> SQL function
+            Make sure the <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">get_farms_pins</code> SQL function
             has been created in Supabase. See{' '}
             <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">
-              src/scripts/migrations/016_farms_slim_rpc.sql
+              src/scripts/migrations/024_farms_pins_public.sql
             </code>.
           </p>
         </div>
@@ -134,9 +133,9 @@ export default async function MapPage() {
     <MapSearchProvider farms={farms}>
       <div className="flex flex-col h-screen">
         <MapNav />
-        <SubscriptionGuard>
-          <MapLoader farms={farms} />
-        </SubscriptionGuard>
+        {/* Pins are visible to everyone; FarmMap gates farm details behind the
+            subscription paywall on click. */}
+        <MapLoader farms={farms} />
       </div>
     </MapSearchProvider>
   )

@@ -40,7 +40,18 @@ export async function POST(request: Request) {
   })
 
   if (error) {
-    if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')) {
+    const msg  = error.message.toLowerCase()
+    const code = (error as { code?: string }).code
+    // Supabase signals an existing email via code 'email_exists' (newer) or a
+    // message like "A user with this email address has already been registered".
+    // Match defensively on both so the clean 409 is always returned.
+    const isDuplicate =
+      code === 'email_exists' ||
+      msg.includes('already registered') ||
+      msg.includes('already been registered') ||
+      msg.includes('already exists') ||
+      msg.includes('email address has already')
+    if (isDuplicate) {
       return Response.json({ error: 'An account with this email already exists.' }, { status: 409 })
     }
     return Response.json({ error: error.message }, { status: 400 })
@@ -75,7 +86,21 @@ export async function POST(request: Request) {
       .neq('id', data.user.id)  // cannot refer yourself
       .maybeSingle()
 
+    // Block mutual referrals — if the code's owner was themselves referred by
+    // this new user, the two are crediting each other in a loop. (Card-fingerprint
+    // dedupe at conversion catches the broader same-person case.)
+    let mutual = false
     if (referrer) {
+      const { data: loop } = await sb
+        .from('referrals')
+        .select('id')
+        .eq('referrer_id', data.user.id)
+        .eq('referee_id', referrer.id)
+        .maybeSingle()
+      mutual = !!loop
+    }
+
+    if (referrer && !mutual) {
       await sb.from('profiles')
         .update({ referred_by: referrer.id })
         .eq('id', data.user.id)

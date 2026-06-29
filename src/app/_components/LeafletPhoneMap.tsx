@@ -13,7 +13,7 @@ export default function LeafletPhoneMap({ height }: { height: number }) {
 
   useEffect(() => {
     const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-    sb.rpc('get_farms_slim').limit(2000).then(({ data }) => {
+    sb.rpc('get_farms_pins').limit(2000).then(({ data }) => {
       const features = ((data as FarmPin[]) ?? [])
         .filter(f => f.lat != null && f.lng != null)
         .map(f => ({ type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [f.lng, f.lat] }, properties: {} }))

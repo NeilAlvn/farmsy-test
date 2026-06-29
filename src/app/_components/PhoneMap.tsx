@@ -102,7 +102,7 @@ export default function PhoneMap() {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
-    sb.rpc('get_farms_slim').limit(2000).then(({ data }) => {
+    sb.rpc('get_farms_pins').limit(2000).then(({ data }) => {
       const rows = (data as Farm[]) ?? []
       const index: Record<string, Farm> = {}
       rows.forEach(f => { if (f.osm_id) index[f.osm_id] = f })

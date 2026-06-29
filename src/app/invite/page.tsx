@@ -142,6 +142,13 @@ export default function InvitePage() {
             >
               🎁 Free months are added to your account and applied automatically when your current plan renews or when you subscribe.
             </div>
+
+            {/* Fair-use note */}
+            <p className="mt-3 text-xs leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
+              Fair use: rewards are for inviting real friends. You can&apos;t refer your own
+              additional accounts, and two people can&apos;t refer each other in a loop. We
+              verify each referral and void rewards that look like abuse.
+            </p>
           </motion.div>
 
           {/* ── Your referral link ─────────────────────────────────────────────── */}

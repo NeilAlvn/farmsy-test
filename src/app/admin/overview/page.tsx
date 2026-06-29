@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
-import { getAdminStats, type ProfileAdminRow } from '../actions'
+import { getAdminStats, type ProfileAdminRow, type EmailSubscriberRow } from '../actions'
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -18,6 +18,7 @@ const STAT_ACCENT: Record<string, string> = {
   active: 'var(--primary)',
   canceled: '#DC2626',
   winback: '#D97706',
+  waitlist: '#8B5CF6',
 }
 
 export default function OverviewPage() {
@@ -28,7 +29,9 @@ export default function OverviewPage() {
     canceledSubscriptions: 0,
     winbackSent: 0,
     totalContact: 0,
+    waitlistCount: 0,
     recentSignups: [] as ProfileAdminRow[],
+    recentWaitlist: [] as EmailSubscriberRow[],
   })
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export default function OverviewPage() {
     { key: 'active',   label: 'Active Subscriptions', value: stats.activeSubscriptions,  sub: 'paying subscribers',       accent: STAT_ACCENT.active   },
     { key: 'canceled', label: 'Canceled',             value: stats.canceledSubscriptions,sub: 'churned accounts',         accent: STAT_ACCENT.canceled },
     { key: 'winback',  label: 'Win-back Sent',        value: stats.winbackSent,          sub: 'emails dispatched',        accent: STAT_ACCENT.winback  },
+    { key: 'waitlist', label: 'Waiting List',         value: stats.waitlistCount,        sub: 'pre-launch signups',       accent: STAT_ACCENT.waitlist },
   ]
 
   return (
@@ -140,6 +144,48 @@ export default function OverviewPage() {
         </div>
       </div>
 
+      {/* Waiting list */}
+      <div className="space-y-3">
+        <h2 className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>Waiting List</h2>
+
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={18} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} />
+            </div>
+          ) : stats.recentWaitlist.length === 0 ? (
+            <p className="text-center py-12 text-sm" style={{ color: 'var(--muted-foreground)' }}>No one on the waiting list yet</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--cream)' }}>
+                    {['Email', 'Source', 'Status', 'Joined'].map(h => (
+                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--muted-foreground)' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.recentWaitlist.map((s, i) => (
+                    <tr
+                      key={s.id}
+                      style={{ borderBottom: i < stats.recentWaitlist.length - 1 ? '1px solid var(--border)' : 'none' }}
+                      className="hover:bg-black/[0.02] transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium" style={{ color: 'var(--foreground)' }}>{s.email}</td>
+                      <td className="px-4 py-3" style={{ color: 'var(--muted-foreground)' }}>{s.source ?? '—'}</td>
+                      <td className="px-4 py-3 capitalize" style={{ color: 'var(--muted-foreground)' }}>{s.status ?? '—'}</td>
+                      <td className="px-4 py-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>{fmtDate(s.created_at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
 
     </div>
   )

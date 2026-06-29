@@ -38,6 +38,31 @@ export async function notifyReferrerPending(referrerId: string, refereeLabel: st
  * Idempotent: only acts on a referral that is still 'pending', then marks it
  * 'rewarded', so it can safely be called from multiple entry points / retried.
  */
+// Hard ceiling on banked referral months — stops indefinite reward farming.
+const MAX_REFERRAL_MONTHS = 12
+
+/**
+ * Returns the fingerprint of a Stripe customer's card. Stripe assigns the same
+ * fingerprint to the same physical card across customers/accounts, so it's our
+ * strongest signal that two "different" users are really one person.
+ */
+async function getCardFingerprint(customerId: string | null | undefined): Promise<string | null> {
+  if (!customerId) return null
+  try {
+    const pms = await stripe.paymentMethods.list({ customer: customerId, type: 'card', limit: 1 })
+    return (pms.data[0]?.card?.fingerprint as string | undefined) ?? null
+  } catch {
+    return null
+  }
+}
+
+async function rejectReferral(client: ReturnType<typeof sb>, referralId: string, reason: string): Promise<void> {
+  await client
+    .from('referrals')
+    .update({ status: 'rejected', rejected_reason: reason })
+    .eq('id', referralId)
+}
+
 export async function rewardReferrerOnConversion(refereeUserId: string): Promise<void> {
   const client = sb()
 
@@ -52,9 +77,51 @@ export async function rewardReferrerOnConversion(refereeUserId: string): Promise
 
   const { data: referrer } = await client
     .from('profiles')
-    .select('stripe_subscription_id, pending_referral_months')
+    .select('stripe_subscription_id, pending_referral_months, stripe_customer_id')
     .eq('id', referral.referrer_id)
     .single()
+
+  // ── Anti-abuse guardrails ──────────────────────────────────────────────────
+  // Capture the card the friend just used, then reject self-dealing before any
+  // reward is granted.
+  const { data: referee } = await client
+    .from('profiles')
+    .select('stripe_customer_id')
+    .eq('id', refereeUserId)
+    .single()
+
+  const refereeFp = await getCardFingerprint(referee?.stripe_customer_id as string | null | undefined)
+
+  if (refereeFp) {
+    // Record it so future referrals to the same referrer can be compared.
+    await client.from('referrals').update({ card_fingerprint: refereeFp }).eq('id', referral.id)
+
+    // 1) Same card as the referrer themselves → one person, two accounts.
+    const referrerFp = await getCardFingerprint(referrer?.stripe_customer_id as string | null | undefined)
+    if (referrerFp && referrerFp === refereeFp) {
+      await rejectReferral(client, referral.id, 'self_referral_same_card')
+      return
+    }
+
+    // 2) Same card already used to credit this referrer via another referral.
+    const { count: dupeCount } = await client
+      .from('referrals')
+      .select('id', { count: 'exact', head: true })
+      .eq('referrer_id', referral.referrer_id)
+      .eq('card_fingerprint', refereeFp)
+      .neq('id', referral.id)
+    if ((dupeCount ?? 0) > 0) {
+      await rejectReferral(client, referral.id, 'duplicate_card')
+      return
+    }
+  }
+
+  // 3) Cap total banked months so it can't be farmed indefinitely.
+  const currentMonths = (referrer?.pending_referral_months as number | null) ?? 0
+  if (currentMonths >= MAX_REFERRAL_MONTHS) {
+    await rejectReferral(client, referral.id, 'cap_reached')
+    return
+  }
 
   let extended = false
   if (referrer?.stripe_subscription_id) {
@@ -75,7 +142,7 @@ export async function rewardReferrerOnConversion(refereeUserId: string): Promise
   if (!extended) {
     await client
       .from('profiles')
-      .update({ pending_referral_months: ((referrer?.pending_referral_months as number | null) ?? 0) + 1 })
+      .update({ pending_referral_months: currentMonths + 1 })
       .eq('id', referral.referrer_id)
   }
 

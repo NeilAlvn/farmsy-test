@@ -20,6 +20,8 @@ import ClaimModal from './ClaimModal'
 import AuthModal from './AuthModal'
 import HeartButton from '@/app/_components/HeartButton'
 import { useMapSearch } from './MapSearchContext'
+import SubscriptionGateModal from '@/app/_components/SubscriptionGateModal'
+import SignInModal from '@/app/_components/SignInModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -257,46 +259,80 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
   const [authUser, setAuthUser]         = useState<AuthUser | null>(null)
   const [cursor, setCursor]             = useState('grab')
   const [iconsReady, setIconsReady]     = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [subReady, setSubReady]         = useState(false)
+  const [gate, setGate]                 = useState<null | 'signin' | 'subscribe'>(null)
 
   const mapRef      = useRef<MapRef | null>(null)
   const searchParams = useSearchParams()
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setAuthUser({ id: session.user.id, email: session.user.email ?? '' })
-      }
-    })
+  // ── Auth + subscription status ──────────────────────────────────────────────
+  // Everyone can see the pins; full farm details are gated, so we need to know
+  // whether the current visitor is a paying subscriber.
+
+  const checkSubscription = useCallback(async (): Promise<boolean> => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) { setAuthUser(null); setIsSubscribed(false); return false }
+      setAuthUser({ id: session.user.id, email: session.user.email ?? '' })
+      const res = await fetch('/api/profile/status', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) { setIsSubscribed(false); return false }
+      const p = await res.json() as { subscription_status: string | null; subscription_end_date: string | null }
+      const paid =
+        p.subscription_status === 'active' ||
+        p.subscription_status === 'trialing' ||
+        (p.subscription_status === 'canceled' && !!p.subscription_end_date && new Date(p.subscription_end_date) > new Date())
+      setIsSubscribed(paid)
+      return paid
+    } catch {
+      setIsSubscribed(false)
+      return false
+    } finally {
+      setSubReady(true)
+    }
   }, [])
 
-  // ── On-demand detail fetch ─────────────────────────────────────────────────
+  useEffect(() => { checkSubscription() }, [checkSubscription])
+
+  // ── On-demand detail fetch (subscribers only) ───────────────────────────────
 
   const openFarm = useCallback(async (slim: SlimFarm) => {
     setSelectedFarm({ ...slim, email: undefined, description: undefined, facebook: undefined, instagram: undefined, organic: undefined, produce: undefined, operator: undefined })
     setShowClaim(false)
     try {
-      const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id!)}`)
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`/api/farm/${encodeURIComponent(slim.osm_id!)}`, {
+        headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+      })
       if (res.ok) {
-        const details = await res.json() as { description: string | null; email: string | null; facebook: string | null; instagram: string | null; organic: string | null; produce: string | null; operator: string | null }
+        const details = await res.json() as Partial<Farm>
         setSelectedFarm(prev => prev?.osm_id === slim.osm_id ? { ...prev, ...details } : prev)
       }
     } catch { /* ignore */ }
   }, [])
+
+  // Gate: subscribers open the farm; everyone else gets the sign-in / paywall modal.
+  const requestFarm = useCallback((slim: SlimFarm) => {
+    if (isSubscribed) { openFarm(slim); return }
+    setGate(authUser ? 'subscribe' : 'signin')
+  }, [isSubscribed, authUser, openFarm])
 
   // ── URL search params ──────────────────────────────────────────────────────
 
   useEffect(() => {
     const id       = searchParams.get('id')
     const category = searchParams.get('category')
-    if (id) {
+    if (id && subReady) {
       const farm = farms.find(f => f.osm_id === id)
       if (farm) {
-        openFarm(farm)
+        requestFarm(farm)
         setFlyTarget({ pos: [farm.lat, farm.lng], key: Date.now() })
       }
     }
     if (category) setSelected(new Set([category as CategoryId]))
-  }, [searchParams, farms, openFarm, setFlyTarget, setSelected])
+  }, [searchParams, farms, subReady, requestFarm, setFlyTarget, setSelected])
 
   // ── Derived farms ──────────────────────────────────────────────────────────
 
@@ -431,9 +467,9 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
       const osmId = feature.properties?.osm_id as string | undefined
       if (!osmId) return
       const farm = filtered.find(f => f.osm_id === osmId)
-      if (farm) openFarm(farm)
+      if (farm) requestFarm(farm)
     }
-  }, [filtered, openFarm])
+  }, [filtered, requestFarm])
 
   // ── Geolocate ──────────────────────────────────────────────────────────────
 
@@ -462,7 +498,7 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
     <div className="relative flex flex-col flex-1 min-h-0 overflow-hidden text-gray-900">
 
       {view === 'list' ? (
-        <FarmListView farms={filtered} onSelect={farm => { openFarm(farm); setView('map') }} />
+        <FarmListView farms={filtered} onSelect={farm => { requestFarm(farm); setView('map') }} />
       ) : (
         <div className="flex-1 relative min-h-0">
           <style>{`
@@ -643,6 +679,24 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
           onClose={() => setShowAuth(false)}
           onAuth={u => { setAuthUser(u); setShowAuth(false) }}
           onSignOut={() => { setAuthUser(null); setShowAuth(false) }}
+        />
+      )}
+
+      {/* Paywall gate — non-subscribers see the pins but are blocked on click */}
+      {gate === 'signin' && (
+        <SignInModal
+          onClose={() => setGate(null)}
+          onSuccess={async () => {
+            const paid = await checkSubscription()
+            setGate(paid ? null : 'subscribe')
+          }}
+        />
+      )}
+      {gate === 'subscribe' && (
+        <SubscriptionGateModal
+          reason="no-sub"
+          onSubscribed={() => { setGate(null); checkSubscription() }}
+          onClose={() => setGate(null)}
         />
       )}
     </div>
