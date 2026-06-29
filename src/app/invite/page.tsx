@@ -41,7 +41,7 @@ export default function InvitePage() {
     })
   }, [router])
 
-  const referralLink = stats ? `https://farmsy.app/?ref=${stats.code}` : ''
+  const referralLink = stats ? `https://farmsy.app/join?ref=${stats.code}` : ''
 
   function copyLink() {
     if (!referralLink) return

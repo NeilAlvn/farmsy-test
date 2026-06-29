@@ -25,10 +25,14 @@ export async function GET(request: Request) {
 
   if (error || !data) return Response.json({ error: 'Profile not found' }, { status: 404 })
 
-  // For active yearly subs, check Stripe for cancel_at_period_end so the
+  // For active or trialing subs, check Stripe for cancel_at_period_end so the
   // subscription page can show the correct state even after a page reload.
+  // (A trial can also be scheduled to cancel at period end.)
   let cancel_at_period_end = false
-  if (data.stripe_subscription_id && data.subscription_status === 'active') {
+  if (
+    data.stripe_subscription_id &&
+    (data.subscription_status === 'active' || data.subscription_status === 'trialing')
+  ) {
     try {
       const sub = await stripe.subscriptions.retrieve(data.stripe_subscription_id) as Stripe.Subscription & { cancel_at_period_end: boolean }
       cancel_at_period_end = sub.cancel_at_period_end ?? false

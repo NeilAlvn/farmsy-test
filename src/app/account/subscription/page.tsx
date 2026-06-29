@@ -27,7 +27,7 @@ function formatDate(iso: string | null): string {
 
 import { timeUntilLabel } from '@/lib/time'
 
-type Action = 'cancel' | 'resubscribe' | 'portal' | 'upgrade'
+type Action = 'cancel' | 'resubscribe' | 'reactivate' | 'portal' | 'upgrade'
 
 export default function SubscriptionPage() {
   const router = useRouter()
@@ -71,6 +71,14 @@ export default function SubscriptionPage() {
         setCancelsAt(data.cancels_at ?? null)
         setSuccess('Cancellation scheduled. You keep full access until the end of your billing period — no action needed.')
         // Don't change local profile status — DB stays 'active' until webhook fires at period end
+      }
+      if (type === 'reactivate') {
+        const res  = await fetch('/api/stripe/reactivate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) })
+        const data = await res.json()
+        if (data.error) throw new Error(data.error)
+        setCancelsAt(null)
+        setProfile(p => p ? { ...p, cancel_at_period_end: false } : p)
+        setSuccess('Cancellation reversed — your plan will continue as normal.')
       }
       if (type === 'resubscribe') {
         const res  = await fetch('/api/stripe/resubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId }) })
@@ -329,6 +337,25 @@ export default function SubscriptionPage() {
                 </div>
               </>
             )}
+            {cancelsAt && (
+              <>
+                <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-start gap-2 rounded-2xl px-4 py-3" style={{ backgroundColor: 'oklch(0.7 0.13 60 / 0.1)', border: '1px solid oklch(0.7 0.13 60 / 0.25)' }}>
+                    <Clock size={14} className="shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+                    <p className="text-sm" style={{ color: 'var(--foreground)' }}>
+                      Cancellation scheduled — your subscription won&apos;t renew, and access ends on <strong>{formatDate(cancelsAt)}</strong>.
+                    </p>
+                  </div>
+                  <button onClick={() => handleAction('reactivate')} disabled={action !== null}
+                    className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+                    style={{ border: '1px solid var(--primary)', color: 'var(--primary)', backgroundColor: 'transparent' }}>
+                    {action === 'reactivate' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Keep my subscription'}
+                  </button>
+                  <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Changed your mind? Resume your subscription so it keeps renewing.</p>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -345,14 +372,31 @@ export default function SubscriptionPage() {
               <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Skip the trial, pay once, done forever.</p>
             </div>
             <div className="h-px" style={{ backgroundColor: 'var(--border)' }} />
-            <div className="flex flex-col gap-1.5">
-              <button onClick={() => handleAction('cancel')} disabled={action !== null}
-                className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
-                style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
-                {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Trial'}
-              </button>
-              <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>You won't be charged. Access ends when the trial expires.</p>
-            </div>
+            {cancelsAt ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-start gap-2 rounded-2xl px-4 py-3" style={{ backgroundColor: 'oklch(0.7 0.13 60 / 0.1)', border: '1px solid oklch(0.7 0.13 60 / 0.25)' }}>
+                  <Clock size={14} className="shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+                  <p className="text-sm" style={{ color: 'var(--foreground)' }}>
+                    Cancellation scheduled — your trial won&apos;t convert to a paid plan, and access ends on <strong>{formatDate(cancelsAt)}</strong>.
+                  </p>
+                </div>
+                <button onClick={() => handleAction('reactivate')} disabled={action !== null}
+                  className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+                  style={{ border: '1px solid var(--primary)', color: 'var(--primary)', backgroundColor: 'transparent' }}>
+                  {action === 'reactivate' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Keep my trial'}
+                </button>
+                <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>Changed your mind? Resume your trial — it converts to €29.99/year when it ends.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <button onClick={() => handleAction('cancel')} disabled={action !== null}
+                  className="inline-flex items-center gap-2 self-start rounded-2xl px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-80 disabled:opacity-60"
+                  style={{ border: '1px solid var(--border)', color: 'var(--muted-foreground)', backgroundColor: 'transparent' }}>
+                  {action === 'cancel' ? <><Loader2 size={13} className="animate-spin" /> Loading…</> : 'Cancel Trial'}
+                </button>
+                <p className="text-xs pl-1" style={{ color: 'var(--muted-foreground)' }}>You won&apos;t be charged. Access ends when the trial expires.</p>
+              </div>
+            )}
           </div>
         )}
 
