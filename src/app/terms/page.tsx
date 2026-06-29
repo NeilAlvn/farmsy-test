@@ -16,7 +16,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function TermsPage() {
-  const updated = '15 May 2026'
+  const updated = '29 June 2026'
 
   return (
     <ContentLayout>
@@ -44,13 +44,13 @@ export default function TermsPage() {
           {/* Intro callout */}
           <div className="rounded-2xl border px-8 py-6" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.06)', borderColor: 'var(--primary)' }}>
             <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
-              By using Farmsy you agree to these terms. The platform is free to use for visitors. Farm owners who claim a listing agree to keep their information accurate.
+              By using Farmsy you agree to these terms. Browsing the full farm map requires a Farmsy Premium subscription, which starts with a free 3-day trial. Claiming and managing a farm listing is always free for farm owners.
             </p>
           </div>
 
           <Section title="About the platform">
             <p>
-              Farmsy is a directory that helps consumers find local farms and direct-to-consumer food producers in the Netherlands and Belgium. The platform is operated by Farmsy and is available at <strong style={{ color: 'var(--foreground)' }}>farmsy.nl</strong>.
+              Farmsy is a directory that helps consumers find local farms and direct-to-consumer food producers in the Netherlands and Belgium. The platform is operated by Farmsy and is available at <strong style={{ color: 'var(--foreground)' }}>farmsy.app</strong>.
             </p>
           </Section>
 
@@ -68,6 +68,21 @@ export default function TermsPage() {
             </p>
           </Section>
 
+          <Section title="Subscriptions, billing & cancellation">
+            <p>
+              Browsing the full farm map requires a <strong style={{ color: 'var(--foreground)' }}>Farmsy Premium</strong> subscription. Two options are available: a <strong style={{ color: 'var(--foreground)' }}>Yearly</strong> plan at €29.99 per year, or <strong style={{ color: 'var(--foreground)' }}>Lifetime</strong> access for a one-time €49.99 payment. All prices include VAT.
+            </p>
+            <p>
+              New accounts start with a <strong style={{ color: 'var(--foreground)' }}>3-day free trial</strong>. Your payment method is collected when the trial begins but is not charged until the trial ends. The trial is available once per customer.
+            </p>
+            <p>
+              The Yearly plan renews automatically each year until you cancel. You can cancel at any time from your <strong style={{ color: 'var(--foreground)' }}>subscription page</strong> — your access continues until the end of the current billing period, and you will not be charged again. Lifetime access is a single payment with no renewal.
+            </p>
+            <p>
+              Payments are processed securely by <strong style={{ color: 'var(--foreground)' }}>Stripe</strong>; we never store your full card details. Because a free trial is provided before any charge, fees already paid are non-refundable except where required by applicable law.
+            </p>
+          </Section>
+
           <Section title="Farm listings">
             <p>
               Farm data is sourced from OpenStreetMap, Foursquare, Overture Maps, Traces, and voluntary farmer submissions. We aim for accuracy but cannot guarantee that all listing information is up to date. Always confirm opening hours and availability directly with the farm before visiting.
@@ -79,7 +94,7 @@ export default function TermsPage() {
 
           <Section title="Accounts">
             <p>
-              Accounts are available to farm owners who wish to manage their listing. You are responsible for keeping your login credentials secure. We may suspend accounts that violate these terms.
+              Accounts are available both to consumers who subscribe to browse the map and to farm owners who claim a listing. When you register we ask for your name, date of birth, and address so we can administer your account and billing; please keep this information accurate. You are responsible for keeping your login credentials secure, and we may suspend accounts that violate these terms.
             </p>
           </Section>
 
@@ -103,10 +118,10 @@ export default function TermsPage() {
 
           <Section title="Contact">
             <p>
-              Questions about these terms? Email us at{' '}
-              <a href="mailto:privacy@farmsy.nl" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-                privacy@farmsy.nl
-              </a>.
+              Questions about these terms? Reach us any time through our{' '}
+              <a href="/messages" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+                contact page
+              </a>{' '}and we&apos;ll get back to you within one business day.
             </p>
           </Section>
 

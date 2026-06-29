@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
+import AddressAutocomplete from '../_components/AddressAutocomplete'
 
 interface User {
   id: string
@@ -39,7 +40,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
   const [streetAddress, setStreetAddress] = useState('')
   const [city, setCity]                   = useState('')
   const [postalCode, setPostalCode]       = useState('')
-  const [country, setCountry]             = useState('NL')
+  const [country, setCountry]             = useState('')
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -48,7 +49,7 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
   function resetSignup() {
     setStep(1); setEmail(''); setPassword(''); setConfirmPassword('')
     setFirstName(''); setLastName(''); setDob('')
-    setStreetAddress(''); setCity(''); setPostalCode(''); setCountry('NL')
+    setStreetAddress(''); setCity(''); setPostalCode(''); setCountry('')
     setError(null)
   }
 
@@ -281,24 +282,22 @@ export default function AuthModal({ user, onClose, onAuth, onSignOut }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-gray-500">Address <span className="font-normal opacity-60">(optional)</span></p>
+                  <p className="text-xs font-medium text-gray-500">Address</p>
+                  <AddressAutocomplete
+                    inputCls={inputCls}
+                    inputStyle={{}}
+                    onSelect={a => { setStreetAddress(a.streetAddress); setPostalCode(a.postalCode); setCity(a.city); setCountry(a.country) }}
+                  />
                   <div className="relative">
                     <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                    <input type="text" autoComplete="street-address" value={streetAddress} onChange={e => setStreetAddress(e.target.value)} placeholder="Street address" className={inputCls} />
+                    <input type="text" required autoComplete="street-address" value={streetAddress} onChange={e => setStreetAddress(e.target.value)} placeholder="Street and house number" className={inputCls} />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="text" autoComplete="postal-code" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="Postal code" className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors" />
-                    <input type="text" autoComplete="address-level2" value={city} onChange={e => setCity(e.target.value)} placeholder="City" className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors" />
+                    <input type="text" required autoComplete="postal-code" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="Postal code" className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors" />
+                    <input type="text" required autoComplete="address-level2" value={city} onChange={e => setCity(e.target.value)} placeholder="City" className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors" />
                   </div>
-                  <select value={country} onChange={e => setCountry(e.target.value)} className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors bg-white">
-                    <option value="NL">🇳🇱 Netherlands</option>
-                    <option value="BE">🇧🇪 Belgium</option>
-                  </select>
+                  <input type="text" required autoComplete="country-name" value={country} onChange={e => setCountry(e.target.value)} placeholder="Country" className="w-full px-3 py-3 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors" />
                 </div>
-
-                <p className="text-[11px] leading-relaxed text-gray-400">
-                  🔒 Your data is stored securely and never shared with third parties.
-                </p>
 
                 <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-bold text-sm flex items-center justify-center gap-2 mt-1 transition-colors">
                   {loading ? <><Loader2 size={15} className="animate-spin" /> Creating account…</> : 'Create account'}

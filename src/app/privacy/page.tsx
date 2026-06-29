@@ -16,7 +16,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default function PrivacyPage() {
-  const updated = '15 May 2026'
+  const updated = '29 June 2026'
 
   return (
     <ContentLayout>
@@ -44,18 +44,18 @@ export default function PrivacyPage() {
           {/* Plain-language intro */}
           <div className="rounded-2xl border px-8 py-6" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.06)', borderColor: 'var(--primary)' }}>
             <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
-              <strong>The short version:</strong> We collect as little data as possible. Visitors who just browse the map are anonymous. We only hold your email address if you create an account to manage a farm listing. We never sell your data or use it for advertising.
+              <strong>The short version:</strong> We collect as little data as possible. Visitors who just browse the map are anonymous. When you create an account we collect your name, date of birth, address, and email, and payments are handled securely by Stripe. We never sell your data or use it for advertising.
             </p>
           </div>
 
           <Section title="Who we are">
             <p>
-              Farmsy (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the website <strong style={{ color: 'var(--foreground)' }}>farmsy.nl</strong>. We are a platform that helps consumers discover local farms and direct-to-consumer food producers in the Netherlands and Belgium.
+              Farmsy (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the website <strong style={{ color: 'var(--foreground)' }}>farmsy.app</strong>. We are a platform that helps consumers discover local farms and direct-to-consumer food producers in the Netherlands and Belgium.
             </p>
             <p>
-              For any questions about this policy or your personal data, email us at{' '}
-              <a href="mailto:privacy@farmsy.nl" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-                privacy@farmsy.nl
+              For any questions about this policy or your personal data, reach us through our{' '}
+              <a href="/messages" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+                contact page
               </a>.
             </p>
           </Section>
@@ -73,9 +73,12 @@ export default function PrivacyPage() {
               <li><strong style={{ color: 'var(--foreground)' }}>Farmer submissions</strong> — information provided directly by farm owners who have claimed their listing</li>
             </ul>
 
-            <p className="font-semibold pt-2" style={{ color: 'var(--foreground)' }}>2. Account data (farmers only)</p>
+            <p className="font-semibold pt-2" style={{ color: 'var(--foreground)' }}>2. Account data</p>
             <p>
-              If you create an account to claim or manage a farm listing, we collect and store your <strong style={{ color: 'var(--foreground)' }}>email address</strong>. That is the only personal data we hold. It is stored securely via Supabase Auth (EU region) and used solely to log you in and link you to your listing. We never share it with third parties.
+              When you create an account we collect your <strong style={{ color: 'var(--foreground)' }}>name, date of birth, address, and email address</strong>. This is stored securely via Supabase (EU region) and used to administer your account, personalise the service, and manage billing. To find your address quickly, our sign-up form offers address suggestions powered by Photon (an open geocoder by Komoot built on OpenStreetMap); only the text you type into that field is sent to look up matches.
+            </p>
+            <p>
+              If you subscribe, payments are processed by <strong style={{ color: 'var(--foreground)' }}>Stripe</strong>. We do not see or store your full card details — Stripe holds those as our payment processor. We never sell your data or share it with third parties for their own marketing.
             </p>
 
             <p className="font-semibold pt-2" style={{ color: 'var(--foreground)' }}>3. What we do NOT collect</p>
@@ -98,9 +101,9 @@ export default function PrivacyPage() {
               <li>Correct inaccurate information</li>
             </ul>
             <p className="pt-2">
-              To exercise any of these rights, contact us at{' '}
-              <a href="mailto:privacy@farmsy.nl" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-                privacy@farmsy.nl
+              To exercise any of these rights, reach us through our{' '}
+              <a href="/messages" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+                contact page
               </a>.
             </p>
           </Section>
@@ -152,9 +155,9 @@ export default function PrivacyPage() {
               ))}
             </div>
             <p className="pt-2">
-              To exercise any right, email{' '}
-              <a href="mailto:privacy@farmsy.nl" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
-                privacy@farmsy.nl
+              To exercise any right, reach us through our{' '}
+              <a href="/messages" className="font-medium underline underline-offset-4" style={{ color: 'var(--primary)' }}>
+                contact page
               </a>. We will respond within 30 days. You also have the right to lodge a complaint with the{' '}
               <strong style={{ color: 'var(--foreground)' }}>Autoriteit Persoonsgegevens</strong> (autoriteitpersoonsgegevens.nl).
             </p>
@@ -166,6 +169,7 @@ export default function PrivacyPage() {
               {[
                 { name: 'Supabase', role: 'Database & authentication', note: 'Stores farm listings and account emails. Hosted in the EU.' },
                 { name: 'Stripe', role: 'Payment processing', note: 'Handles subscription payments. Subject to Stripe\'s privacy policy.' },
+                { name: 'Photon / Komoot', role: 'Address lookup', note: 'Suggests addresses as you type during sign-up. Only the text you enter is sent. Built on OpenStreetMap.' },
                 { name: 'OpenStreetMap / CARTO', role: 'Map tiles', note: 'Renders the background map. No personal data is sent.' },
               ].map(({ name, role, note }) => (
                 <div key={name} className="rounded-xl border px-4 py-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
@@ -194,11 +198,11 @@ export default function PrivacyPage() {
               <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>We&apos;re happy to help. Data requests are handled within 30 days.</p>
             </div>
             <a
-              href="mailto:privacy@farmsy.nl"
+              href="/messages"
               className="inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
               style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
             >
-              privacy@farmsy.nl
+              Contact us
             </a>
           </div>
 

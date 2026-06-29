@@ -309,7 +309,7 @@ useEffect(() => {
 
           <div className="flex justify-center pt-0.5">
             <a
-              href="mailto:info@farmsy.nl?subject=Incorrect farm info"
+              href="/messages"
               className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
               <Flag size={11} />

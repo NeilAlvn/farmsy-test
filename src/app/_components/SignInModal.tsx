@@ -7,6 +7,7 @@ import {
   X, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, ArrowLeft, User, Calendar, MapPin, ShieldCheck,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import AddressAutocomplete from './AddressAutocomplete'
 
 interface Props {
   onClose:         () => void
@@ -36,7 +37,7 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   const [streetAddress, setStreetAddress] = useState('')
   const [city, setCity]                   = useState('')
   const [postalCode, setPostalCode]       = useState('')
-  const [country, setCountry]             = useState('NL')
+  const [country, setCountry]             = useState('')
 
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState<string | null>(null)
@@ -144,7 +145,7 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
   function resetSignup() {
     setStep(1); setEmail(''); setPassword(''); setConfirm('')
     setFirstName(''); setLastName(''); setDob('')
-    setStreetAddress(''); setCity(''); setPostalCode(''); setCountry('NL')
+    setStreetAddress(''); setCity(''); setPostalCode(''); setCountry('')
     setError(null)
   }
 
@@ -553,24 +554,22 @@ function Modal({ onClose, onSuccess, initialMessage }: Props) {
                   </div>
 
                   <div className="space-y-1">
-                    <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Address <span className="font-normal opacity-60">(optional)</span></p>
+                    <p className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Address</p>
+                    <AddressAutocomplete
+                      inputCls={inputCls}
+                      inputStyle={inputStyle}
+                      onSelect={a => { setStreetAddress(a.streetAddress); setPostalCode(a.postalCode); setCity(a.city); setCountry(a.country) }}
+                    />
                     <div className="relative">
                       <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
-                      <input type="text" autoComplete="street-address" value={streetAddress} onChange={e => setStreetAddress(e.target.value)} placeholder="Street address" className={inputCls} style={inputStyle} />
+                      <input type="text" required autoComplete="street-address" value={streetAddress} onChange={e => setStreetAddress(e.target.value)} placeholder="Street and house number" className={inputCls} style={inputStyle} />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <input type="text" autoComplete="postal-code" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="Postal code" className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle} />
-                      <input type="text" autoComplete="address-level2" value={city} onChange={e => setCity(e.target.value)} placeholder="City" className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle} />
+                      <input type="text" required autoComplete="postal-code" value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="Postal code" className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle} />
+                      <input type="text" required autoComplete="address-level2" value={city} onChange={e => setCity(e.target.value)} placeholder="City" className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle} />
                     </div>
-                    <select value={country} onChange={e => setCountry(e.target.value)} className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle}>
-                      <option value="NL">🇳🇱 Netherlands</option>
-                      <option value="BE">🇧🇪 Belgium</option>
-                    </select>
+                    <input type="text" required autoComplete="country-name" value={country} onChange={e => setCountry(e.target.value)} placeholder="Country" className="w-full px-3 py-3 rounded-xl text-sm focus:outline-none" style={inputStyle} />
                   </div>
-
-                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-                    🔒 Your data is stored securely and never shared with third parties.
-                  </p>
 
                   <button type="submit" disabled={loading} className="w-full py-3.5 rounded-xl font-bold text-sm transition-opacity hover:opacity-85 disabled:opacity-60 flex items-center justify-center gap-2" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
                     {loading ? <><Loader2 size={14} className="animate-spin" /> Creating account…</> : 'Create account'}
