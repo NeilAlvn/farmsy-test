@@ -84,7 +84,7 @@ export default function DataTable<T>({
       <div className="flex-1 min-h-0 rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
         {/* Fills the remaining height; the scrollbar lives inside, and the
             header always renders (even with no rows). */}
-        <div className="h-full overflow-auto">
+        <div className="h-full overflow-auto flex flex-col">
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
               <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -109,25 +109,30 @@ export default function DataTable<T>({
                 })}
               </tr>
             </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={columns.length} className="py-20 text-center"><Loader2 size={20} className="animate-spin inline" style={{ color: 'var(--muted-foreground)' }} /></td></tr>
-              ) : visible.length === 0 ? (
-                <tr><td colSpan={columns.length} className="py-20 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>{emptyText}</td></tr>
-              ) : visible.map((row, i) => (
-                <tr
-                  key={rowKey(row)}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                  style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--border)' : 'none' }}
-                  className={`hover:bg-black/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
-                >
-                  {columns.map(col => (
-                    <td key={col.key} className={`px-4 py-3 ${col.tdClass ?? ''}`}>{col.render(row)}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+            {!loading && visible.length > 0 && (
+              <tbody>
+                {visible.map(row => (
+                  <tr
+                    key={rowKey(row)}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
+                    style={{ borderBottom: '1px solid var(--border)' }}
+                    className={`hover:bg-black/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                  >
+                    {columns.map(col => (
+                      <td key={col.key} className={`px-4 py-3 ${col.tdClass ?? ''}`}>{col.render(row)}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            )}
           </table>
+
+          {/* Loading / empty states centered in the remaining space */}
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center py-10"><Loader2 size={20} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} /></div>
+          ) : visible.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center py-10 text-sm" style={{ color: 'var(--muted-foreground)' }}>{emptyText}</div>
+          ) : null}
         </div>
       </div>
     </div>
