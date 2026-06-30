@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { getFarmsAdmin, deleteFarm, type FarmAdminRow } from '../actions'
 import {
-  Search, Trash2, CheckCircle2,
+  Search, Trash2, CheckCircle2, Pencil,
   Loader2, AlertCircle, CheckCheck, X,
 } from 'lucide-react'
 
@@ -156,6 +157,13 @@ export default function FarmsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 justify-end">
+                        <Link
+                          href={`/admin/farms/${encodeURIComponent(farm.osm_id)}`}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                          title="Edit farm"
+                        >
+                          <Pencil size={14} />
+                        </Link>
                         <button
                           onClick={() => setDeleteTarget(farm)}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"

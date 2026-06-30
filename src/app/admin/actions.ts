@@ -548,6 +548,140 @@ export async function getActivityLog(): Promise<ActivityRow[]> {
   return (data ?? []) as ActivityRow[]
 }
 
+// ── Admin farm editor (edit ANY farm) ────────────────────────────────────────
+
+export interface AdminFarmImage { id: string; url: string; sort_order: number }
+
+export interface AdminFarmDetail {
+  osm_id: string
+  name: string
+  description: string | null
+  phone: string | null
+  website: string | null
+  email: string | null
+  address: string | null
+  city: string | null
+  postal_code: string | null
+  country: string | null
+  farm_type: string[] | null
+  image: string | null
+  opening_hours: string | null
+  is_published: boolean | null
+  images: AdminFarmImage[]
+}
+
+export async function getFarmForAdmin(osmId: string): Promise<AdminFarmDetail | null> {
+  const supabase = db()
+  const { data } = await supabase
+    .from('farms')
+    .select('osm_id, name, description, phone, website, email, address, city, postal_code, country, farm_type, image, opening_hours, is_published')
+    .eq('osm_id', osmId)
+    .maybeSingle()
+  if (!data) return null
+
+  const { data: imgs } = await supabase
+    .from('farm_images')
+    .select('id, url, sort_order')
+    .eq('farm_osm_id', osmId)
+    .order('sort_order', { ascending: true })
+
+  return { ...(data as Omit<AdminFarmDetail, 'images'>), images: (imgs ?? []) as AdminFarmImage[] }
+}
+
+export interface AdminFarmFields {
+  name: string
+  description: string
+  phone: string
+  website: string
+  email: string
+  address: string
+  city: string
+  postal_code: string
+  country: string
+  farm_type: string[]
+  opening_hours: string
+  is_published: boolean
+}
+
+export async function adminUpdateFarm(osmId: string, fields: AdminFarmFields, actor: string): Promise<string | null> {
+  const supabase = db()
+  const { error } = await supabase
+    .from('farms')
+    .update({
+      name:          fields.name || null,
+      description:   fields.description || null,
+      phone:         fields.phone || null,
+      website:       fields.website || null,
+      email:         fields.email || null,
+      address:       fields.address || null,
+      city:          fields.city || null,
+      postal_code:   fields.postal_code || null,
+      country:       fields.country || null,
+      farm_type:     fields.farm_type.length > 0 ? fields.farm_type : null,
+      opening_hours: fields.opening_hours || null,
+      is_published:  fields.is_published,
+    })
+    .eq('osm_id', osmId)
+
+  if (error) return error.message
+  await logActivity('farm_edited', `Farm edited: ${fields.name}`, { actor, meta: { osmId } })
+  return null
+}
+
+export async function adminAddFarmImage(osmId: string, formData: FormData, actor: string): Promise<{ image?: AdminFarmImage; error?: string }> {
+  const supabase = db()
+  const file = formData.get('image') as File | null
+  if (!file || file.size === 0) return { error: 'No file provided' }
+
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const path = `${osmId}/${Date.now()}.${ext}`
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const { error: upErr } = await supabase.storage.from('farm-images').upload(path, buffer, { contentType: file.type, upsert: true })
+    if (upErr) return { error: upErr.message }
+  } catch {
+    return { error: 'Upload failed' }
+  }
+  const { data: { publicUrl } } = supabase.storage.from('farm-images').getPublicUrl(path)
+
+  // Next sort order
+  const { count: existingCount } = await supabase
+    .from('farm_images')
+    .select('id', { count: 'exact', head: true })
+    .eq('farm_osm_id', osmId)
+  const sortOrder = existingCount ?? 0
+
+  const { data: inserted, error } = await supabase
+    .from('farm_images')
+    .insert({ farm_osm_id: osmId, url: publicUrl, sort_order: sortOrder })
+    .select('id, url, sort_order')
+    .single()
+  if (error || !inserted) return { error: error?.message ?? 'Insert failed' }
+
+  // Set as cover if the farm has none yet.
+  const { data: farm } = await supabase.from('farms').select('image').eq('osm_id', osmId).maybeSingle()
+  if (!farm?.image) await supabase.from('farms').update({ image: publicUrl }).eq('osm_id', osmId)
+
+  await logActivity('farm_edited', `Photo added to farm`, { actor, meta: { osmId } })
+  return { image: inserted as AdminFarmImage }
+}
+
+export async function adminDeleteFarmImage(imageId: string, osmId: string, actor: string): Promise<string | null> {
+  const supabase = db()
+  const { error } = await supabase.from('farm_images').delete().eq('id', imageId)
+  if (error) return error.message
+  await logActivity('farm_edited', `Photo removed from farm`, { actor, meta: { osmId } })
+  return null
+}
+
+export async function adminSetFarmCover(osmId: string, url: string, actor: string): Promise<string | null> {
+  const supabase = db()
+  const { error } = await supabase.from('farms').update({ image: url }).eq('osm_id', osmId)
+  if (error) return error.message
+  await logActivity('farm_edited', `Cover photo changed`, { actor, meta: { osmId } })
+  return null
+}
+
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 export interface ProfileAdminRow {
