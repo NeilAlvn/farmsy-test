@@ -265,6 +265,9 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
   const mapRef      = useRef<MapRef | null>(null)
   const searchParams = useSearchParams()
+  // Contact fields (phone/website/address) prefetched in bulk for subscribers
+  // so opening a farm is instant — keyed by osm_id.
+  const contactCacheRef = useRef<Map<string, Partial<Farm>>>(new globalThis.Map())
 
   // ── Auth + subscription status ──────────────────────────────────────────────
   // Everyone can see the pins; full farm details are gated, so we need to know
@@ -296,10 +299,36 @@ export default function FarmMap({ farms }: { farms: SlimFarm[] }) {
 
   useEffect(() => { checkSubscription() }, [checkSubscription])
 
+  // ── Prefetch contact fields for subscribers ─────────────────────────────────
+  // Bulk-load phone/website/address once so opening a farm is instant (these
+  // were dropped from the public pin payload to close the paywall leak).
+  useEffect(() => {
+    if (!isSubscribed) return
+    let cancelled = false
+    ;(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      try {
+        const res = await fetch('/api/farms/contact', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const rows = await res.json() as Array<{ osm_id: string | null } & Partial<Farm>>
+        if (cancelled) return
+        const m = new globalThis.Map<string, Partial<Farm>>()
+        for (const r of rows) if (r.osm_id) m.set(r.osm_id, r)
+        contactCacheRef.current = m
+      } catch { /* ignore */ }
+    })()
+    return () => { cancelled = true }
+  }, [isSubscribed])
+
   // ── On-demand detail fetch (subscribers only) ───────────────────────────────
 
   const openFarm = useCallback(async (slim: SlimFarm) => {
-    setSelectedFarm({ ...slim, email: undefined, description: undefined, facebook: undefined, instagram: undefined, organic: undefined, produce: undefined, operator: undefined })
+    // Merge any prefetched contact fields so phone/website/address show instantly.
+    const cached = (slim.osm_id && contactCacheRef.current.get(slim.osm_id)) || {}
+    setSelectedFarm({ ...slim, ...cached, email: undefined, description: undefined, facebook: undefined, instagram: undefined, organic: undefined, produce: undefined, operator: undefined })
     setShowClaim(false)
     try {
       const { data: { session } } = await supabase.auth.getSession()
