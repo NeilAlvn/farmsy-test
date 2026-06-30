@@ -46,7 +46,7 @@ export default function ActivityPage() {
         ) : rows.length === 0 ? (
           <p className="text-sm py-12 text-center" style={{ color: 'var(--muted-foreground)' }}>No activity recorded yet.</p>
         ) : (
-          <ul>
+          <ul className="block overflow-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
             {rows.map((r, i) => {
               const t = TYPE_STYLE[r.type] ?? { label: r.type, bg: 'var(--border)', fg: 'var(--muted-foreground)' }
               return (
