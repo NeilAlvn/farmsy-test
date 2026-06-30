@@ -79,7 +79,7 @@ export default function ClaimsPage() {
   async function confirmReject() {
     if (!rejectTarget) return
     setActing(true)
-    const err = await rejectClaim(rejectTarget.id, rejectReason, userId)
+    const err = await rejectClaim(rejectTarget.id, rejectReason, userId, rejectTarget.farm_osm_id)
     setActing(false)
     setRejectTarget(null)
     setRejectReason('')

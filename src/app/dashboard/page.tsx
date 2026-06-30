@@ -6,17 +6,11 @@ import Link from 'next/link'
 import { Loader2, Wheat, ChevronRight, Shield } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import ContentLayout from '@/app/_components/ContentLayout'
-
-interface ClaimedFarm {
-  osm_id: string
-  name: string
-  city: string | null
-  image: string | null
-}
+import { getMyFarms, type ClaimedFarmSummary } from './actions'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [farms, setFarms] = useState<ClaimedFarm[]>([])
+  const [farms, setFarms] = useState<ClaimedFarmSummary[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,30 +20,19 @@ export default function DashboardPage() {
         return
       }
 
-      const { data: claims } = await supabase
-        .from('farm_claims')
-        .select('farm_osm_id')
-        .eq('status', 'approved')
-        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`)
+      const claimedFarms = await getMyFarms(session.user.id, session.user.email ?? '')
 
-      if (!claims || claims.length === 0) {
+      if (claimedFarms.length === 0) {
         setLoading(false)
         return
       }
 
-      const osmIds = claims.map((c: { farm_osm_id: string }) => c.farm_osm_id)
-
-      if (osmIds.length === 1) {
-        router.replace(`/dashboard/${osmIds[0]}`)
+      if (claimedFarms.length === 1) {
+        router.replace(`/dashboard/${claimedFarms[0].osm_id}`)
         return
       }
 
-      const { data: farmData } = await supabase
-        .from('farms')
-        .select('osm_id, name, city, image')
-        .in('osm_id', osmIds)
-
-      setFarms((farmData ?? []) as ClaimedFarm[])
+      setFarms(claimedFarms)
       setLoading(false)
     })
   }, [router])

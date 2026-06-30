@@ -20,6 +20,69 @@ async function verifyClaim(supabase: ReturnType<typeof db>, osmId: string, userI
   return !!data
 }
 
+export interface ClaimedFarmSummary {
+  osm_id: string
+  name: string
+  city: string | null
+  image: string | null
+}
+
+export interface FarmEditData {
+  osm_id: string
+  name: string
+  description: string | null
+  phone: string | null
+  website: string | null
+  email: string | null
+  address: string | null
+  city: string | null
+  postal_code: string | null
+  farm_type: string[] | null
+  image: string | null
+  opening_hours: string | null
+}
+
+// Lists the caller's approved farms. Runs with the service role so an approved
+// claim is found by user_id OR email — the browser client can't, because RLS on
+// farm_claims only exposes rows where user_id = auth.uid().
+export async function getMyFarms(userId: string, userEmail: string): Promise<ClaimedFarmSummary[]> {
+  const supabase = db()
+  const { data: claims } = await supabase
+    .from('farm_claims')
+    .select('farm_osm_id')
+    .eq('status', 'approved')
+    .or(`user_id.eq.${userId},email.eq.${userEmail}`)
+
+  const osmIds = [...new Set((claims ?? []).map((c: { farm_osm_id: string }) => c.farm_osm_id))]
+  if (osmIds.length === 0) return []
+
+  const { data } = await supabase
+    .from('farms')
+    .select('osm_id, name, city, image')
+    .in('osm_id', osmIds)
+
+  return (data ?? []) as ClaimedFarmSummary[]
+}
+
+// Returns the editable farm record only if the caller has an approved claim
+// (matched by user_id OR email). null = no access / not found.
+export async function getClaimedFarmDetail(
+  osmId: string,
+  userId: string,
+  userEmail: string,
+): Promise<FarmEditData | null> {
+  const supabase = db()
+  if (!(await verifyClaim(supabase, osmId, userId, userEmail))) return null
+
+  const { data } = await supabase
+    .from('farms')
+    .select('osm_id, name, description, phone, website, email, address, city, postal_code, farm_type, image, opening_hours')
+    .eq('osm_id', osmId)
+    .maybeSingle()
+
+  return (data as FarmEditData | null) ?? null
+}
+
 export interface FarmDetails {
   name: string
   description: string

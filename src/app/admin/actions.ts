@@ -1,6 +1,10 @@
 'use server'
 
 import { createClient } from '@supabase/supabase-js'
+import { sendContactReply } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
+
+const APP_URL = 'https://farmsy.app'
 
 function db() {
   return createClient(
@@ -183,6 +187,20 @@ export async function getFarmsAdmin(): Promise<{ farms: FarmAdminRow[]; pendingC
   return { farms: all, pendingCount: pendingCount ?? 0 }
 }
 
+// Looks up the claimant + farm name so we can notify them by email / in-app.
+async function getClaimContext(supabase: ReturnType<typeof db>, claimId: string, farmOsmId: string) {
+  const [{ data: claim }, { data: farm }] = await Promise.all([
+    supabase.from('farm_claims').select('email, full_name, user_id').eq('id', claimId).maybeSingle(),
+    supabase.from('farms').select('name').eq('osm_id', farmOsmId).maybeSingle(),
+  ])
+  return {
+    email: (claim?.email as string | null) ?? null,
+    fullName: (claim?.full_name as string | null) ?? null,
+    userId: (claim?.user_id as string | null) ?? null,
+    farmName: (farm?.name as string | null) ?? 'your farm',
+  }
+}
+
 export async function approveClaim(
   claimId: string,
   farmOsmId: string,
@@ -206,13 +224,46 @@ export async function approveClaim(
     .update({ is_claimed: true })
     .eq('osm_id', farmOsmId)
 
-  return e2?.message ?? null
+  if (e2) return e2.message
+
+  // Let the farmer know — email + in-app notification.
+  const { email, fullName, userId, farmName } = await getClaimContext(supabase, claimId, farmOsmId)
+  const firstName = fullName?.split(' ')[0] || 'there'
+
+  if (email) {
+    try {
+      await sendContactReply(email, {
+        subject: `Your claim for ${farmName} is approved 🎉`,
+        body:
+          `Hi ${firstName},\n\n` +
+          `Good news — your claim for ${farmName} has been approved! ` +
+          `You can now manage its details, photos, and opening hours from your dashboard:\n\n` +
+          `${APP_URL}/dashboard\n\n` +
+          `Sign in with this email address (${email}) to access it.\n\n` +
+          `Thanks for being part of Farmsy!\n\nThe Farmsy Team`,
+      })
+    } catch { /* non-fatal */ }
+  }
+
+  if (userId) {
+    try {
+      await createNotification(
+        userId,
+        'claim_approved',
+        'Farm claim approved 🎉',
+        `Your claim for ${farmName} was approved. Manage it from your dashboard.`,
+      )
+    } catch { /* non-fatal */ }
+  }
+
+  return null
 }
 
 export async function rejectClaim(
   claimId: string,
   reason: string,
   reviewedBy: string,
+  farmOsmId?: string,
 ): Promise<string | null> {
   const supabase = db()
 
@@ -226,7 +277,38 @@ export async function rejectClaim(
     })
     .eq('id', claimId)
 
-  return error?.message ?? null
+  if (error) return error.message
+
+  // Notify the farmer their claim wasn't approved (with the reason, if given).
+  const { email, fullName, userId, farmName } = await getClaimContext(supabase, claimId, farmOsmId ?? '')
+  const firstName = fullName?.split(' ')[0] || 'there'
+
+  if (email) {
+    try {
+      await sendContactReply(email, {
+        subject: `Update on your claim for ${farmName}`,
+        body:
+          `Hi ${firstName},\n\n` +
+          `Thanks for your interest in claiming ${farmName}. After review, we weren't able to approve this claim` +
+          `${reason ? `:\n\n"${reason}"` : ' at this time.'}\n\n` +
+          `If you believe this is a mistake or you can provide more proof of ownership, just reply to this email and we'll take another look.\n\n` +
+          `The Farmsy Team`,
+      })
+    } catch { /* non-fatal */ }
+  }
+
+  if (userId) {
+    try {
+      await createNotification(
+        userId,
+        'claim_rejected',
+        'Update on your farm claim',
+        `Your claim for ${farmName} wasn't approved.${reason ? ` Reason: ${reason}` : ''} Reply to our email if you'd like us to take another look.`,
+      )
+    } catch { /* non-fatal */ }
+  }
+
+  return null
 }
 
 export async function deleteFarm(osmId: string): Promise<string | null> {

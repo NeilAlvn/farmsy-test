@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase'
 import ContentLayout from '@/app/_components/ContentLayout'
 import {
   updateFarmDetails, updateFarmHours, uploadFarmImage, updateFarmImageUrl,
+  getClaimedFarmDetail,
   type FarmDetails,
 } from '../actions'
 
@@ -202,27 +203,16 @@ export default function FarmEditorPage() {
       setUserId(session.user.id)
       setUserEmail(session.user.email ?? '')
 
-      // Verify claim
-      const { data: claim } = await supabase
-        .from('farm_claims')
-        .select('id')
-        .eq('farm_osm_id', osmId)
-        .eq('status', 'approved')
-        .or(`user_id.eq.${session.user.id},email.eq.${session.user.email}`)
-        .maybeSingle()
+      // Verify claim + load farm via the service role (matches user_id OR email;
+      // the browser client can't, because RLS hides claims where user_id != uid).
+      const data = await getClaimedFarmDetail(osmId, session.user.id, session.user.email ?? '')
 
-      if (!claim) {
+      if (!data) {
         router.replace('/dashboard')
         return
       }
 
-      const { data } = await supabase
-        .from('farms')
-        .select('osm_id, name, description, phone, website, email, address, city, postal_code, farm_type, image, opening_hours')
-        .eq('osm_id', osmId)
-        .maybeSingle()
-
-      if (data) {
+      {
         const f = data as FarmData
         setFarm(f)
         setName(f.name ?? '')
