@@ -244,6 +244,9 @@
     "photos": "Foto’s",
     "add": "Toevoegen",
     "submitBtn": "Indienen ter beoordeling",
-    "genericError": "Er ging iets mis."
+    "genericError": "Er ging iets mis.",
+    "findAddress": "Zoek je adres",
+    "locationLabel": "Locatie op de kaart",
+    "pinHelp": "Zoek hierboven en sleep daarna de pin naar de juiste plek (of tik op de kaart)."
   }
 }

@@ -244,6 +244,9 @@
     "photos": "Fotos",
     "add": "Añadir",
     "submitBtn": "Enviar para revisión",
-    "genericError": "Algo salió mal."
+    "genericError": "Algo salió mal.",
+    "findAddress": "Busca tu dirección",
+    "locationLabel": "Ubicación en el mapa",
+    "pinHelp": "Busca arriba y luego arrastra el marcador al lugar exacto (o toca el mapa)."
   }
 }

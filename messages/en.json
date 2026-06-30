@@ -250,6 +250,9 @@
     "photos": "Photos",
     "add": "Add",
     "submitBtn": "Submit for review",
-    "genericError": "Something went wrong."
+    "genericError": "Something went wrong.",
+    "findAddress": "Find your address",
+    "locationLabel": "Location on the map",
+    "pinHelp": "Search above, then drag the pin to the exact spot (or tap the map)."
   }
 }

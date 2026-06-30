@@ -10,7 +10,14 @@ import {
 import { supabase } from '@/lib/supabase'
 import ContentLayout from '@/app/_components/ContentLayout'
 import SignInModal from '@/app/_components/SignInModal'
+import dynamic from 'next/dynamic'
+import AddressAutocomplete, { type ParsedAddress } from '@/app/_components/AddressAutocomplete'
 import { submitFarmShop } from './actions'
+
+const LocationPicker = dynamic(() => import('@/app/_components/LocationPicker'), {
+  ssr: false,
+  loading: () => <div className="rounded-xl border" style={{ height: 280, borderColor: 'var(--border)' }} />,
+})
 
 type Access = 'checking' | 'guest' | 'no-sub' | 'allowed'
 
@@ -45,6 +52,17 @@ export default function SubmitFarmPage() {
   const [email, setEmail] = useState('')
   const [hours, setHours] = useState('')
   const [files, setFiles] = useState<File[]>([])
+  const [lat, setLat] = useState<number | null>(null)
+  const [lng, setLng] = useState<number | null>(null)
+  const [flyKey, setFlyKey] = useState(0)
+
+  function onAddressPick(a: ParsedAddress, coords?: { lat: number; lng: number }) {
+    if (a.streetAddress) setAddress(a.streetAddress)
+    if (a.postalCode) setPostalCode(a.postalCode)
+    if (a.city) setCity(a.city)
+    if (a.country) setCountry(a.country)
+    if (coords) { setLat(coords.lat); setLng(coords.lng); setFlyKey(k => k + 1) }
+  }
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -83,6 +101,8 @@ export default function SubmitFarmPage() {
     fd.set('postal_code', postalCode); fd.set('country', country)
     fd.set('phone', phone); fd.set('website', website); fd.set('email', email)
     fd.set('opening_hours', hours)
+    fd.set('lat', lat != null ? String(lat) : '')
+    fd.set('lng', lng != null ? String(lng) : '')
     files.forEach(f => fd.append('images', f))
 
     const res = await submitFarmShop(fd)
@@ -192,6 +212,15 @@ export default function SubmitFarmPage() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('findAddress')}</label>
+            <AddressAutocomplete
+              inputCls="w-full pl-9 pr-9 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
+              inputStyle={inputStyle}
+              onSelect={onAddressPick}
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('address')}</label>
@@ -201,6 +230,12 @@ export default function SubmitFarmPage() {
               <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('postal')}</label>
               <input value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClass} style={inputStyle} placeholder="1234 AB" />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('locationLabel')}</label>
+            <p className="text-xs mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('pinHelp')}</p>
+            <LocationPicker lat={lat} lng={lng} flyKey={flyKey} onChange={(la, ln) => { setLat(la); setLng(ln) }} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

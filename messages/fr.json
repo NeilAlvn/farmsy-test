@@ -244,6 +244,9 @@
     "photos": "Photos",
     "add": "Ajouter",
     "submitBtn": "Soumettre pour examen",
-    "genericError": "Une erreur est survenue."
+    "genericError": "Une erreur est survenue.",
+    "findAddress": "Trouvez votre adresse",
+    "locationLabel": "Emplacement sur la carte",
+    "pinHelp": "Recherchez ci-dessus, puis faites glisser le repère à l’endroit exact (ou touchez la carte)."
   }
 }

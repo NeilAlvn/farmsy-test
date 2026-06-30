@@ -16,6 +16,7 @@ interface Feature {
     postcode?: string; city?: string; town?: string; village?: string
     county?: string; state?: string; country?: string; countrycode?: string
   }
+  geometry?: { coordinates?: [number, number] } // [lng, lat]
 }
 
 // Worldwide address autocomplete powered by Photon (photon.komoot.io), an
@@ -42,7 +43,7 @@ export default function AddressAutocomplete({
 }: {
   inputCls:   string
   inputStyle: React.CSSProperties
-  onSelect:   (address: ParsedAddress) => void
+  onSelect:   (address: ParsedAddress, coords?: { lat: number; lng: number }) => void
 }) {
   const [query, setQuery]     = useState('')
   const [results, setResults] = useState<Feature[]>([])
@@ -82,7 +83,9 @@ export default function AddressAutocomplete({
   }, [query])
 
   function pick(f: Feature) {
-    onSelect(parse(f.properties))
+    const c = f.geometry?.coordinates
+    const coords = c && c.length === 2 ? { lng: c[0], lat: c[1] } : undefined
+    onSelect(parse(f.properties), coords)
     setQuery(formatLabel(f.properties))
     setResults([])
     setOpen(false)

@@ -244,6 +244,9 @@
     "photos": "Fotos",
     "add": "Hinzufügen",
     "submitBtn": "Zur Prüfung einreichen",
-    "genericError": "Etwas ist schiefgelaufen."
+    "genericError": "Etwas ist schiefgelaufen.",
+    "findAddress": "Adresse suchen",
+    "locationLabel": "Standort auf der Karte",
+    "pinHelp": "Oben suchen und dann den Pin an die genaue Stelle ziehen (oder auf die Karte tippen)."
   }
 }
