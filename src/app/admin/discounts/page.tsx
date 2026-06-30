@@ -42,13 +42,13 @@ export default function DiscountsPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Discounts</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Active coupons and redemption stats</p>
       </div>
 
-      <div className="rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center gap-6" style={{ backgroundColor: 'var(--primary)' }}>
+      <div className="shrink-0 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center gap-6" style={{ backgroundColor: 'var(--primary)' }}>
         <div className="flex-1 space-y-2">
           <p className="text-xl font-bold text-white tracking-wide">COMEBACK20</p>
           <p className="text-sm text-white/75">20% off — once per user — win-back only</p>
@@ -70,8 +70,8 @@ export default function DiscountsPage() {
         </div>
       </div>
 
-      <div className="space-y-3">
-        <h2 className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>Redemption History</h2>
+      <div className="flex-1 min-h-0 flex flex-col gap-3">
+        <h2 className="text-base font-semibold shrink-0" style={{ color: 'var(--foreground)' }}>Redemption History</h2>
         <DataTable
           rows={rows}
           columns={columns}
@@ -80,7 +80,6 @@ export default function DiscountsPage() {
           searchText={r => `${displayName(r)} ${r.email ?? ''}`}
           searchPlaceholder="Search redemptions…"
           emptyText="No redemptions yet — users who resubscribe via win-back will appear here"
-          maxHeight="calc(100vh - 470px)"
           defaultSort={{ key: 'canceled', dir: 'desc' }}
         />
       </div>

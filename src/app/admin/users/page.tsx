@@ -58,8 +58,8 @@ export default function UsersPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Users</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
           {loading ? '…' : `${users.length.toLocaleString()} registered accounts · click a row to edit`}

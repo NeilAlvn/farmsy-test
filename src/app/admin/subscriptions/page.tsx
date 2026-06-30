@@ -56,8 +56,8 @@ export default function SubscriptionsPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Subscriptions</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
           {loading ? '…' : `${counts.active} active · ${counts.canceled} canceled`}
@@ -65,7 +65,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {!loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 shrink-0">
           {[
             { label: 'MRR', value: `€ ${mrr.toFixed(0)}`, color: 'var(--primary)' },
             { label: 'ARR (est.)', value: `€ ${arr.toFixed(0)}`, color: '#3B82F6' },
@@ -88,7 +88,6 @@ export default function SubscriptionsPage() {
         searchText={r => `${displayName(r)} ${r.email ?? ''}`}
         searchPlaceholder="Search subscribers…"
         emptyText="No subscriptions"
-        maxHeight="calc(100vh - 430px)"
         defaultSort={{ key: 'canceled', dir: 'desc' }}
         toolbarRight={
           <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: 'var(--cream)' }}>

@@ -40,15 +40,15 @@ export default function WinbackPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Win-back</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>
           {loading ? '…' : `${rows.length} emails sent · ${resubscribed} resubscribed`}
         </p>
       </div>
 
-      <div className="flex items-start gap-3 rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.07)', border: '1px solid oklch(0.36 0.07 145 / 0.2)', color: 'oklch(0.28 0.07 145)' }}>
+      <div className="shrink-0 flex items-start gap-3 rounded-xl px-4 py-3 text-sm" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.07)', border: '1px solid oklch(0.36 0.07 145 / 0.2)', color: 'oklch(0.28 0.07 145)' }}>
         <Info size={15} className="shrink-0 mt-0.5" />
         <p>Win-back emails are sent automatically at <strong>10:00 AM daily</strong> to users who canceled a yearly subscription and have <code className="text-xs bg-black/5 px-1 py-0.5 rounded">win_back_sent = false</code>. The <strong>COMEBACK20</strong> coupon (20% off) is applied on resubscribe.</p>
       </div>
@@ -61,7 +61,6 @@ export default function WinbackPage() {
         searchText={r => `${displayName(r)} ${r.email ?? ''}`}
         searchPlaceholder="Search win-back recipients…"
         emptyText="No win-back emails sent yet"
-        maxHeight="calc(100vh - 360px)"
         defaultSort={{ key: 'canceled', dir: 'desc' }}
       />
     </div>

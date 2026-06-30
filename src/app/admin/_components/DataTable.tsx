@@ -22,14 +22,12 @@ interface Props<T> {
   onRowClick?: (row: T) => void
   toolbarRight?: ReactNode
   emptyText?: string
-  // Inner scroll height — keeps the page short. Accepts px number or any CSS value.
-  maxHeight?: number | string
   defaultSort?: { key: string; dir: 'asc' | 'desc' }
 }
 
 export default function DataTable<T>({
   rows, columns, rowKey, loading = false, searchText, searchPlaceholder = 'Search…',
-  onRowClick, toolbarRight, emptyText = 'Nothing to show', maxHeight = 'calc(100vh - 300px)',
+  onRowClick, toolbarRight, emptyText = 'Nothing to show',
   defaultSort,
 }: Props<T>) {
   const [q, setQ] = useState('')
@@ -64,9 +62,9 @@ export default function DataTable<T>({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col flex-1 min-h-0">
       {(searchText || toolbarRight) && (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 shrink-0 mb-3">
           {searchText && (
             <div className="relative flex-1 min-w-48">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
@@ -83,10 +81,10 @@ export default function DataTable<T>({
         </div>
       )}
 
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
-        {/* Fixed height so the table fills the page; the scrollbar lives inside.
-            The header always renders, even with no rows. */}
-        <div className="overflow-auto" style={{ height: maxHeight }}>
+      <div className="flex-1 min-h-0 rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+        {/* Fills the remaining height; the scrollbar lives inside, and the
+            header always renders (even with no rows). */}
+        <div className="h-full overflow-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10">
               <tr style={{ borderBottom: '1px solid var(--border)' }}>

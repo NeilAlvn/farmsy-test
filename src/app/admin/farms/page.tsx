@@ -89,7 +89,7 @@ export default function FarmsPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium ${toast.ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
           {toast.ok ? <CheckCheck size={15} /> : <AlertCircle size={15} />}{toast.msg}
@@ -97,12 +97,12 @@ export default function FarmsPage() {
         </div>
       )}
 
-      <div>
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Farms</h1>
         <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Manage all farms on the platform</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 shrink-0">
         {[
           { label: 'Total farms', value: farms.length, color: 'var(--foreground)' },
           { label: 'Claimed', value: claimedCount, color: 'var(--primary)' },
@@ -123,7 +123,6 @@ export default function FarmsPage() {
         searchText={f => `${f.name} ${f.city ?? ''} ${f.country ?? ''}`}
         searchPlaceholder="Search by name, city, or country…"
         emptyText="No farms found"
-        maxHeight="calc(100vh - 420px)"
         defaultSort={{ key: 'name', dir: 'asc' }}
       />
 

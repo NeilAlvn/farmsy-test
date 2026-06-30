@@ -62,14 +62,14 @@ export default function SubmissionsPage() {
   const others = rows.filter(r => r.status !== 'pending')
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6" style={{ height: 'calc(100vh - 4rem)' }}>
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-sm font-semibold text-white ${toast.ok ? 'bg-emerald-600' : 'bg-red-500'}`}>
           {toast.ok ? <CheckCircle2 size={15} /> : <XCircle size={15} />}{toast.msg}
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Inbox size={20} style={{ color: 'var(--primary)' }} />
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Submissions</h1>
         {pending.length > 0 && (
@@ -79,12 +79,13 @@ export default function SubmissionsPage() {
         )}
       </div>
 
+      <div className="flex-1 min-h-0 overflow-auto pr-1">
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="animate-spin" style={{ color: 'var(--muted-foreground)' }} /></div>
       ) : rows.length === 0 ? (
         <p className="text-sm py-12 text-center" style={{ color: 'var(--muted-foreground)' }}>No submissions yet.</p>
       ) : (
-        <div className="space-y-3 overflow-auto pr-1" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="space-y-3">
           {[...pending, ...others].map(s => {
             const st = STATUS_STYLE[s.status] ?? STATUS_STYLE.pending
             return (
@@ -141,6 +142,7 @@ export default function SubmissionsPage() {
           })}
         </div>
       )}
+      </div>
 
       {/* Reject modal */}
       {rejectId && (

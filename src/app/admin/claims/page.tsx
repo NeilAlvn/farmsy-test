@@ -115,7 +115,7 @@ export default function ClaimsPage() {
   ]
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5" style={{ height: 'calc(100vh - 4rem)' }}>
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium ${toast.ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
           {toast.ok ? <CheckCheck size={15} /> : <AlertCircle size={15} />}{toast.msg}
@@ -123,7 +123,7 @@ export default function ClaimsPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Claims</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Review and manage farm ownership requests</p>
@@ -139,7 +139,6 @@ export default function ClaimsPage() {
         searchText={c => `${c.farm_name} ${c.full_name} ${c.email}`}
         searchPlaceholder="Search by farm, name, or email…"
         emptyText={`No ${tab === 'all' ? '' : tab} claims`}
-        maxHeight="calc(100vh - 320px)"
         defaultSort={{ key: 'date', dir: 'desc' }}
         toolbarRight={
           <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: 'var(--cream)' }}>

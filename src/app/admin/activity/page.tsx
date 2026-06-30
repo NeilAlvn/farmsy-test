@@ -55,13 +55,13 @@ export default function ActivityPage() {
   const selectStyle = { borderColor: 'var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-4" style={{ height: 'calc(100vh - 4rem)' }}>
+      <div className="flex items-center gap-2 shrink-0">
         <Activity size={20} style={{ color: 'var(--primary)' }} />
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Activity</h1>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 shrink-0">
         <div className="relative flex-1 min-w-48">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--muted-foreground)' }} />
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search activity…"
@@ -72,8 +72,8 @@ export default function ActivityPage() {
         </select>
       </div>
 
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
-        <div className="overflow-auto" style={{ height: 'calc(100vh - 240px)' }}>
+      <div className="flex-1 min-h-0 rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+        <div className="h-full overflow-auto">
           {loading ? (
             <div className="flex justify-center py-20"><Loader2 className="animate-spin" style={{ color: 'var(--muted-foreground)' }} /></div>
           ) : visible.length === 0 ? (
