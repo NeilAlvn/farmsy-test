@@ -44,7 +44,7 @@ export default function TermsPage() {
           {/* Intro callout */}
           <div className="rounded-2xl border px-8 py-6" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.06)', borderColor: 'var(--primary)' }}>
             <p className="text-sm font-medium leading-relaxed" style={{ color: 'var(--foreground)' }}>
-              By using Farmsy you agree to these terms. Browsing the full farm map requires a Farmsy Premium subscription, which starts with a free 3-day trial. Claiming and managing a farm listing is always free for farm owners.
+              By using Farmsy you agree to these terms. A Farmsy Premium subscription — which starts with a free 3-day trial — is required both to browse the full farm map and for farm owners to claim and manage their listing.
             </p>
           </div>
 
@@ -61,7 +61,7 @@ export default function TermsPage() {
               <li>Get directions to farms</li>
               <li>Save favourite farms (account required)</li>
               <li>Plan farm trips (account required)</li>
-              <li>Claim and manage your own farm listing (account required)</li>
+              <li>Claim and manage your own farm listing (subscription required)</li>
             </ul>
             <p className="pt-2">
               You may not use the platform to scrape listings in bulk, republish data without attribution, or misrepresent a farm you do not own or operate.
@@ -94,7 +94,7 @@ export default function TermsPage() {
 
           <Section title="Accounts">
             <p>
-              Accounts are available both to consumers who subscribe to browse the map and to farm owners who claim a listing. When you register we ask for your name, date of birth, and address so we can administer your account and billing; please keep this information accurate. You are responsible for keeping your login credentials secure, and we may suspend accounts that violate these terms.
+              Accounts require a Farmsy Premium subscription — both to browse the full map and for farm owners to claim and manage a listing. When you register we ask for your name, date of birth, and address so we can administer your account and billing; please keep this information accurate. You are responsible for keeping your login credentials secure, and we may suspend accounts that violate these terms.
             </p>
           </Section>
 
