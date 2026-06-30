@@ -12,9 +12,11 @@ import { supabase } from '@/lib/supabase'
 import ContentLayout from '@/app/_components/ContentLayout'
 import {
   updateFarmDetails, updateFarmHours, uploadFarmImage, updateFarmImageUrl,
-  getClaimedFarmDetail,
-  type FarmDetails,
+  getClaimedFarmDetail, getFarmImages, addFarmImageToGallery,
+  deleteFarmImageFromGallery, setFarmCover,
+  type FarmDetails, type OwnerFarmImage,
 } from '../actions'
+import { Star, Trash2 } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -186,6 +188,8 @@ export default function FarmEditorPage() {
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
   const [photoMode, setPhotoMode]       = useState<'url' | 'upload'>('upload')
   const [savingPhoto, setSavingPhoto]   = useState(false)
+  const [gallery, setGallery]           = useState<OwnerFarmImage[]>([])
+  const [galleryBusy, setGalleryBusy]   = useState(false)
 
   // ── Hours form
   const [schedule, setSchedule]   = useState<WeekSchedule>(defaultSchedule())
@@ -226,6 +230,8 @@ export default function FarmEditorPage() {
         setFarmTypes(new Set(f.farm_type ?? []))
         setCurrentImage(f.image)
         setSchedule(parseHours(f.opening_hours))
+        const imgs = await getFarmImages(osmId, session.user.id, session.user.email ?? '')
+        setGallery(imgs)
       }
 
       setLoading(false)
@@ -273,6 +279,38 @@ export default function FarmEditorPage() {
     setSavingPhoto(false)
     if (err) showToast(`Error: ${err}`, false)
     else { setUploadFile(null); setUploadPreview(null); setImageUrl(''); showToast('Photo updated!') }
+  }
+
+  async function addGalleryPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setGalleryBusy(true)
+    const fd = new FormData()
+    fd.append('image', file)
+    const res = await addFarmImageToGallery(osmId, userId, userEmail, fd)
+    setGalleryBusy(false)
+    if (res.error) { showToast(`Error: ${res.error}`, false); return }
+    if (res.image) {
+      setGallery(prev => [...prev, res.image!])
+      setCurrentImage(c => c ?? res.image!.url)
+      showToast('Photo added')
+    }
+  }
+
+  async function removeGalleryPhoto(img: OwnerFarmImage) {
+    const err = await deleteFarmImageFromGallery(img.id, osmId, userId, userEmail)
+    if (err) { showToast(`Error: ${err}`, false); return }
+    setGallery(prev => prev.filter(i => i.id !== img.id))
+    showToast('Photo removed')
+  }
+
+  async function makeGalleryCover(url: string) {
+    const err = await setFarmCover(osmId, userId, userEmail, url)
+    if (err) { showToast(`Error: ${err}`, false); return }
+    setCurrentImage(url)
+    setFarm(f => f ? { ...f, image: url } : f)
+    showToast('Cover updated')
   }
 
   async function saveHours() {
@@ -562,6 +600,35 @@ export default function FarmEditorPage() {
                     {savingPhoto ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                     Save photo
                   </button>
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 className="text-base font-bold text-gray-900 mb-1">Photo gallery</h2>
+                <p className="text-sm text-gray-400 mb-4">Add more photos for visitors to browse. Star one to make it your cover.</p>
+                <div className="flex flex-wrap gap-3">
+                  {gallery.map(img => (
+                    <div key={img.id} className={`relative w-24 h-24 rounded-xl overflow-hidden border-2 ${currentImage === img.url ? 'border-emerald-500' : 'border-gray-100'}`}>
+                      <img src={img.url} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                      {currentImage === img.url && <span className="absolute top-1 left-1 rounded-full bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 font-bold">Cover</span>}
+                      <div className="absolute bottom-1 right-1 flex gap-1">
+                        {currentImage !== img.url && (
+                          <button onClick={() => makeGalleryCover(img.url)} title="Make cover" className="w-6 h-6 rounded-full bg-white shadow flex items-center justify-center">
+                            <Star size={11} className="text-gray-600" />
+                          </button>
+                        )}
+                        <button onClick={() => removeGalleryPhoto(img)} title="Remove" className="w-6 h-6 rounded-full bg-white shadow flex items-center justify-center">
+                          <Trash2 size={11} className="text-red-500" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <label className="w-24 h-24 rounded-xl border-2 border-dashed border-gray-200 hover:border-emerald-300 flex flex-col items-center justify-center gap-1 cursor-pointer bg-gray-50">
+                    {galleryBusy ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <Upload size={18} className="text-gray-300" />}
+                    <span className="text-[10px] text-gray-400">Add</span>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={addGalleryPhoto} disabled={galleryBusy} />
+                  </label>
                 </div>
               </div>
             </div>

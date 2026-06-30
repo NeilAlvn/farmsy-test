@@ -150,11 +150,11 @@ export default function FarmersContent() {
             >
               <div className="flex-1">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] mb-1" style={{ color: 'var(--primary)' }}>
-                  Not on the map yet?
+                  {t('addEyebrow')}
                 </p>
-                <p className="font-semibold" style={{ color: 'var(--foreground)' }}>Add your farm shop</p>
+                <p className="font-semibold" style={{ color: 'var(--foreground)' }}>{t('addTitle')}</p>
                 <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                  Can&apos;t find your farm in the directory? Submit it and we&apos;ll review and publish it so locals can discover you.
+                  {t('addDesc')}
                 </p>
               </div>
               <Link
@@ -162,7 +162,7 @@ export default function FarmersContent() {
                 className="inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition hover:opacity-90"
                 style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
               >
-                Add farm shop <ArrowRight className="h-3.5 w-3.5" />
+                {t('addBtn')} <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>

@@ -6,6 +6,7 @@ import {
   Loader2, CheckCircle2, AlertCircle, ChevronDown,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { createFarmClaim } from './claim-actions'
 import type { Farm } from './FarmMap'
 
 interface Props {
@@ -41,19 +42,19 @@ export default function ClaimModal({ farm, onClose }: Props) {
     setSubmitError(null)
     setSubmitting(true)
 
-    const { error } = await supabase.from('farm_claims').insert({
-      farm_osm_id: farm.osm_id,
-      user_id: userId,
-      full_name: fullName,
+    const res = await createFarmClaim({
+      farmOsmId: farm.osm_id!,
+      farmName: farm.name,
+      userId,
+      fullName,
       email,
       phone,
-      verification_method: verificationMethod,
-      kvk_number: verificationMethod === 'kvk' ? kvkNumber : null,
+      verificationMethod,
+      kvkNumber: verificationMethod === 'kvk' ? kvkNumber : null,
       message: message || null,
-      status: 'pending',
     })
 
-    if (error) {
+    if (!res.ok) {
       setSubmitError('Something went wrong. Please try again.')
       setSubmitting(false)
     } else {

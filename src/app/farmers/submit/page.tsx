@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import {
   Loader2, Wheat, CheckCircle2, AlertCircle, Upload, X, Lock, ArrowRight,
@@ -27,6 +28,7 @@ const inputStyle = { borderColor: 'var(--border)', backgroundColor: 'var(--backg
 
 export default function SubmitFarmPage() {
   const router = useRouter()
+  const t = useTranslations('submit')
   const [access, setAccess] = useState<Access>('checking')
   const [showSignIn, setShowSignIn] = useState(false)
   const [token, setToken] = useState('')
@@ -85,7 +87,7 @@ export default function SubmitFarmPage() {
 
     const res = await submitFarmShop(fd)
     setSubmitting(false)
-    if (!res.ok) setError(res.error ?? 'Something went wrong.')
+    if (!res.ok) setError(res.error ?? t('genericError'))
     else setDone(true)
   }
 
@@ -102,15 +104,13 @@ export default function SubmitFarmPage() {
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6" style={{ backgroundColor: 'oklch(0.36 0.07 145 / 0.1)' }}>
             <Lock size={28} style={{ color: 'var(--primary)' }} />
           </div>
-          <h1 className="font-display text-2xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>Add your farm shop</h1>
+          <h1 className="font-display text-2xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>{t('title')}</h1>
           <p className="text-sm mb-8 max-w-sm" style={{ color: 'var(--muted-foreground)' }}>
-            {access === 'guest'
-              ? 'Sign in and subscribe to Farmsy to add your farm shop to the map.'
-              : 'Adding a farm shop requires an active Farmsy subscription (a free trial counts).'}
+            {access === 'guest' ? t('lockGuest') : t('lockNoSub')}
           </p>
           {access === 'guest'
-            ? <button onClick={() => setShowSignIn(true)} className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>Sign in <ArrowRight size={15} /></button>
-            : <Link href="/pricing" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>See plans <ArrowRight size={15} /></Link>}
+            ? <button onClick={() => setShowSignIn(true)} className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>{t('signInBtn')} <ArrowRight size={15} /></button>
+            : <Link href="/pricing" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>{t('plansBtn')} <ArrowRight size={15} /></Link>}
         </div>
       </ContentLayout>
     )
@@ -121,11 +121,11 @@ export default function SubmitFarmPage() {
       <ContentLayout>
         <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-24">
           <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-6"><CheckCircle2 size={32} className="text-emerald-600" /></div>
-          <h1 className="font-display text-2xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>Submitted — thank you!</h1>
+          <h1 className="font-display text-2xl font-medium mb-2" style={{ color: 'var(--foreground)' }}>{t('doneTitle')}</h1>
           <p className="text-sm mb-8 max-w-sm" style={{ color: 'var(--muted-foreground)' }}>
-            Our team will review <strong>{name}</strong> and publish it to the map once approved. You&apos;ll see it appear shortly after.
+            {t('doneDesc', { name })}
           </p>
-          <Link href="/map" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>Back to the map</Link>
+          <Link href="/map" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>{t('backBtn')}</Link>
         </div>
       </ContentLayout>
     )
@@ -136,15 +136,15 @@ export default function SubmitFarmPage() {
     <ContentLayout>
       <section className="px-6 pt-16 pb-10" style={{ borderBottom: '1px solid var(--border)' }}>
         <div className="mx-auto max-w-2xl">
-          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>For farmers</p>
-          <h1 className="font-display text-4xl font-medium leading-tight" style={{ color: 'var(--foreground)' }}>Add your farm shop</h1>
+          <p className="mb-3 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--primary)' }}>{t('eyebrow')}</p>
+          <h1 className="font-display text-4xl font-medium leading-tight" style={{ color: 'var(--foreground)' }}>{t('title')}</h1>
           <p className="mt-4 text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            Not on the map yet? Add your farm shop so locals can find you. A few tips:
+            {t('introLead')}
           </p>
           <ul className="mt-3 space-y-1.5 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-            <li>• Use your shop&apos;s real, public name and address.</li>
-            <li>• Add clear photos — up to {MAX_IMAGES}. The first becomes your cover.</li>
-            <li>• Submissions are reviewed by our team before going live.</li>
+            <li>• {t('tip1')}</li>
+            <li>• {t('tip2', { max: MAX_IMAGES })}</li>
+            <li>• {t('tip3')}</li>
           </ul>
         </div>
       </section>
@@ -159,22 +159,22 @@ export default function SubmitFarmPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Farm name *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('name')} *</label>
               <input required value={name} onChange={e => setName(e.target.value)} className={inputClass} style={inputStyle} placeholder="Boerderij de Zonnehof" />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>City *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('city')} *</label>
               <input required value={city} onChange={e => setCity(e.target.value)} className={inputClass} style={inputStyle} placeholder="Utrecht" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Description</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('description')}</label>
             <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} className={`${inputClass} resize-none`} style={inputStyle} placeholder="What you sell, what makes you special…" />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--muted-foreground)' }}>What do you sell?</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('sell')}</label>
             <div className="flex flex-wrap gap-2">
               {FARM_TYPES.map(({ id, label }) => {
                 const active = types.has(id)
@@ -194,44 +194,44 @@ export default function SubmitFarmPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Street address</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('address')}</label>
               <input value={address} onChange={e => setAddress(e.target.value)} className={inputClass} style={inputStyle} placeholder="Dorpsstraat 1" />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Postal code</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('postal')}</label>
               <input value={postalCode} onChange={e => setPostalCode(e.target.value)} className={inputClass} style={inputStyle} placeholder="1234 AB" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Country</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('country')}</label>
               <input value={country} onChange={e => setCountry(e.target.value)} className={inputClass} style={inputStyle} placeholder="Netherlands" />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Phone</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('phone')}</label>
               <input value={phone} onChange={e => setPhone(e.target.value)} className={inputClass} style={inputStyle} placeholder="+31 6 …" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Website</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('website')}</label>
               <input value={website} onChange={e => setWebsite(e.target.value)} className={inputClass} style={inputStyle} placeholder="https://…" />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Email</label>
+              <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('email')}</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} style={inputStyle} placeholder="info@…" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>Opening hours</label>
-            <input value={hours} onChange={e => setHours(e.target.value)} className={inputClass} style={inputStyle} placeholder="e.g. Mon–Sat 9:00–17:00" />
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--muted-foreground)' }}>{t('hours')}</label>
+            <input value={hours} onChange={e => setHours(e.target.value)} className={inputClass} style={inputStyle} placeholder={t('hoursPh')} />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--muted-foreground)' }}>Photos ({files.length}/{MAX_IMAGES})</label>
+            <label className="block text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--muted-foreground)' }}>{t('photos')} ({files.length}/{MAX_IMAGES})</label>
             <div className="flex flex-wrap gap-3">
               {files.map((f, i) => (
                 <div key={i} className="relative w-24 h-24 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
@@ -242,7 +242,7 @@ export default function SubmitFarmPage() {
               {files.length < MAX_IMAGES && (
                 <label className="w-24 h-24 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 cursor-pointer" style={{ borderColor: 'var(--border)' }}>
                   <Upload size={18} style={{ color: 'var(--muted-foreground)' }} />
-                  <span className="text-[10px]" style={{ color: 'var(--muted-foreground)' }}>Add</span>
+                  <span className="text-[10px]" style={{ color: 'var(--muted-foreground)' }}>{t('add')}</span>
                   <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={onPickFiles} />
                 </label>
               )}
@@ -252,7 +252,7 @@ export default function SubmitFarmPage() {
           <div className="pt-2">
             <button type="submit" disabled={submitting} className="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold disabled:opacity-50" style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}>
               {submitting ? <Loader2 size={15} className="animate-spin" /> : <Wheat size={15} />}
-              Submit for review
+              {t('submitBtn')}
             </button>
           </div>
         </form>

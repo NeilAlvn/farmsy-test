@@ -184,3 +184,81 @@ export async function updateFarmImageUrl(
 
   return error?.message ?? null
 }
+
+// ── Owner photo gallery (multi-image) ────────────────────────────────────────
+
+export interface OwnerFarmImage { id: string; url: string; sort_order: number }
+
+export async function getFarmImages(osmId: string, userId: string, userEmail: string): Promise<OwnerFarmImage[]> {
+  const supabase = db()
+  if (!(await verifyClaim(supabase, osmId, userId, userEmail))) return []
+  const { data } = await supabase
+    .from('farm_images')
+    .select('id, url, sort_order')
+    .eq('farm_osm_id', osmId)
+    .order('sort_order', { ascending: true })
+  return (data ?? []) as OwnerFarmImage[]
+}
+
+export async function addFarmImageToGallery(
+  osmId: string,
+  userId: string,
+  userEmail: string,
+  formData: FormData,
+): Promise<{ image?: OwnerFarmImage; error?: string }> {
+  const supabase = db()
+  if (!(await verifyClaim(supabase, osmId, userId, userEmail))) return { error: 'Unauthorized' }
+
+  const file = formData.get('image') as File | null
+  if (!file || file.size === 0) return { error: 'No file provided' }
+
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+  const path = `${osmId}/${Date.now()}.${ext}`
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const { error: upErr } = await supabase.storage.from('farm-images').upload(path, buffer, { contentType: file.type, upsert: true })
+    if (upErr) return { error: upErr.message }
+  } catch {
+    return { error: 'Upload failed' }
+  }
+  const { data: { publicUrl } } = supabase.storage.from('farm-images').getPublicUrl(path)
+
+  const { count } = await supabase.from('farm_images').select('id', { count: 'exact', head: true }).eq('farm_osm_id', osmId)
+
+  const { data: inserted, error } = await supabase
+    .from('farm_images')
+    .insert({ farm_osm_id: osmId, url: publicUrl, sort_order: count ?? 0 })
+    .select('id, url, sort_order')
+    .single()
+  if (error || !inserted) return { error: error?.message ?? 'Insert failed' }
+
+  // Set as cover if the farm has none yet.
+  const { data: farm } = await supabase.from('farms').select('image').eq('osm_id', osmId).maybeSingle()
+  if (!farm?.image) await supabase.from('farms').update({ image: publicUrl }).eq('osm_id', osmId)
+
+  return { image: inserted as OwnerFarmImage }
+}
+
+export async function deleteFarmImageFromGallery(
+  imageId: string,
+  osmId: string,
+  userId: string,
+  userEmail: string,
+): Promise<string | null> {
+  const supabase = db()
+  if (!(await verifyClaim(supabase, osmId, userId, userEmail))) return 'Unauthorized'
+  const { error } = await supabase.from('farm_images').delete().eq('id', imageId)
+  return error?.message ?? null
+}
+
+export async function setFarmCover(
+  osmId: string,
+  userId: string,
+  userEmail: string,
+  url: string,
+): Promise<string | null> {
+  const supabase = db()
+  if (!(await verifyClaim(supabase, osmId, userId, userEmail))) return 'Unauthorized'
+  const { error } = await supabase.from('farms').update({ image: url }).eq('osm_id', osmId)
+  return error?.message ?? null
+}

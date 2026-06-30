@@ -209,12 +209,47 @@
     "step4": "Update your details: hours, products, photos, and contact info.",
     "ctaTitle": "Ready to get started?",
     "ctaSubtext": "Create an account and subscribe to claim your farm.",
-    "ctaBtn": "Claim your listing"
+    "ctaBtn": "Claim your listing",
+    "addEyebrow": "Not on the map yet?",
+    "addTitle": "Add your farm shop",
+    "addDesc": "Can't find your farm in the directory? Submit it and we'll review and publish it so locals can discover you.",
+    "addBtn": "Add farm shop"
   },
   "categories": {
     "title": "Browse by category",
     "dairy": "Dairy",
     "produce": "Produce",
     "cheese": "Cheese"
+  },
+  "submit": {
+    "eyebrow": "For farmers",
+    "title": "Add your farm shop",
+    "introLead": "Not on the map yet? Add your farm shop so locals can find you. A few tips:",
+    "tip1": "Use your shop's real, public name and address.",
+    "tip2": "Add clear photos — up to {max}. The first becomes your cover.",
+    "tip3": "Submissions are reviewed by our team before going live.",
+    "lockGuest": "Sign in and subscribe to Farmsy to add your farm shop to the map.",
+    "lockNoSub": "Adding a farm shop requires an active Farmsy subscription (a free trial counts).",
+    "signInBtn": "Sign in",
+    "plansBtn": "See plans",
+    "doneTitle": "Submitted — thank you!",
+    "doneDesc": "Our team will review {name} and publish it to the map once approved. You’ll see it appear shortly after.",
+    "backBtn": "Back to the map",
+    "name": "Farm name",
+    "city": "City",
+    "description": "Description",
+    "sell": "What do you sell?",
+    "address": "Street address",
+    "postal": "Postal code",
+    "country": "Country",
+    "phone": "Phone",
+    "website": "Website",
+    "email": "Email",
+    "hours": "Opening hours",
+    "hoursPh": "e.g. Mon–Sat 9:00–17:00",
+    "photos": "Photos",
+    "add": "Add",
+    "submitBtn": "Submit for review",
+    "genericError": "Something went wrong."
   }
 }
