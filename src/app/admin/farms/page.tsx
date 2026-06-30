@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import { getFarmsAdmin, deleteFarm, type FarmAdminRow } from '../actions'
 import DataTable, { type Column } from '../_components/DataTable'
+import FarmEditDrawer from './_components/FarmEditDrawer'
 import { Trash2, CheckCircle2, Pencil, Loader2, AlertCircle, CheckCheck, X } from 'lucide-react'
 
 const TYPE_LABEL: Record<string, string> = {
@@ -20,6 +20,7 @@ export default function FarmsPage() {
   const [pendingCount, setPendingCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<FarmAdminRow | null>(null)
+  const [editingOsmId, setEditingOsmId] = useState<string | null>(null)
   const [acting, setActing] = useState(false)
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
 
@@ -78,9 +79,9 @@ export default function FarmsPage() {
     { key: 'actions', header: '', tdClass: 'text-right',
       render: f => (
         <div className="flex items-center gap-1.5 justify-end">
-          <Link href={`/admin/farms/${encodeURIComponent(f.osm_id)}`} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Edit farm">
+          <button onClick={() => setEditingOsmId(f.osm_id)} className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Edit farm">
             <Pencil size={14} />
-          </Link>
+          </button>
           <button onClick={() => setDeleteTarget(f)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete farm">
             <Trash2 size={14} />
           </button>
@@ -125,6 +126,14 @@ export default function FarmsPage() {
         emptyText="No farms found"
         defaultSort={{ key: 'name', dir: 'asc' }}
       />
+
+      {editingOsmId && (
+        <FarmEditDrawer
+          osmId={editingOsmId}
+          onClose={() => setEditingOsmId(null)}
+          onSaved={() => load(true)}
+        />
+      )}
 
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
