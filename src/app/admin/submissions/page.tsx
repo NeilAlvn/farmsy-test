@@ -84,7 +84,7 @@ export default function SubmissionsPage() {
       ) : rows.length === 0 ? (
         <p className="text-sm py-12 text-center" style={{ color: 'var(--muted-foreground)' }}>No submissions yet.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-auto pr-1" style={{ height: 'calc(100vh - 200px)' }}>
           {[...pending, ...others].map(s => {
             const st = STATUS_STYLE[s.status] ?? STATUS_STYLE.pending
             return (
