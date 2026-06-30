@@ -61,6 +61,7 @@ export default function WinbackPage() {
         searchText={r => `${displayName(r)} ${r.email ?? ''}`}
         searchPlaceholder="Search win-back recipients…"
         emptyText="No win-back emails sent yet"
+        maxHeight="calc(100vh - 360px)"
         defaultSort={{ key: 'canceled', dir: 'desc' }}
       />
     </div>

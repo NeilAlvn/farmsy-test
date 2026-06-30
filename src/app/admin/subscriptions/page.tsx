@@ -88,6 +88,7 @@ export default function SubscriptionsPage() {
         searchText={r => `${displayName(r)} ${r.email ?? ''}`}
         searchPlaceholder="Search subscribers…"
         emptyText="No subscriptions"
+        maxHeight="calc(100vh - 430px)"
         defaultSort={{ key: 'canceled', dir: 'desc' }}
         toolbarRight={
           <div className="flex gap-1 rounded-xl p-1" style={{ backgroundColor: 'var(--cream)' }}>

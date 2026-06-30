@@ -17,8 +17,13 @@ const FARM_TYPES = ['eggs', 'dairy', 'meat', 'fish', 'produce', 'cheese', 'wine'
 const inputClass = 'w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors bg-white'
 const labelClass = 'block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5'
 
+function decodeOsmId(raw: string): string {
+  try { return decodeURIComponent(raw) } catch { return raw }
+}
+
 export default function AdminFarmEditor() {
-  const osmId = useParams().osmId as string
+  const rawOsmId = useParams().osmId as string
+  const osmId = decodeOsmId(rawOsmId)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)

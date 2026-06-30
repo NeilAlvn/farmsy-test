@@ -84,53 +84,53 @@ export default function DataTable<T>({
       )}
 
       <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
-        {loading ? (
-          <div className="flex items-center justify-center py-16"><Loader2 size={20} className="animate-spin" style={{ color: 'var(--muted-foreground)' }} /></div>
-        ) : visible.length === 0 ? (
-          <p className="text-center py-16 text-sm" style={{ color: 'var(--muted-foreground)' }}>{emptyText}</p>
-        ) : (
-          <div className="overflow-auto" style={{ maxHeight }}>
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10">
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  {columns.map(col => {
-                    const sortable = !!col.sortValue
-                    const active = sort?.key === col.key
-                    return (
-                      <th
-                        key={col.key}
-                        onClick={sortable ? () => toggleSort(col.key) : undefined}
-                        className={`text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${sortable ? 'cursor-pointer select-none' : ''} ${col.thClass ?? ''}`}
-                        style={{ color: 'var(--muted-foreground)', backgroundColor: 'var(--cream)' }}
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          {col.header}
-                          {sortable && (active
-                            ? (sort!.dir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)
-                            : <ChevronsUpDown size={12} className="opacity-40" />)}
-                        </span>
-                      </th>
-                    )
-                  })}
+        {/* Fixed height so the table fills the page; the scrollbar lives inside.
+            The header always renders, even with no rows. */}
+        <div className="overflow-auto" style={{ height: maxHeight }}>
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 z-10">
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {columns.map(col => {
+                  const sortable = !!col.sortValue
+                  const active = sort?.key === col.key
+                  return (
+                    <th
+                      key={col.key}
+                      onClick={sortable ? () => toggleSort(col.key) : undefined}
+                      className={`text-left px-4 py-3 text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${sortable ? 'cursor-pointer select-none' : ''} ${col.thClass ?? ''}`}
+                      style={{ color: 'var(--muted-foreground)', backgroundColor: 'var(--cream)' }}
+                    >
+                      <span className="inline-flex items-center gap-1">
+                        {col.header}
+                        {sortable && (active
+                          ? (sort!.dir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />)
+                          : <ChevronsUpDown size={12} className="opacity-40" />)}
+                      </span>
+                    </th>
+                  )
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={columns.length} className="py-20 text-center"><Loader2 size={20} className="animate-spin inline" style={{ color: 'var(--muted-foreground)' }} /></td></tr>
+              ) : visible.length === 0 ? (
+                <tr><td colSpan={columns.length} className="py-20 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>{emptyText}</td></tr>
+              ) : visible.map((row, i) => (
+                <tr
+                  key={rowKey(row)}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--border)' : 'none' }}
+                  className={`hover:bg-black/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
+                >
+                  {columns.map(col => (
+                    <td key={col.key} className={`px-4 py-3 ${col.tdClass ?? ''}`}>{col.render(row)}</td>
+                  ))}
                 </tr>
-              </thead>
-              <tbody>
-                {visible.map((row, i) => (
-                  <tr
-                    key={rowKey(row)}
-                    onClick={onRowClick ? () => onRowClick(row) : undefined}
-                    style={{ borderBottom: i < visible.length - 1 ? '1px solid var(--border)' : 'none' }}
-                    className={`hover:bg-black/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
-                  >
-                    {columns.map(col => (
-                      <td key={col.key} className={`px-4 py-3 ${col.tdClass ?? ''}`}>{col.render(row)}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

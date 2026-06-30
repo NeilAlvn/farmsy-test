@@ -159,7 +159,8 @@ function serializeHours(schedule: WeekSchedule): string {
 export default function FarmEditorPage() {
   const router = useRouter()
   const params = useParams()
-  const osmId = params.osmId as string
+  const osmIdRaw = params.osmId as string
+  const osmId = (() => { try { return decodeURIComponent(osmIdRaw) } catch { return osmIdRaw } })()
 
   const [userId, setUserId]     = useState('')
   const [userEmail, setUserEmail] = useState('')

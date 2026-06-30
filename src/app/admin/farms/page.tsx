@@ -11,6 +11,10 @@ const TYPE_LABEL: Record<string, string> = {
   produce: 'Produce', cheese: 'Cheese', wine: 'Wine', markets: 'Markets',
 }
 
+// Module-level cache so re-entering the Farms tab shows instantly (no spinner)
+// while it silently revalidates in the background. Persists for the SPA session.
+let farmsCache: { farms: FarmAdminRow[]; pendingCount: number } | null = null
+
 export default function FarmsPage() {
   const [farms, setFarms] = useState<FarmAdminRow[]>([])
   const [pendingCount, setPendingCount] = useState(0)
@@ -21,14 +25,26 @@ export default function FarmsPage() {
 
   function showToast(ok: boolean, msg: string) { setToast({ ok, msg }); setTimeout(() => setToast(null), 3500) }
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (background = false) => {
+    if (!background) setLoading(true)
     const result = await getFarmsAdmin()
+    farmsCache = result
     setFarms(result.farms)
     setPendingCount(result.pendingCount)
     setLoading(false)
   }, [])
-  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    if (farmsCache) {
+      // Show cached data immediately, then refresh quietly.
+      setFarms(farmsCache.farms)
+      setPendingCount(farmsCache.pendingCount)
+      setLoading(false)
+      load(true)
+    } else {
+      load()
+    }
+  }, [load])
 
   const claimedCount = farms.filter(f => f.is_claimed).length
 
@@ -107,6 +123,7 @@ export default function FarmsPage() {
         searchText={f => `${f.name} ${f.city ?? ''} ${f.country ?? ''}`}
         searchPlaceholder="Search by name, city, or country…"
         emptyText="No farms found"
+        maxHeight="calc(100vh - 420px)"
         defaultSort={{ key: 'name', dir: 'asc' }}
       />
 
