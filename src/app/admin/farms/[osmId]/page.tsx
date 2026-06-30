@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import {
   Loader2, Save, ChevronLeft, CheckCircle2, AlertCircle, Upload, Trash2, Star, ExternalLink,
 } from 'lucide-react'
 import {
-  getFarmForAdmin, adminUpdateFarm, adminAddFarmImage, adminDeleteFarmImage, adminSetFarmCover,
+  getFarmForAdmin, adminUpdateFarm, adminAddFarmImage, adminDeleteFarmImage, adminSetFarmCover, deleteFarm,
   type AdminFarmDetail, type AdminFarmImage, type AdminFarmFields,
 } from '../../actions'
 
@@ -19,9 +19,12 @@ const labelClass = 'block text-xs font-semibold text-gray-500 uppercase tracking
 
 export default function AdminFarmEditor() {
   const osmId = useParams().osmId as string
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [actor, setActor] = useState('admin')
+  const [confirmDel, setConfirmDel] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -90,6 +93,13 @@ export default function AdminFarmEditor() {
     if (err) { showToast(false, `Error: ${err}`); return }
     setCover(url)
     showToast(true, 'Cover updated')
+  }
+
+  async function doDelete() {
+    setDeleting(true)
+    const err = await deleteFarm(osmId, actor)
+    if (err) { setDeleting(false); setConfirmDel(false); showToast(false, `Error: ${err}`); return }
+    router.push('/admin/farms')
   }
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="animate-spin" style={{ color: 'var(--muted-foreground)' }} /></div>
@@ -191,6 +201,32 @@ export default function AdminFarmEditor() {
           </label>
         </div>
       </div>
+
+      {/* Danger zone */}
+      <div className="rounded-2xl border p-6 flex flex-wrap items-center justify-between gap-3" style={{ borderColor: 'oklch(0.62 0.2 25 / 0.3)', backgroundColor: 'oklch(0.62 0.2 25 / 0.04)' }}>
+        <div>
+          <p className="text-sm font-bold" style={{ color: '#DC2626' }}>Delete this farm</p>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Removes the listing and its photos from the map. This can&apos;t be undone.</p>
+        </div>
+        <button onClick={() => setConfirmDel(true)} className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700">
+          <Trash2 size={14} /> Delete farm
+        </button>
+      </div>
+
+      {confirmDel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40" onClick={() => !deleting && setConfirmDel(false)}>
+          <div className="w-full max-w-sm rounded-2xl p-6" style={{ backgroundColor: 'var(--card)' }} onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-center mb-1" style={{ color: 'var(--foreground)' }}>Delete {f.name}?</h3>
+            <p className="text-sm text-center mb-5" style={{ color: 'var(--muted-foreground)' }}>The listing and its photos will be permanently removed from the map.</p>
+            <div className="flex gap-2.5">
+              <button onClick={() => setConfirmDel(false)} disabled={deleting} className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50" style={{ border: '1px solid var(--border)', color: 'var(--foreground)' }}>Cancel</button>
+              <button onClick={doDelete} disabled={deleting} className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 disabled:opacity-50 flex items-center justify-center gap-2">
+                {deleting && <Loader2 size={14} className="animate-spin" />} Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

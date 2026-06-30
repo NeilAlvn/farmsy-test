@@ -15,6 +15,7 @@ export type ActivityType =
   | 'claim_approved'
   | 'claim_rejected'
   | 'farm_edited'
+  | 'farm_deleted'
   | 'signup'
   | 'subscription_started'
   | 'subscription_cancelled'

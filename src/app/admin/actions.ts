@@ -316,10 +316,18 @@ export async function rejectClaim(
   return null
 }
 
-export async function deleteFarm(osmId: string): Promise<string | null> {
+export async function deleteFarm(osmId: string, actor?: string): Promise<string | null> {
   const supabase = db()
+
+  const { data: farm } = await supabase.from('farms').select('name').eq('osm_id', osmId).maybeSingle()
+
+  // Clean up the gallery (farm_images has no FK cascade), then the farm.
+  await supabase.from('farm_images').delete().eq('farm_osm_id', osmId)
   const { error } = await supabase.from('farms').delete().eq('osm_id', osmId)
-  return error?.message ?? null
+  if (error) return error.message
+
+  await logActivity('farm_deleted', `Farm deleted: ${farm?.name ?? osmId}`, { actor: actor || 'admin', meta: { osmId } })
+  return null
 }
 
 // ── Farm-shop submissions ────────────────────────────────────────────────────
