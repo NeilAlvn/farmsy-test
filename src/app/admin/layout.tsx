@@ -4,10 +4,22 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { destroySession } from '@/lib/session'
+import { getAdminNavCounts, type AdminNavCounts } from './actions'
 import {
   LayoutDashboard, Users, CreditCard, Mail, MessageSquare, Tag,
   Shield, MapPin, LogOut, Loader2, Menu, X, Inbox, Activity,
 } from 'lucide-react'
+
+// nav href → counts key (for the "new since last seen" badges)
+const SECTION_BY_HREF: Record<string, keyof AdminNavCounts> = {
+  '/admin/users': 'users',
+  '/admin/submissions': 'submissions',
+  '/admin/claims': 'claims',
+  '/admin/contact': 'contact',
+  '/admin/activity': 'activity',
+}
+const seenKey = (section: string) => `farmsy_admin_seen_${section}`
+const fmtBadge = (n: number) => (n > 99 ? '99+' : String(n))
 
 const NAV_MAIN = [
   { href: '/admin/overview',      label: 'Overview',      icon: LayoutDashboard },
@@ -26,10 +38,10 @@ const NAV_TOOLS = [
 ]
 
 function SidebarLink({
-  href, label, icon: Icon, active, onClick,
+  href, label, icon: Icon, active, onClick, badge = 0,
 }: {
   href: string; label: string; icon: React.ComponentType<{ size: number }>
-  active: boolean; onClick?: () => void
+  active: boolean; onClick?: () => void; badge?: number
 }) {
   return (
     <Link
@@ -42,7 +54,12 @@ function SidebarLink({
       }`}
     >
       <Icon size={15} />
-      {label}
+      <span className="flex-1">{label}</span>
+      {badge > 0 && (
+        <span className="ml-auto inline-flex min-w-[20px] h-5 items-center justify-center rounded-full bg-white px-1.5 text-[11px] font-bold leading-none" style={{ color: 'var(--primary)' }}>
+          {fmtBadge(badge)}
+        </span>
+      )}
     </Link>
   )
 }
@@ -52,6 +69,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname()
   const [state, setState] = useState<'loading' | 'ready'>('loading')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [counts, setCounts] = useState<AdminNavCounts | null>(null)
+  const [seenTick, setSeenTick] = useState(0) // bump to recompute badges after marking seen
+
+  // Fetch section totals on mount and whenever the route changes.
+  useEffect(() => {
+    if (state !== 'ready') return
+    getAdminNavCounts().then(setCounts).catch(() => {})
+  }, [state, pathname])
+
+  // Mark the section the admin is currently viewing as "seen" (clears its badge).
+  useEffect(() => {
+    if (!counts) return
+    const section = SECTION_BY_HREF[pathname]
+    if (!section) return
+    try {
+      localStorage.setItem(seenKey(section), String(counts[section]))
+      setSeenTick(t => t + 1)
+    } catch { /* ignore */ }
+  }, [counts, pathname])
+
+  function badgeFor(href: string): number {
+    const section = SECTION_BY_HREF[href]
+    if (!section || !counts) return 0
+    void seenTick // recompute when seen changes
+    let seen = 0
+    try { seen = Number(localStorage.getItem(seenKey(section)) ?? '0') || 0 } catch { /* ignore */ }
+    return Math.max(0, counts[section] - seen)
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('farmsy_session_token')
@@ -96,11 +141,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {NAV_MAIN.map(item => (
-            <SidebarLink key={item.href} {...item} active={isActive(item.href)} />
+            <SidebarLink key={item.href} {...item} active={isActive(item.href)} badge={badgeFor(item.href)} />
           ))}
           <div className="h-px bg-white/10 my-3 mx-1" />
           {NAV_TOOLS.map(item => (
-            <SidebarLink key={item.href} {...item} active={isActive(item.href)} />
+            <SidebarLink key={item.href} {...item} active={isActive(item.href)} badge={badgeFor(item.href)} />
           ))}
         </nav>
 
@@ -141,6 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={item.href}
                 {...item}
                 active={isActive(item.href)}
+                badge={badgeFor(item.href)}
                 onClick={() => setMenuOpen(false)}
               />
             ))}

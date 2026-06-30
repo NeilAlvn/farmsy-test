@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendVerificationEmail } from '@/lib/email'
 import { notifyReferrerPending } from '@/lib/referrals'
+import { logActivity } from '@/lib/activity'
 import { randomBytes } from 'crypto'
 
 export const dynamic = 'force-dynamic'
@@ -75,6 +76,9 @@ export async function POST(request: Request) {
 
   const APP_URL = 'https://farmsy.app'
   await sendVerificationEmail(email, { confirmUrl: `${APP_URL}/auth/verify?token=${token}` })
+
+  const signupName = [firstName, lastName].filter(Boolean).join(' ') || email
+  await logActivity('signup', `New sign-up: ${signupName}`, { actor: email })
 
   // Referral tracking — link new user to referrer if a valid ref code was supplied
   if (refCode && data.user?.id) {

@@ -16,6 +16,12 @@ const TYPE_STYLE: Record<string, { label: string; bg: string; fg: string }> = {
   claim_approved:      { label: 'Claim ✓',    bg: 'oklch(0.36 0.07 145 / 0.12)', fg: 'var(--primary)' },
   claim_rejected:      { label: 'Claim ✕',    bg: 'oklch(0.62 0.2 25 / 0.1)',    fg: '#DC2626' },
   farm_edited:         { label: 'Edit',       bg: 'var(--border)',               fg: 'var(--muted-foreground)' },
+  signup:              { label: 'Sign-up',    bg: 'oklch(0.6 0.12 230 / 0.1)',  fg: '#2563EB' },
+  subscription_started:{ label: 'Subscribed', bg: 'oklch(0.36 0.07 145 / 0.12)', fg: 'var(--primary)' },
+  subscription_cancelled:{ label: 'Cancelled',bg: 'oklch(0.62 0.2 25 / 0.1)',   fg: '#DC2626' },
+  payment_succeeded:   { label: 'Payment',    bg: 'oklch(0.36 0.07 145 / 0.12)', fg: 'var(--primary)' },
+  payment_failed:      { label: 'Payment ✕',  bg: 'oklch(0.62 0.2 25 / 0.1)',    fg: '#DC2626' },
+  contact_message:     { label: 'Message',    bg: 'oklch(0.7 0.15 60 / 0.14)',   fg: '#B45309' },
 }
 
 export default function ActivityPage() {

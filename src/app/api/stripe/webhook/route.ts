@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { createNotification } from '@/lib/notifications'
 import { rewardReferrerOnConversion } from '@/lib/referrals'
+import { logActivity } from '@/lib/activity'
 import {
   sendWelcomeEmail,
   sendPaymentConfirmationEmail,
@@ -100,6 +101,7 @@ export async function POST(request: Request) {
         if (email) {
           await sendPaymentConfirmationEmail(email, { plan: 'lifetime', amount: '€49.99' })
         }
+        await logActivity('subscription_started', `Lifetime purchased (€49.99)`, { actor: email ?? userId })
         break
       }
 
@@ -128,6 +130,7 @@ export async function POST(request: Request) {
           if (email) {
             await sendWelcomeEmail(email)
           }
+          await logActivity('subscription_started', `Free trial started (yearly)`, { actor: email ?? userId })
         } else if (dbStatus === 'active') {
           await createNotification(
             userId,
@@ -142,6 +145,7 @@ export async function POST(request: Request) {
               nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
             })
           }
+          await logActivity('subscription_started', `Yearly subscription active (€29.99)`, { actor: email ?? userId })
         }
       }
       break
@@ -219,6 +223,7 @@ export async function POST(request: Request) {
         'Subscription cancelled',
         `Your subscription has been cancelled. Access ended on ${formatDate(sub.current_period_end)}.`,
       )
+      await logActivity('subscription_cancelled', `Subscription cancelled`, { actor: (await getEmail(userId)) ?? userId })
       break
     }
 
@@ -235,6 +240,7 @@ export async function POST(request: Request) {
             'Payment failed',
             'We couldn\'t process your payment. Please update your billing details to avoid losing access.',
           )
+          await logActivity('payment_failed', `Payment failed`, { actor: (await getEmail(userId)) ?? userId })
         }
       }
       break
@@ -263,6 +269,7 @@ export async function POST(request: Request) {
               nextBillingDate: periodEnd ? formatDate(periodEnd) : undefined,
             })
           }
+          await logActivity('payment_succeeded', `Renewal payment received (€29.99)`, { actor: email ?? userId })
         }
       }
       break

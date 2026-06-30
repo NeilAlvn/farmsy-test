@@ -539,6 +539,44 @@ export interface ActivityRow {
   created_at: string
 }
 
+// Total row counts per admin section. The layout compares these against the
+// counts last seen (stored client-side) to show "new since you last looked"
+// badges on the nav.
+export interface AdminNavCounts {
+  users: number
+  submissions: number
+  claims: number
+  contact: number
+  activity: number
+}
+
+export async function getAdminNavCounts(): Promise<AdminNavCounts> {
+  const supabase = db()
+  const head = { count: 'exact' as const, head: true }
+  const [
+    { count: users },
+    { count: submissions },
+    { count: claims },
+    { count: subs },
+    { count: threads },
+    { count: activity },
+  ] = await Promise.all([
+    supabase.from('profiles').select('*', head),
+    supabase.from('farm_submissions').select('*', head),
+    supabase.from('farm_claims').select('*', head),
+    supabase.from('contact_submissions').select('*', head),
+    supabase.from('message_threads').select('*', head),
+    supabase.from('admin_activity_log').select('*', head),
+  ])
+  return {
+    users: users ?? 0,
+    submissions: submissions ?? 0,
+    claims: claims ?? 0,
+    contact: (subs ?? 0) + (threads ?? 0),
+    activity: activity ?? 0,
+  }
+}
+
 export async function getActivityLog(): Promise<ActivityRow[]> {
   const { data } = await db()
     .from('admin_activity_log')

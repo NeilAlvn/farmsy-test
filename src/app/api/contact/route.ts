@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { logActivity } from '@/lib/activity'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
     message,
     source:  source  || 'contact_page',
   })
+
+  await logActivity('contact_message', `New message from ${name}${topic ? ` (${topic})` : ''}`, { actor: email })
 
   // Send notification email
   await getResend().emails.send({

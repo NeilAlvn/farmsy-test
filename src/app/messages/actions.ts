@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { sendContactReply } from '@/lib/email'
+import { logActivity } from '@/lib/activity'
 
 function db() {
   return createClient(
@@ -126,6 +127,8 @@ export async function createUserThread(
     email_status: 'skipped',
     is_read: false,
   })
+
+  await logActivity('contact_message', `New message from ${resolvedName}: ${subject}`, { actor: userEmail })
 
   try {
     await sendContactReply('neilalvinmedallon@gmail.com', {

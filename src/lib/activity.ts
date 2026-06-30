@@ -15,6 +15,12 @@ export type ActivityType =
   | 'claim_approved'
   | 'claim_rejected'
   | 'farm_edited'
+  | 'signup'
+  | 'subscription_started'
+  | 'subscription_cancelled'
+  | 'payment_succeeded'
+  | 'payment_failed'
+  | 'contact_message'
 
 /**
  * Appends an entry to the admin activity log. Best-effort — never throws into
