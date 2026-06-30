@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { destroySession } from '@/lib/session'
 import {
   LayoutDashboard, Users, CreditCard, Mail, MessageSquare, Tag,
-  Shield, MapPin, LogOut, Loader2, Menu, X,
+  Shield, MapPin, LogOut, Loader2, Menu, X, Inbox, Activity,
 } from 'lucide-react'
 
 const NAV_MAIN = [
@@ -19,8 +19,10 @@ const NAV_MAIN = [
 ]
 
 const NAV_TOOLS = [
-  { href: '/admin/claims', label: 'Claims', icon: Shield },
-  { href: '/admin/farms',  label: 'Farms',  icon: MapPin },
+  { href: '/admin/claims',      label: 'Claims',      icon: Shield },
+  { href: '/admin/submissions', label: 'Submissions', icon: Inbox },
+  { href: '/admin/farms',       label: 'Farms',       icon: MapPin },
+  { href: '/admin/activity',    label: 'Activity',    icon: Activity },
 ]
 
 function SidebarLink({

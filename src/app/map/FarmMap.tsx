@@ -50,6 +50,7 @@ export interface SlimFarm {
 
 export interface Farm extends SlimFarm {
   email: string | null | undefined
+  images?: string[]
   description: string | null | undefined
   facebook: string | null | undefined
   instagram: string | null | undefined

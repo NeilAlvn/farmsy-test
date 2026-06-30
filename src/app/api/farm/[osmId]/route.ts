@@ -20,7 +20,16 @@ const getFarmDetail = unstable_cache(
       .single()
 
     if (error || !data) return null
-    return data
+
+    // Gallery (multiple photos) for this farm, ordered.
+    const { data: imgRows } = await supabase
+      .from('farm_images')
+      .select('url')
+      .eq('farm_osm_id', osmId)
+      .order('sort_order', { ascending: true })
+    const images = (imgRows ?? []).map((r: { url: string }) => r.url)
+
+    return { ...data, images }
   },
   ['farm-detail'],
   { revalidate: 1800 },

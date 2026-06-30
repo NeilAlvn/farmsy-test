@@ -3,6 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { sendContactReply } from '@/lib/email'
 import { createNotification } from '@/lib/notifications'
+import { logActivity } from '@/lib/activity'
 
 const APP_URL = 'https://farmsy.app'
 
@@ -256,6 +257,8 @@ export async function approveClaim(
     } catch { /* non-fatal */ }
   }
 
+  await logActivity('claim_approved', `Claim approved: ${farmName}`, { actor: reviewedBy || 'admin', meta: { farmOsmId } })
+
   return null
 }
 
@@ -308,6 +311,8 @@ export async function rejectClaim(
     } catch { /* non-fatal */ }
   }
 
+  await logActivity('claim_rejected', `Claim rejected: ${farmName}`, { actor: reviewedBy || 'admin', meta: { reason } })
+
   return null
 }
 
@@ -315,6 +320,232 @@ export async function deleteFarm(osmId: string): Promise<string | null> {
   const supabase = db()
   const { error } = await supabase.from('farms').delete().eq('osm_id', osmId)
   return error?.message ?? null
+}
+
+// ── Farm-shop submissions ────────────────────────────────────────────────────
+
+export interface SubmissionRow {
+  id: string
+  submitted_by: string | null
+  submitter_email: string | null
+  name: string
+  description: string | null
+  farm_type: string[] | null
+  address: string | null
+  city: string | null
+  postal_code: string | null
+  country: string | null
+  lat: number | null
+  lng: number | null
+  phone: string | null
+  website: string | null
+  email: string | null
+  opening_hours: string | null
+  image_urls: string[]
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+  reviewed_at: string | null
+  rejection_reason: string | null
+  approved_osm_id: string | null
+}
+
+export async function getSubmissions(): Promise<SubmissionRow[]> {
+  const { data } = await db()
+    .from('farm_submissions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500)
+  return (data ?? []) as SubmissionRow[]
+}
+
+// Geocodes a free-text address via Photon (the same open geocoder used at signup).
+async function geocode(query: string): Promise<{ lat: number; lng: number } | null> {
+  if (!query.trim()) return null
+  try {
+    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`)
+    if (!res.ok) return null
+    const j = await res.json() as { features?: Array<{ geometry?: { coordinates?: [number, number] } }> }
+    const c = j.features?.[0]?.geometry?.coordinates
+    if (c && c.length === 2) return { lng: c[0], lat: c[1] }
+  } catch { /* ignore */ }
+  return null
+}
+
+export async function approveSubmission(submissionId: string, reviewedBy: string): Promise<string | null> {
+  const supabase = db()
+
+  const { data: sub } = await supabase
+    .from('farm_submissions')
+    .select('*')
+    .eq('id', submissionId)
+    .maybeSingle()
+
+  if (!sub) return 'Submission not found'
+  if (sub.status === 'approved') return null
+
+  const osmId = `sub_${(sub.id as string).replace(/-/g, '').slice(0, 16)}`
+
+  // Resolve coordinates: use submitted ones, else geocode the address.
+  let coords: { lat: number; lng: number } | null =
+    (sub.lat != null && sub.lng != null) ? { lat: sub.lat as number, lng: sub.lng as number } : null
+  if (!coords) {
+    coords = await geocode([sub.address, sub.postal_code, sub.city, sub.country].filter(Boolean).join(', '))
+  }
+
+  const imageUrls = (sub.image_urls as string[] | null) ?? []
+
+  const farmRow: Record<string, unknown> = {
+    osm_id: osmId,
+    name: sub.name,
+    description: sub.description,
+    farm_type: sub.farm_type,
+    address: sub.address,
+    city: sub.city,
+    postal_code: sub.postal_code,
+    country: sub.country,
+    phone: sub.phone,
+    website: sub.website,
+    email: sub.email,
+    opening_hours: sub.opening_hours,
+    image: imageUrls[0] ?? null,
+    is_published: true,
+    is_claimed: false,
+    enrichment_source: 'submission',
+    source: 'submission',
+  }
+  if (coords) farmRow.location = `SRID=4326;POINT(${coords.lng} ${coords.lat})`
+
+  const { error: farmErr } = await supabase.from('farms').insert(farmRow)
+  if (farmErr) return farmErr.message
+
+  // Gallery images
+  if (imageUrls.length > 0) {
+    await supabase.from('farm_images').insert(
+      imageUrls.map((url, i) => ({ farm_osm_id: osmId, url, sort_order: i })),
+    )
+  }
+
+  // Auto-grant the submitter an approved claim so they can manage it.
+  if (sub.submitted_by || sub.submitter_email) {
+    await supabase.from('farm_claims').insert({
+      farm_osm_id: osmId,
+      user_id: sub.submitted_by ?? null,
+      full_name: sub.submitter_email ?? 'Farm owner',
+      email: sub.submitter_email ?? 'unknown@farmsy.app',
+      phone: sub.phone ?? 'n/a',
+      verification_method: 'email',
+      status: 'approved',
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: reviewedBy || null,
+    })
+  }
+
+  await supabase
+    .from('farm_submissions')
+    .update({
+      status: 'approved',
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: reviewedBy || null,
+      approved_osm_id: osmId,
+    })
+    .eq('id', submissionId)
+
+  if (sub.submitted_by) {
+    try {
+      await createNotification(
+        sub.submitted_by as string,
+        'submission_approved',
+        'Your farm shop is live! 🌱',
+        `${sub.name} has been published to the map. You can manage its details from your dashboard.`,
+      )
+    } catch { /* non-fatal */ }
+  }
+  if (sub.submitter_email) {
+    try {
+      await sendContactReply(sub.submitter_email as string, {
+        subject: `${sub.name} is now on Farmsy 🌱`,
+        body:
+          `Hi,\n\nGood news — your farm shop "${sub.name}" has been reviewed and published to the Farmsy map. ` +
+          `You can manage its details, photos, and opening hours from your dashboard:\n\n${APP_URL}/dashboard\n\nThanks for adding to Farmsy!\n\nThe Farmsy Team`,
+      })
+    } catch { /* non-fatal */ }
+  }
+
+  await logActivity('submission_approved', `Submission approved & published: ${sub.name}`, {
+    actor: reviewedBy || 'admin',
+    meta: { osmId, geocoded: !!coords },
+  })
+
+  return null
+}
+
+export async function rejectSubmission(submissionId: string, reason: string, reviewedBy: string): Promise<string | null> {
+  const supabase = db()
+
+  const { data: sub } = await supabase
+    .from('farm_submissions')
+    .select('name, submitted_by, submitter_email')
+    .eq('id', submissionId)
+    .maybeSingle()
+
+  const { error } = await supabase
+    .from('farm_submissions')
+    .update({
+      status: 'rejected',
+      rejection_reason: reason || null,
+      reviewed_at: new Date().toISOString(),
+      reviewed_by: reviewedBy || null,
+    })
+    .eq('id', submissionId)
+
+  if (error) return error.message
+
+  if (sub?.submitted_by) {
+    try {
+      await createNotification(
+        sub.submitted_by as string,
+        'submission_rejected',
+        'Update on your farm shop submission',
+        `We couldn't publish "${sub.name}".${reason ? ` Reason: ${reason}` : ''} Reply to our email if you'd like to follow up.`,
+      )
+    } catch { /* non-fatal */ }
+  }
+  if (sub?.submitter_email) {
+    try {
+      await sendContactReply(sub.submitter_email as string, {
+        subject: `Update on your farm shop submission`,
+        body:
+          `Hi,\n\nThanks for submitting "${sub?.name}" to Farmsy. After review, we weren't able to publish it` +
+          `${reason ? `:\n\n"${reason}"` : ' at this time.'}\n\nIf you'd like to follow up or provide more detail, just reply to this email.\n\nThe Farmsy Team`,
+      })
+    } catch { /* non-fatal */ }
+  }
+
+  await logActivity('submission_rejected', `Submission rejected: ${sub?.name ?? submissionId}`, {
+    actor: reviewedBy || 'admin',
+    meta: { reason },
+  })
+
+  return null
+}
+
+// ── Activity log ─────────────────────────────────────────────────────────────
+
+export interface ActivityRow {
+  id: string
+  type: string
+  actor: string | null
+  summary: string
+  created_at: string
+}
+
+export async function getActivityLog(): Promise<ActivityRow[]> {
+  const { data } = await db()
+    .from('admin_activity_log')
+    .select('id, type, actor, summary, created_at')
+    .order('created_at', { ascending: false })
+    .limit(200)
+  return (data ?? []) as ActivityRow[]
 }
 
 // ── Dashboard ──────────────────────────────────────────────────────────────

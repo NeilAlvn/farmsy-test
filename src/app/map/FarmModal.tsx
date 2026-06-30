@@ -145,6 +145,17 @@ useEffect(() => {
           <HeartButton osmId={farm.osm_id!} className="absolute top-3 left-3" />
         </div>
 
+        {/* ── Photo gallery ─────────────────────────────────────────────────── */}
+        {farm.images && farm.images.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto px-5 py-2.5 shrink-0 border-b border-gray-100">
+            {farm.images.map((u, i) => (
+              <a key={i} href={u} target="_blank" rel="noreferrer" className="shrink-0" title="View photo">
+                <img src={u} alt={`${farm.name} photo ${i + 1}`} referrerPolicy="no-referrer" className="h-16 w-16 rounded-lg object-cover border border-gray-200 hover:opacity-90 transition-opacity" />
+              </a>
+            ))}
+          </div>
+        )}
+
         {/* ── Name + rating strip ───────────────────────────────────────────── */}
         <div className="px-5 pt-4 pb-3 shrink-0">
           <div className="flex items-start justify-between gap-2">
