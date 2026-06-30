@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { LogOut, ChevronDown, CreditCard, Gift, MessageSquare, Store } from 'lucide-react'
+import { LogOut, ChevronDown, CreditCard, Gift, MessageSquare } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { destroySession } from '@/lib/session'
 import { useTrip } from './TripProvider'
@@ -116,7 +116,7 @@ export default function HeaderAuth() {
                 <Gift size={14} /> Invite &amp; Earn
               </Link>
               <Link href="/farmers/submit" onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
-                <Store size={14} /> Add farm shop
+                <span className="w-3.5 shrink-0" /> Add farm shop
               </Link>
               <button onClick={signOut} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-border/30 hover:text-foreground">
                 <LogOut size={14} /> Sign out
