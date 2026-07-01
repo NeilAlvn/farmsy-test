@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { Globe, ChevronDown, Check } from 'lucide-react'
+import { Globe, ChevronDown, Check, Menu, X } from 'lucide-react'
 import HeaderAuth from './HeaderAuth'
 import MapGateLink from './MapGateLink'
 import NotificationBell from './NotificationBell'
@@ -49,7 +49,7 @@ function LanguageSwitcher() {
         className="inline-flex items-center gap-1.5 rounded-lg border border-border/70 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-border hover:text-foreground disabled:opacity-60"
       >
         <Globe className="h-3.5 w-3.5" />
-        <span>{currentLang.label}</span>
+        <span className="hidden sm:inline">{currentLang.label}</span>
         <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -78,6 +78,7 @@ function LanguageSwitcher() {
 
 export default function SiteNav() {
   const t = useTranslations('nav')
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const NAV_LINKS = [
     { label: t('map'),     href: '/map' },
@@ -85,9 +86,17 @@ export default function SiteNav() {
     { label: t('faq'),     href: '/faq' },
   ]
 
+  // Close the mobile panel on Escape.
+  useEffect(() => {
+    if (!mobileOpen) return
+    function onKey(e: KeyboardEvent) { if (e.key === 'Escape') setMobileOpen(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [mobileOpen])
+
   return (
     <header className="sticky top-0 z-[10000] border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-6 px-6 py-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-4 sm:gap-6 sm:px-6">
         {/* Logo */}
         <Link
           href="/"
@@ -96,7 +105,7 @@ export default function SiteNav() {
           Farmsy
         </Link>
 
-        {/* Page links — centered */}
+        {/* Page links — centered (desktop) */}
         <nav className="hidden items-center justify-center gap-6 lg:flex">
           {NAV_LINKS.map(({ label, href }) => (
             href === '/map' ? (
@@ -127,12 +136,68 @@ export default function SiteNav() {
         </nav>
 
         {/* Right */}
-        <div className="flex shrink-0 items-center justify-end gap-3">
+        <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
           <LanguageSwitcher />
           <NotificationBell />
           <HeaderAuth />
+          {/* Hamburger — only below the desktop nav breakpoint */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 text-foreground transition hover:border-border lg:hidden"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile panel */}
+      {mobileOpen && (
+        <>
+          {/* Backdrop closes the menu on outside tap */}
+          <button
+            aria-hidden
+            tabIndex={-1}
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-0 top-[65px] z-40 bg-black/20 lg:hidden"
+          />
+          <nav className="animate-dropdown absolute left-0 right-0 top-full z-50 border-b border-border/60 bg-background px-4 py-3 shadow-[0_12px_28px_-12px_rgba(0,0,0,0.18)] lg:hidden">
+            <div className="mx-auto flex max-w-6xl flex-col gap-0.5">
+              {NAV_LINKS.map(({ label, href }) => (
+                href === '/map' ? (
+                  <MapGateLink
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-border/30"
+                  >
+                    {label}
+                  </MapGateLink>
+                ) : (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-xl px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-border/30"
+                  >
+                    {label}
+                  </Link>
+                )
+              ))}
+              <Link
+                href="/farmers"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-xl px-4 py-3 text-sm font-semibold transition-colors hover:bg-border/30"
+                style={{ color: 'var(--primary)' }}
+              >
+                {t('forFarmers')}
+              </Link>
+            </div>
+          </nav>
+        </>
+      )}
     </header>
   )
 }

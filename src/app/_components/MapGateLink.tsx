@@ -7,6 +7,7 @@ interface Props {
   href: string
   className?: string
   style?: CSSProperties
+  onClick?: () => void
   children: ReactNode
 }
 
@@ -14,9 +15,9 @@ interface Props {
 // when a visitor clicks a farm for details (handled in FarmMap), so this link no
 // longer blocks navigation — it's a plain link, kept as a component so existing
 // call sites don't change.
-export default function MapGateLink({ href, className, style, children }: Props) {
+export default function MapGateLink({ href, className, style, onClick, children }: Props) {
   return (
-    <Link href={href} className={className} style={style}>
+    <Link href={href} className={className} style={style} onClick={onClick}>
       {children}
     </Link>
   )
