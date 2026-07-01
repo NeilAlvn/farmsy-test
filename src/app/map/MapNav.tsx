@@ -134,18 +134,18 @@ export default function MapNav() {
 
   return (
     <header className="sticky top-0 z-[10000] border-b border-border/60 bg-background/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4">
 
         {/* Logo */}
         <Link
           href="/"
-          className="shrink-0 font-display text-2xl font-medium italic tracking-tight text-foreground"
+          className="shrink-0 font-display text-xl font-medium italic tracking-tight text-foreground sm:text-2xl"
         >
           Farmsy
         </Link>
 
         {/* Search bar */}
-        <div ref={searchRef} className="relative flex-1">
+        <div ref={searchRef} className="relative min-w-0 flex-1">
           <div className="flex items-center gap-2 rounded-full border border-border/60 bg-background px-4 py-2 shadow-sm focus-within:border-primary/40 transition-colors">
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input

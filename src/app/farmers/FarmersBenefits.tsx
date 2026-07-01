@@ -11,7 +11,7 @@ interface Props {
 
 export default function FarmersBenefits({ benefits }: Props) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {benefits.map(({ title, desc }, i) => {
         const Icon = ICONS[i]
         return (
@@ -20,7 +20,7 @@ export default function FarmersBenefits({ benefits }: Props) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="flex flex-col gap-4 rounded-2xl border p-5"
+            className="flex flex-col gap-4 rounded-2xl border p-4 sm:p-5"
             style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
           >
             <div

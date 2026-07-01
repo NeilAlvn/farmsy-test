@@ -509,7 +509,7 @@ function Features() {
           </h2>
         </motion.div>
 
-        <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {FEATURE_KEYS.map((key, i) => {
             const Icon = FEATURE_ICONS[i]
             return (
@@ -520,7 +520,7 @@ function Features() {
                 viewport={{ once: true, margin: '-50px' }}
                 variants={fadeUp}
                 transition={{ delay: i * 0.08 }}
-                className="rounded-2xl border border-border bg-card p-6 transition-shadow duration-300 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]"
+                className="rounded-2xl border border-border bg-card p-4 sm:p-6 transition-shadow duration-300 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.08)]"
               >
                 <div
                   className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl"

@@ -113,9 +113,9 @@ export default async function AboutPage() {
           <p className="mb-12 max-w-2xl text-sm leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
             {t('sourcesSubheading')}
           </p>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {DATA_SOURCES.map(({ name, region, description, license }) => (
-              <div key={name} className="rounded-2xl border p-5" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
+              <div key={name} className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}>
                 <div className="mb-3 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--primary)' }} />
                   <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--muted-foreground)' }}>{region}</span>
