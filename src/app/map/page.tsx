@@ -131,7 +131,7 @@ export default async function MapPage() {
 
   return (
     <MapSearchProvider farms={farms}>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-dvh">
         <MapNav />
         {/* Pins are visible to everyone; FarmMap gates farm details behind the
             subscription paywall on click. */}

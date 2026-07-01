@@ -1,6 +1,6 @@
 export default function MapLoading() {
   return (
-    <div className="flex flex-col h-screen" style={{ backgroundColor: 'var(--background)' }}>
+    <div className="flex flex-col h-dvh" style={{ backgroundColor: 'var(--background)' }}>
       {/* Nav skeleton */}
       <div className="h-14 border-b shrink-0 animate-pulse" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }} />
 
