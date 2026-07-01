@@ -374,7 +374,7 @@ function FeaturedFarms({ farms }: { farms: FarmPreview[] }) {
           </div>
           <MapGateLink
             href="/map"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition hover:opacity-90"
+            className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition hover:opacity-90"
             style={{ backgroundColor: 'var(--foreground)', color: 'var(--background)' }}
           >
             {t('exploreMap')}
